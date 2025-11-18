@@ -80,28 +80,6 @@ body:
         - Changes in response shape
         - Performance impact
 
-  - type: dropdown
-    id: tests_needed
-    attributes:
-      label: 🧪 Are tests needed or affected?
-      description: Indicate whether new tests should be added or existing tests updated.
-      options:
-        - No, existing tests cover this
-        - Yes, new or updated tests required
-        - Not sure
-    validations:
-      required: true
-
-  - type: textarea
-    id: test_cases
-    attributes:
-      label: ✅ If yes, what test cases should be added or updated?
-      description: List test cases or scenarios that are relevant to this refactor.
-      placeholder: |
-        - Unit tests for helper functions
-        - Integration test for the updated flow
-        - Regression test for previous bugs
-
   - type: checkboxes
     id: project_metadata
     attributes:

@@ -41,31 +41,6 @@ body:
         - Related components / modules
         - API or UX changes (if any)
 
-  - type: dropdown
-    id: tests_needed
-    attributes:
-      label: 🧪 Are tests required for this feature?
-      description: Indicate whether the feature should be covered by tests.
-      options:
-        - "Yes"
-        - "No"
-        - Not sure
-    validations:
-      required: true
-
-  - type: textarea
-    id: test_cases
-    attributes:
-      label: ✅ If "Yes", what tests should be written?
-      description: |
-        Only fill this section if you selected "Yes" above.
-        Provide test case ideas or describe expected behaviors to cover.
-      placeholder: |
-        - Input validation scenarios
-        - Edge cases
-        - Integration points
-        - Example expected behaviors
-
   - type: checkboxes
     id: project_metadata
     attributes:
