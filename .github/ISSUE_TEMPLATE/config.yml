@@ -1,0 +1,22 @@
+blank_issues_enabled: true
+
+issue_templates:
+  - name: 📌 Feature Request
+    description: Suggest a new idea or enhancement.
+    file: feature_request.yml
+
+  - name: 🐛 Bug Report
+    description: Report a bug or issue with the project.
+    file: bug_report.yml
+
+  - name: 🧹 Refactor Request
+    description: Suggest a refactor or improvement of existing code.
+    file: refactor_request.yml
+
+  - name: ❓ Question
+    description: Ask a question or request clarification.
+    file: question.yml
+
+  - name: 🗂️ Epic
+    description: A large task or project that groups multiple related issues.
+    file: epic.yml

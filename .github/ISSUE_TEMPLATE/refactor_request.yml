@@ -1,0 +1,111 @@
+name: 🧹 Refactor Request
+description: Suggest a refactor or improvement of existing code.
+title: "[REFACTOR] : "
+labels: ["refactor"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a refactor!
+        Refactoring helps us keep the codebase clean, maintainable, and scalable.
+        Please provide relevant context and motivation for your proposal.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: 📋 Prerequisites
+      description: Confirm before submitting
+      options:
+        - label: I have searched existing issues and PRs to avoid duplicates
+          required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 🧠 Context
+      description: What part of the codebase needs refactoring and why?
+      placeholder: |
+        - Module, file or component concerned
+        - Technical debt or poor design patterns detected
+        - Code smells or hard-to-test logic
+        - Problems encountered during development or review
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 🎯 Refactor Objective
+      description: What is the expected outcome of the refactor?
+      placeholder: |
+        - Improve testability
+        - Separate concerns
+        - Reduce cyclomatic complexity
+        - Improve readability or performance
+    validations:
+      required: true
+
+  - type: textarea
+    id: approach
+    attributes:
+      label: 🔧 Suggested Approach (optional)
+      description: Describe how you suggest approaching this refactor (if known).
+      placeholder: |
+        - Move logic to a service/helper
+        - Split large functions
+        - Introduce a design pattern (e.g., strategy, adapter)
+        - Replace a legacy library
+
+  - type: dropdown
+    id: functional_change
+    attributes:
+      label: ⚠️ Does this refactor introduce any functional changes?
+      description: Indicate whether this refactor modifies existing behavior or output.
+      options:
+        - No, purely internal refactor
+        - Yes, it slightly affects behavior (explain below)
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: side_effects
+    attributes:
+      label: 🔍 If yes, what are the side effects or risks?
+      description: Describe any changes in behavior, edge cases, or potential regressions.
+      placeholder: |
+        - Minor changes in error handling
+        - Changes in response shape
+        - Performance impact
+
+  - type: dropdown
+    id: tests_needed
+    attributes:
+      label: 🧪 Are tests needed or affected?
+      description: Indicate whether new tests should be added or existing tests updated.
+      options:
+        - No, existing tests cover this
+        - Yes, new or updated tests required
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: test_cases
+    attributes:
+      label: ✅ If yes, what test cases should be added or updated?
+      description: List test cases or scenarios that are relevant to this refactor.
+      placeholder: |
+        - Unit tests for helper functions
+        - Integration test for the updated flow
+        - Regression test for previous bugs
+
+  - type: checkboxes
+    id: project_metadata
+    attributes:
+      label: 📂 Project Metadata (if applicable)
+      description: If linked to a GitHub Project board, confirm metadata will be filled.
+      options:
+        - label: I confirm that I will fill in the required fields in the linked GitHub Project, if applicable.
