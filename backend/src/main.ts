@@ -9,6 +9,14 @@ async function bootstrap() {
     // Validation DTO automatique
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
+    // CORS
+    app.enableCors({
+        origin: '*',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        preflightContinue: false,
+        optionsSuccessStatus: 204,
+    })
+
     // Swagger
     const config = new DocumentBuilder()
         .setTitle('AREA API')
