@@ -1,6 +1,7 @@
-import { Controller, Get, Query, Res, Post, Body } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
+
+import { AppService } from './app.service';
 
 @Controller('discord')
 export class AppController {
