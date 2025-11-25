@@ -1,0 +1,40 @@
+name: Close issues on dev merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - dev
+
+jobs:
+  close-issues:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: read
+
+    steps:
+      - name: Close referenced issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || "";
+            const issueNumbers = [
+              ...body.matchAll(/\b(?:Close[sd]?|Fix(?:e[sd])?|Resolve[sd]?)\s+#(\d+)/gi)
+            ].map(m => m[1]);
+
+            if (issueNumbers.length === 0) {
+              console.log("No closing keywords found.");
+              return;
+            }
+
+            for (const number of issueNumbers) {
+              console.log(`Closing issue #${number}`);
+              await github.rest.issues.update({
+                ...context.repo,
+                issue_number: Number(number),
+                state: 'closed'
+              });
+            }
