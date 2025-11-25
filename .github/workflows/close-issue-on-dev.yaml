@@ -30,11 +30,47 @@ jobs:
               return;
             }
 
-            for (const number of issueNumbers) {
+            // Fetch all commits in the PR
+            const commits = await github.rest.pulls.listCommits({
+              ...context.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100
+            });
+            const commitMessages = commits.data.map(commit => commit.commit.message).join('\n');
+
+            // Fetch all PR comments
+            const comments = await github.rest.issues.listComments({
+              ...context.repo,
+              issue_number: context.payload.pull_request.number,
+              per_page: 100
+            });
+            const commentBodies = comments.data.map(comment => comment.body || "").join('\n');
+
+            // Aggregate all text sources
+            const allText = [body, commitMessages, commentBodies].join('\n');
+
+            // Extract issue numbers from all sources
+            const issueNumbers = [
+              ...allText.matchAll(/\b(?:Close[sd]?|Fix(?:e[sd])?|Resolve[sd]?)\s+#(\d+)/gi)
+            ].map(m => m[1]);
+
+            const uniqueIssueNumbers = [...new Set(issueNumbers)];
+
+            if (uniqueIssueNumbers.length === 0) {
+              console.log("No closing keywords found.");
+              return;
+            }
+
+            for (const number of uniqueIssueNumbers) {
               console.log(`Closing issue #${number}`);
-              await github.rest.issues.update({
-                ...context.repo,
-                issue_number: Number(number),
-                state: 'closed'
-              });
+              try {
+                await github.rest.issues.update({
+                  ...context.repo,
+                  issue_number: Number(number),
+                  state: 'closed'
+                });
+                console.log(`Successfully closed issue #${number}`);
+              } catch (error) {
+                console.error(`Failed to close issue #${number}: ${error.message}`);
+              }
             }
