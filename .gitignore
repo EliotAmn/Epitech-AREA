@@ -2,3 +2,4 @@
 /.vscode/
 .env
 /.postgres_data/
+backend/.env
