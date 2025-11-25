@@ -7,10 +7,65 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
+model user {
+  id            String         @id @default(uuid())
+  email         String         @unique
   name          String
   password_hash String?
+  created_at    DateTime       @default(now())
+  area          area[]
+  user_service  user_service[]
+  oauth_link    oauth_link[]
+}
+
+model user_service {
+  id             String   @id @default(uuid())
+  service_id     String
+  service_config Json?
+  errored        Boolean  @default(false)
+  user_id        String   @db.Uuid
+  user           user     @relation(fields: [user_id], references: [id])
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}
+
+model area {
+  id            String          @id @default(uuid())
+  name          String
+  user_id       String          @db.Uuid
+  user          user            @relation(fields: [user_id], references: [id])
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  area_action   area_action[]
+  area_reaction area_reaction[]
+}
+
+model area_action {
+  id          String   @id @default(uuid())
+  action_name String
+  area_id     String   @db.Uuid
+  area        area     @relation(fields: [area_id], references: [id])
+  config      Json?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model area_reaction {
+  id            String   @id @default(uuid())
+  reaction_name String
+  area_id       String   @db.Uuid
+  area          area     @relation(fields: [area_id], references: [id])
+  config        Json?
   created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model oauth_link {
+  id               String   @id @default(uuid())
+  provider_name    String
+  provider_user_id String
+  user_id          String   @db.Uuid
+  user             user     @relation(fields: [user_id], references: [id])
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 }
