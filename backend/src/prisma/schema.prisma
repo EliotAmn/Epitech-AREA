@@ -8,7 +8,7 @@ generator client {
 }
 
 model user {
-  id            String         @id @default(uuid())
+  id            String         @id @default(uuid()) @db.Uuid
   email         String         @unique
   name          String
   password_hash String?
@@ -19,7 +19,7 @@ model user {
 }
 
 model user_service {
-  id             String   @id @default(uuid())
+  id             String   @id @default(uuid()) @db.Uuid
   service_id     String
   service_config Json?
   errored        Boolean  @default(false)
@@ -30,7 +30,7 @@ model user_service {
 }
 
 model area {
-  id            String          @id @default(uuid())
+  id            String          @id @default(uuid()) @db.Uuid
   name          String
   user_id       String          @db.Uuid
   user          user            @relation(fields: [user_id], references: [id])
@@ -41,7 +41,7 @@ model area {
 }
 
 model area_action {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   action_name String
   area_id     String   @db.Uuid
   area        area     @relation(fields: [area_id], references: [id])
@@ -51,7 +51,7 @@ model area_action {
 }
 
 model area_reaction {
-  id            String   @id @default(uuid())
+  id            String   @id @default(uuid()) @db.Uuid
   reaction_name String
   area_id       String   @db.Uuid
   area          area     @relation(fields: [area_id], references: [id])
@@ -61,7 +61,7 @@ model area_reaction {
 }
 
 model oauth_link {
-  id               String   @id @default(uuid())
+  id               String   @id @default(uuid()) @db.Uuid
   provider_name    String
   provider_user_id String
   user_id          String   @db.Uuid
