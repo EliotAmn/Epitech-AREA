@@ -1,5 +1,5 @@
 import React from 'react';
-import SearchIcon from '../assets/search_icon.webp';
+import SearchIcon from '../assets/search_icon.svg';
 
 interface SearchBarProps {
   value: string;

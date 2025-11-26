@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logoGoogle from "../assets/logo_google.png";
+import logoGoogle from "../assets/logo_google.svg";
 import Button from "../component/button";
 import Input from "../component/input";
 
