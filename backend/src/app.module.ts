@@ -4,12 +4,12 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import configuration from './config/configuration';
-import { PrismaModule } from './prisma/prisma.module';
+import configuration from './common/configuration';
+import { PrismaModule } from './modules/prisma/prisma.module';
 import { DiscordListenerService } from './services/discord-listener.service';
 import { DiscordWebhookService } from './services/discord-webhook.service';
 import { ServicesRegistry } from './services/services.registry';
-import { UserModule } from './user/user.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
