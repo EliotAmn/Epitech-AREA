@@ -14,7 +14,7 @@ export default function WidgetDetail() {
 				className="w-full h-[530px]"
 				style={{ backgroundColor: color }}
 			>
-				<h1 className="text-2xl font-bold mb-4">{titre}</h1>
+				<h1 className="text-5xl font-bold text-white mb-4">{titre}</h1>
 			</div>
 			<Button label="Click Me" onClick={() => alert("Button clicked!")} />
 		</div>

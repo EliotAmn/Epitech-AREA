@@ -7,24 +7,24 @@ function Home() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="min-h-screen flex flex-col items-center justify-start bg-white">
-			<div className="flex flex-col items-center w-full h-[530px] bg-[#242424] gap-6">
-				<p className="text-center text-[#ffffff] text-[75px] font-bold">
+		<div className="min-h-screen flex flex-col items-center justify-start">
+			<div className="flex flex-col items-center w-full md:h-[530px] h-auto bg-[#242424] gap-6 py-12 md:py-0">
+				<p className="text-center text-[#ffffff] text-3xl sm:text-4xl md:text-[75px] font-bold leading-tight">
 					Automate. Save time.
 					<br />
 					Get more done.
 				</p>
 				<Button
 					label="Create your free account"
-					variant="white"
-					size="300px"
+					mode="white"
 					onClick={() => navigate("/signup")}
 				/>
 			</div>
-			<h2 className="text-center text-[45px] font-bold mt-8">
+			<h2 className="text-center text-2xl sm:text-3xl md:text-[45px] font-bold mt-8">
 				Get started with any Applet
 			</h2>
-			<div className="flex flex-row gap-4 flex-wrap justify-center m-4 flex-gap-fallback">
+
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center m-4">
 				<Widget
 					titre="Quickly create events in a Google Calendar"
 					plateforme="Google Calendar"
