@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'pages/home_page.dart';
 import 'pages/counter_page.dart';
+import 'pages/login_page.dart';
+import 'themes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
       home: const MainNavigation(),
     );
   }
@@ -34,6 +35,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _pages = [
     const HomePage(),
     const CounterPage(),
+    const LoginPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -55,6 +57,10 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.plus_one),
             label: 'Counter',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.login),
+            label: 'Login',
           ),
         ],
         currentIndex: _selectedIndex,
