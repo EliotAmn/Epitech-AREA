@@ -1,10 +1,9 @@
 import { useState } from "react";
-import logoGoogle from "../assets/logo_google.svg";
 import Button from "../component/button";
 import Input from "../component/input";
 import { useNavigate } from "react-router-dom";
 
-export default function SignUp() {
+export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const navigate = useNavigate();
@@ -12,8 +11,8 @@ export default function SignUp() {
 	return (
 		<div className="min-h-screen flex items-center justify-center">
 			<div className="w-full max-w-md p-6">
-				<h1 className="text-4xl text-[#000000] font-bold mb-6 text-center">
-					Sign Up
+				<h1 className="text-2xl text-[#000000] font-bold mb-6 text-center">
+					Login
 				</h1>
 
 				<div className="flex flex-col gap-4 justify-center items-center">
@@ -27,23 +26,7 @@ export default function SignUp() {
 						value={password}
 						onChange={setPassword}
 					/>
-					<p
-						className="text-sm text-gray-600 underline cursor-pointer"
-						onClick={() => navigate("/login")}
-						onKeyDown={(e) => {
-							if (e.key === "Enter" || e.key === " ") {
-								navigate("/login");
-							}
-						}}
-					>
-						Alredy have an account? Log in
-					</p>
-					<Button label="Sign up" onClick={() => navigate("/explore")} />
-					<Button
-						label="Sign up with Google"
-						mode="white"
-						icon={logoGoogle}
-					/>
+					<Button label="Login" onClick={() => navigate("/explore")} />
 				</div>
 			</div>
 		</div>

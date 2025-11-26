@@ -17,7 +17,7 @@ export default function Widget({
 			style={{ backgroundColor: color }}
 			onClick={onClick}
 		>
-			<h2 className="text-3xl text-[#ffffff] font-semibold mb-2">
+			<h2 className="text-3xl text-left text-[#ffffff] font-semibold mb-2">
 				{titre}
 			</h2>
 			<p className="text-sm sm:text-md text-[#ffffff]">{plateforme}</p>

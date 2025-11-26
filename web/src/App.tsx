@@ -5,8 +5,7 @@ import SignUp from "./pages/SignUp";
 import WidgetDetail from "./pages/WidgetDetail";
 import Explore from "./pages/Explore";
 import Create from "./pages/Create";
-import Actions from "./pages/Actions";
-import Reactions from "./pages/Reactions";
+import Login from "./pages/Login";
 
 function App() {
 	return (
@@ -15,10 +14,9 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/widget/:id" element={<WidgetDetail />} />
 				<Route path="/signup" element={<SignUp />} />
+				<Route path="/login" element={<Login />} />
 				<Route path="/explore" element={<Explore />} />
 				<Route path="/create" element={<Create />} />
-				<Route path="/create/action" element={<Actions />} />
-				<Route path="/create/reaction" element={<Reactions />} />
 			</Routes>
 		</BrowserRouter>
 	);

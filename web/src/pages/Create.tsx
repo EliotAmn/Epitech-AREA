@@ -1,32 +1,115 @@
 import { useState } from "react";
-import Actions from "./Actions";
-import Reactions from "./Reactions";
+import CatalogPage from "./CatalogPage";
 import Summary from "./Summary";
+import { services, actions, reactions } from "../data/catalogData";
+import ProgressBar from "../component/ProgressBar";
 
 export default function Create() {
-    const [completedAction, setCompletedAction] = useState<{ service: string | null; action: string | null } | null>(null);
-    const [completedReaction, setCompletedReaction] = useState<{ service: string | null; reaction: string | null } | null>(null);
+    const [step, setStep] = useState<number>(1);
+    const [actionService, setActionService] = useState<string | null>(null);
+    const [action, setAction] = useState<string | null>(null);
+    const [reactionService, setReactionService] = useState<string | null>(null);
+    const [reaction, setReaction] = useState<string | null>(null);
+
+    const goToStep = (s: number) => {
+        if (s === 2 && !actionService) s = 1;
+        if (s === 3 && !action) s = actionService ? 2 : 1;
+        if (s === 4 && !reactionService) s = reaction ? 4 : 3;
+        if (s <= 1) {
+        setActionService(null);
+        setAction(null);
+        setReactionService(null);
+        setReaction(null);
+        } else if (s === 2) {
+        setAction(null);
+        setReactionService(null);
+        setReaction(null);
+        } else if (s === 3) {
+        setReactionService(null);
+        setReaction(null);
+        }
+        setStep(s);
+    };
+
+    const completedSteps = [
+        !!actionService,
+        !!action,
+        !!reactionService,
+        !!reaction
+    ];
 
     return (
         <div className="text-center justify-center">
-            <h1 className="text-7xl font-bold m-4">Create your own area</h1>
+        <h1 className="text-7xl font-bold m-4">Create your own area</h1>
 
-            <div className="flex flex-col items-center justify-center gap-6 mt-6 w-full">
-              {!completedAction ? (
-                <Actions onFinish={(service, action) => setCompletedAction({ service, action })} />
-              ) : !completedReaction ? (
-                <Reactions
-                  onFinish={(service, reaction) => setCompletedReaction({ service, reaction })}
+        <ProgressBar
+          steps={4}
+          current={step}
+          onStepClick={(n) => goToStep(n)}
+          labels={["Service (action)", "Action", "Service (reaction)", "Reaction"]}
+          completedSteps={completedSteps}
+        />
+
+        <div className="flex flex-col items-center justify-center gap-6 mt-6 w-full">
+            {step === 1 && (
+            <CatalogPage
+                items={services}
+                description="Choose service for your action"
+                onSelect={(item) => {
+                setActionService(item.plateforme ?? null);
+                setStep(2);
+                }}
+            />
+            )}
+
+            {step === 2 && (
+            actionService ? (
+                <CatalogPage
+                items={actions}
+                description={`Choose an action for ${actionService}`}
+                onSelect={(item) => {
+                    setAction(item.titre ?? null);
+                    setStep(3);
+                }}
                 />
-              ) : (
-                <Summary
-                  actionService={completedAction.service}
-                  action={completedAction.action}
-                  reactionService={completedReaction.service}
-                  reaction={completedReaction.reaction}
-                />
-              )}
+            ) : null
+            )}
+
+            {step === 3 && (
+            <CatalogPage
+                items={services}
+                description="Choose service for your reaction"
+                onSelect={(item) => {
+                setReactionService(item.plateforme ?? null);
+                setStep(4);
+                }}
+            />
+            )}
+
+            {step === 4 && (
+            <div className="w-full">
+                {!reaction ? (
+                  <CatalogPage
+                    items={reactions}
+                    description={reactionService ? `Choose a reaction for ${reactionService}` : "Choose a reaction"}
+                    onSelect={(item) => {
+                      setReaction(item.titre ?? null);
+                      setStep(4);
+                    }}
+                  />
+                ) : (
+                  <div className="mt-6">
+                    <Summary
+                      actionService={actionService}
+                      action={action}
+                      reactionService={reactionService}
+                      reaction={reaction}
+                    />
+                  </div>
+                )}
             </div>
+            )}
+        </div>
         </div>
     );
 }
