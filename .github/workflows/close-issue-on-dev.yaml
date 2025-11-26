@@ -21,14 +21,6 @@ jobs:
         with:
           script: |
             const body = context.payload.pull_request.body || "";
-            const issueNumbers = [
-              ...body.matchAll(/\b(?:Close[sd]?|Fix(?:e[sd])?|Resolve[sd]?)\s+#(\d+)/gi)
-            ].map(m => m[1]);
-
-            if (issueNumbers.length === 0) {
-              console.log("No closing keywords found.");
-              return;
-            }
 
             // Fetch all commits in the PR
             const commits = await github.rest.pulls.listCommits({
