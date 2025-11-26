@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import type IService from './IService';
+import type IService from '../common/service.types';
 import type { Action, Reaction, TokenValidationResult } from './types';
 
 /**
