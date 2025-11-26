@@ -1,36 +1,41 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import { Body, Controller, Post } from '@nestjs/common';
 
-import { AppService } from './app.service';
+import { DiscordListenerService } from './services/discord-listener.service';
+import { DiscordWebhookService } from './services/discord-webhook.service';
 
-@Controller('discord')
+@Controller('notify')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly webhookService: DiscordWebhookService,
+    private readonly listener: DiscordListenerService,
+  ) {}
 
-  // Step A: Redirect user to Discord to approve
-  @Get('login')
-  login(@Res() res: Response) {
-    const url = this.appService.getDiscordAuthUrl();
-    res.redirect(url);
+  @Post('new-event')
+  async handleNewEvent(@Body() body: { eventName: string; data: string }) {
+    const message = `🚨 **New Event Triggered!** 🚨\n\n**Event:** ${body.eventName}\n**Details:** ${body.data}`;
+
+    // Call the service to send the message
+    await this.webhookService.sendMessage(message);
+
+    return { received: true, notification_sent: true };
   }
 
-  // Step B: Discord redirects back here with a ?code=XYZ
-  @Get('callback')
-  async callback(@Query('code') code: string) {
-    if (!code) return 'No code provided';
+  @Post('simulate-message')
+  async simulateMessage(
+    @Body()
+    body: {
+      message: string;
+      substring: string;
+      caseSensitive?: boolean;
+    },
+  ) {
+    // Pass the incoming message to the listener which evaluates actions and
+    // triggers reactions for demonstration purposes.
+    const result = await this.listener.processMessage(body.message, {
+      substring: body.substring,
+      caseSensitive: body.caseSensitive,
+    });
 
-    // Exchange code for token
-    const tokenData = await this.appService.getAccessToken(code);
-
-    return {
-      message: 'OAuth2 Successful',
-      token_info: tokenData, // Contains access_token, refresh_token
-    };
-  }
-
-  // Step C: Manually trigger a message send
-  @Post('send-message')
-  async sendMessage(@Body() body: { channelId: string; message: string }) {
-    return this.appService.sendMessage(body.channelId, body.message);
+    return { processed: true, result };
   }
 }
