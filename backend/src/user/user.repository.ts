@@ -7,7 +7,7 @@ export class UserRepository {
     constructor(private prisma: PrismaService) {
     }
 
-    create(data: Prisma.userCreateInput) {
+    create(data: Prisma.UserCreateInput) {
         return this.prisma.user.create({data});
     }
 
@@ -19,7 +19,7 @@ export class UserRepository {
         return this.prisma.user.findUnique({where: {id}});
     }
 
-    update(id: string, data: Prisma.userUpdateInput) {
+    update(id: string, data: Prisma.UserUpdateInput) {
         return this.prisma.user.update({
             where: {id},
             data,
