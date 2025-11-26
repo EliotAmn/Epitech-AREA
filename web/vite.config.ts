@@ -8,4 +8,5 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  cacheDir: 'node_modules/.vite/web',
 })
