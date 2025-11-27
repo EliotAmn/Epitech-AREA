@@ -1,3 +1,7 @@
+export interface UserAction {
+
+}
+
 export interface ServiceAction {
     name: string;
     description: string;

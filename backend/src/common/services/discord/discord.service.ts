@@ -6,6 +6,4 @@ export default class DiscordService implements ServiceDefinition {
     description = 'Interract with your discord servers'
     actions = [];
     reactions = [];
-
-
 }
