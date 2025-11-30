@@ -1,4 +1,3 @@
-
 export enum ParamaterType {
     STRING = "string",
     NUMBER = "number",
@@ -20,36 +19,36 @@ export interface ParameterDefinition {
     options?: string[]; // For SELECT type
 }
 
-interface ServiceConfig {
-    config: Record<string, any>;
+export interface ServiceConfig<C = Record<string, any>> {
+    config: C;
 }
 
-export class ServiceActionDefinition {
+// Action definition is now generic over the service config type `C`.
+export class ServiceActionDefinition<C = Record<string, any>> {
     name: string;
     description: string;
     output_params: ParameterDefinition[];
 
     // Function to reload the cache of the action in a user-area context
-    reload_cache: (sconf: ServiceConfig) => Promise<Record<string, any>>;
+    reload_cache: (sconf: ServiceConfig<C>) => Promise<Record<string, any> >;
 
-    poll: (sconf: ServiceConfig) => Promise<{triggered: boolean, parameters: Record<string, ParameterValue>}>;
+    poll: (sconf: ServiceConfig<C>) => Promise<{ triggered: boolean, parameters: Record<string, ParameterValue> } >;
 
 }
 
-export class ServiceReactionDefinition {
+export class ServiceReactionDefinition<C = Record<string, any>> {
     name: string;
     description: string;
     input_params: ParameterDefinition[];
 
     // sconf: Service config, params: parameters/context given from the area (not the action params definition)
-    execute: (sconf: ServiceConfig, params: Record<string, any>) => Promise<void>;
+    execute: (sconf: ServiceConfig<C>, params: Record<string, any>) => Promise<void>;
 }
 
-
-export interface ServiceDefinition {
+export interface ServiceDefinition<C = Record<string, any>> {
     name: string;
     label: string;
     description: string;
-    actions: ServiceActionDefinition[];
-    reactions: ServiceReactionDefinition[];
+    actions: ServiceActionDefinition<C>[];
+    reactions: ServiceReactionDefinition<C>[];
 }

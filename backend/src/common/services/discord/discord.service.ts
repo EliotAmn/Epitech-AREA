@@ -1,4 +1,4 @@
-import {ServiceDefinition} from "../../service.types";
+import {ServiceActionDefinition, ServiceDefinition} from "../../service.types";
 
 export default class DiscordService implements ServiceDefinition {
     name = 'discord';
