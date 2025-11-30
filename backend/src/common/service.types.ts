@@ -23,32 +23,36 @@ export interface ServiceConfig<C = Record<string, any>> {
     config: C;
 }
 
-// Action definition is now generic over the service config type `C`.
-export class ServiceActionDefinition<C = Record<string, any>> {
+export abstract class ServiceActionDefinition<C = Record<string, any>> {
     name: string;
     description: string;
     output_params: ParameterDefinition[];
 
     // Function to reload the cache of the action in a user-area context
-    reload_cache: (sconf: ServiceConfig<C>) => Promise<Record<string, any> >;
+    abstract reload_cache(sconf: ServiceConfig<C>): Promise<Record<string, any> >;
 
-    poll: (sconf: ServiceConfig<C>) => Promise<{ triggered: boolean, parameters: Record<string, ParameterValue> } >;
+    abstract poll(sconf: ServiceConfig<C>): Promise<{ triggered: boolean, parameters: Record<string, ParameterValue> } >;
 
 }
 
-export class ServiceReactionDefinition<C = Record<string, any>> {
+export abstract class ServiceReactionDefinition<C = Record<string, any>> {
     name: string;
     description: string;
     input_params: ParameterDefinition[];
 
     // sconf: Service config, params: parameters/context given from the area (not the action params definition)
-    execute: (sconf: ServiceConfig<C>, params: Record<string, any>) => Promise<void>;
+    abstract execute(sconf: ServiceConfig<C>, params: Record<string, any>): Promise<void>;
 }
+
+// Constructor types for providing classes (subclasses) instead of instances.
+export type ServiceActionConstructor<C = Record<string, any>> = new (...args: any[]) => ServiceActionDefinition<C>;
+export type ServiceReactionConstructor<C = Record<string, any>> = new (...args: any[]) => ServiceReactionDefinition<C>;
 
 export interface ServiceDefinition<C = Record<string, any>> {
     name: string;
     label: string;
     description: string;
-    actions: ServiceActionDefinition<C>[];
-    reactions: ServiceReactionDefinition<C>[];
+    // Accept either instances or class constructors (subclasses) for flexibility.
+    actions: Array<ServiceActionDefinition<C> | ServiceActionConstructor<C>>;
+    reactions: Array<ServiceReactionDefinition<C> | ServiceReactionConstructor<C>>;
 }
