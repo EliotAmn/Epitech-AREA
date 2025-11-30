@@ -6,9 +6,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configuration from './common/configuration';
 import { PrismaModule } from './modules/prisma/prisma.module';
-import { DiscordListenerService } from './services/discord-listener.service';
-import { DiscordWebhookService } from './services/discord-webhook.service';
-import { ServicesRegistry } from './services/services.registry';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
@@ -28,14 +25,6 @@ import { UserModule } from './modules/user/user.module';
   controllers: [AppController],
   providers: [
     AppService,
-    DiscordWebhookService,
-    DiscordListenerService,
-    {
-      provide: 'SERVICES',
-      useFactory: (discord: DiscordWebhookService) => [discord],
-      inject: [DiscordWebhookService],
-    },
-    ServicesRegistry,
   ],
 })
 export class AppModule {}
