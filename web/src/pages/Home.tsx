@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../component/button";
 import Widget from "../component/widget";
 import { ThemeContext } from "../context/ThemeContext";
+import { actions } from "../data/catalogData";
 
 function Home() {
 	const navigate = useNavigate();

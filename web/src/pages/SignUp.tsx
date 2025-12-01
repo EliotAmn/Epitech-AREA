@@ -11,7 +11,7 @@ export default function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    
+
     const { setTheme, resetTheme } = useContext(ThemeContext);
 
     useEffect(() => {
@@ -38,6 +38,7 @@ export default function SignUp() {
                         placeholder="Password"
                         value={password}
                         onChange={setPassword}
+                        showToggle={true}
                     />
 					<button className="text-sm text-gray-600 underline cursor-pointer"
 						onClick={() => navigate("/login")}>
