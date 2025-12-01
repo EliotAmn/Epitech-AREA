@@ -7,66 +7,72 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model user {
+model User {
   id            String         @id @default(uuid()) @db.Uuid
   email         String         @unique
   name          String
   password_hash String?
   created_at    DateTime       @default(now())
-  area          area[]
-  user_service  user_service[]
-  oauth_link    oauth_link[]
+  area          Area[]
+  user_service  UserService[]
+  oauth_link    OauthLink[]
+  @@map("user")
 }
 
-model user_service {
+model UserService {
   id             String   @id @default(uuid()) @db.Uuid
   service_id     String
   service_config Json?
   errored        Boolean  @default(false)
   user_id        String   @db.Uuid
-  user           user     @relation(fields: [user_id], references: [id])
+  user           User     @relation(fields: [user_id], references: [id])
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
+  @@map("user_service")
 }
 
-model area {
+model Area {
   id            String          @id @default(uuid()) @db.Uuid
   name          String
   user_id       String          @db.Uuid
-  user          user            @relation(fields: [user_id], references: [id])
+  user          User            @relation(fields: [user_id], references: [id])
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
-  area_action   area_action[]
-  area_reaction area_reaction[]
+  area_action   AreaAction[]
+  area_reaction AreaReaction[]
+  @@map("area")
 }
 
-model area_action {
+model AreaAction {
   id          String   @id @default(uuid()) @db.Uuid
   action_name String
   area_id     String   @db.Uuid
-  area        area     @relation(fields: [area_id], references: [id])
+  area        Area     @relation(fields: [area_id], references: [id])
   config      Json?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+  @@map("area_action")
 }
 
-model area_reaction {
+model AreaReaction {
   id            String   @id @default(uuid()) @db.Uuid
   reaction_name String
   area_id       String   @db.Uuid
-  area          area     @relation(fields: [area_id], references: [id])
+  area          Area     @relation(fields: [area_id], references: [id])
   config        Json?
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+  @@map("area_reaction")
 }
 
-model oauth_link {
+model OauthLink {
   id               String   @id @default(uuid()) @db.Uuid
   provider_name    String
   provider_user_id String
   user_id          String   @db.Uuid
-  user             user     @relation(fields: [user_id], references: [id])
+  user             User     @relation(fields: [user_id], references: [id])
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
+  @@map("oauth_link")
   @@unique([provider_name, provider_user_id])
 }
