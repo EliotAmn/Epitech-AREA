@@ -23,10 +23,13 @@ export function ThemeProvider({
 	children: React.ReactNode;
 	initialTheme?: Theme;
 }) {
-	const [theme, setTheme] = useState<Theme>(initialTheme);
+	const [theme, setThemeState] = useState<Theme>(initialTheme);
+	const setTheme = useCallback((t: Theme) => {
+		setThemeState(t);
+	}, []);
 
 	const resetTheme = useCallback(
-		() => setTheme(initialTheme),
+		() => setThemeState(initialTheme),
 		[initialTheme]
 	);
 
