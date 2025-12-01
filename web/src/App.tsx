@@ -6,6 +6,8 @@ import WidgetDetail from "./pages/WidgetDetail";
 import Explore from "./pages/Explore";
 import Create from "./pages/Create";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
 	return (
@@ -17,6 +19,8 @@ function App() {
 				<Route path="/login" element={<Login />} />
 				<Route path="/explore" element={<Explore />} />
 				<Route path="/create" element={<Create />} />
+				<Route path="/profile" element={<Profile />} />
+				<Route path="/change-password" element={<ChangePassword />} />
 			</Routes>
 		</BrowserRouter>
 	);

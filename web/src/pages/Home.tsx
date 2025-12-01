@@ -4,7 +4,6 @@ import Button from "../component/button";
 import Widget from "../component/widget";
 import { actions } from "../data/catalogData";
 
-
 function Home() {
 	const navigate = useNavigate();
 
@@ -28,17 +27,17 @@ function Home() {
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center m-4">
 				{actions.map((act) => (
-				  <Widget
-				    key={act.id}
-				    titre={act.titre}
-				    plateforme={act.plateforme}
-				    color={act.color}
-				    onClick={() =>
-				      navigate(`/widget/${act.id}`, {
-				        state: { titre: act.titre, color: act.color },
-				      })
-				    }
-				  />
+					<Widget
+						key={act.id}
+						title={act.title}
+						platform={act.platform}
+						color={act.color}
+						onClick={() =>
+							navigate(`/widget/${act.id}`, {
+								state: { title: act.title, color: act.color },
+							})
+						}
+					/>
 				))}
 			</div>
 		</div>
