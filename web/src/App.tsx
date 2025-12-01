@@ -14,9 +14,7 @@ import SignUp from "./pages/SignUp";
 import WidgetDetail from "./pages/WidgetDetail";
 
 function App() {
-	const [isLoggedIn] = useState<boolean>(() =>
-		Boolean(localStorage.getItem("token"))
-	);
+	const isLoggedIn = false; // Replace with actual authentication logic
 
 	return (
 		<ThemeProvider>
