@@ -2,12 +2,12 @@ import { useContext } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { ThemeContext } from "../context/ThemeContext";
+import { ThemeContext, type Theme } from "../context/ThemeContext";
 
 interface HeaderProps {
 	className?: string;
 	isLoggedIn: boolean;
-	theme?: "light" | "dark";
+	theme?: Theme;
 }
 
 export default function Header({
@@ -24,12 +24,15 @@ export default function Header({
 			? "bg-[#242424] text-white"
 			: "bg-white text-black";
 
+	const hoverTextClass =
+		appliedTheme === "dark" ? "hover:text-zinc-300" : "hover:text-zinc-600";
+
 	return (
 		<div
 			className={`relative w-full flex justify-between items-center ${themeClasses} ${className}`}
 		>
 			<button
-				className="text-3xl font-bold p-4 hover:cursor-pointer hover:text-zinc-300"
+				className={`text-3xl font-bold p-4 hover:cursor-pointer ${hoverTextClass}`}
 				onClick={() => navigate(isLoggedIn ? "/explore" : "/")}
 				type="button"
 				aria-label="Home"
@@ -43,7 +46,7 @@ export default function Header({
 				{isLoggedIn ? (
 					<>
 						<button
-							className="text-xl hover:cursor-pointer hover:text-zinc-300"
+							className={`text-xl hover:cursor-pointer ${hoverTextClass}`}
 							onClick={() => navigate("/explore")}
 							type="button"
 							aria-label="Explore"
@@ -51,7 +54,7 @@ export default function Header({
 							Explore
 						</button>
 						<button
-							className="text-xl hover:cursor-pointer hover:text-zinc-300"
+							className={`text-xl hover:cursor-pointer ${hoverTextClass}`}
 							onClick={() => navigate("/my-areas")}
 							type="button"
 							aria-label="My AREAS"
@@ -67,7 +70,7 @@ export default function Header({
 							Create
 						</button>
 						<button
-							className="hover:cursor-pointer hover:text-zinc-300"
+							className={`hover:cursor-pointer ${hoverTextClass}`}
 							onClick={() => navigate("/profile")}
 							type="button"
 							aria-label="Profile"
@@ -92,7 +95,7 @@ export default function Header({
 				) : (
 					<>
 						<button
-							className="text-xl hover:cursor-pointer hover:text-zinc-300"
+							className={`text-xl hover:cursor-pointer ${hoverTextClass}`}
 							onClick={() => navigate("/explore")}
 							type="button"
 							aria-label="Explore"
@@ -100,7 +103,7 @@ export default function Header({
 							Explore
 						</button>
 						<button
-							className="text-xl hover:cursor-pointer hover:text-zinc-300"
+							className={`text-xl hover:cursor-pointer ${hoverTextClass}`}
 							onClick={() => navigate("/login")}
 							type="button"
 							aria-label="Log in"
@@ -108,7 +111,7 @@ export default function Header({
 							Log in
 						</button>
 						<button
-							className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer"
+							className="bg-blue-500 text-white px-4 py-2 rounded-3xl hover:bg-blue-600 cursor-pointer"
 							onClick={() => navigate("/signup")}
 							type="button"
 							aria-label="Get Started"

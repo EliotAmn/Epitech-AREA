@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import logoGoogle from "../assets/logo_google.svg";
 import Button from "../component/button";
@@ -10,7 +10,7 @@ export default function SignUp() {
 	const [password, setPassword] = useState("");
 	const { setTheme, resetTheme } = useContext(ThemeContext);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		setTheme("light");
 		return () => {
 			resetTheme();

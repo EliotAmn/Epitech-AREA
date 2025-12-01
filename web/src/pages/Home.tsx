@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect } from "react";
+import { useContext, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +10,7 @@ function Home() {
 	const navigate = useNavigate();
 	const { setTheme, resetTheme } = useContext(ThemeContext);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		setTheme("dark");
 		return () => resetTheme();
 	}, [setTheme, resetTheme]);
