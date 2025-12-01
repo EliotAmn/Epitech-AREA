@@ -18,7 +18,13 @@ export default function ProgressBar({
 
     return (
         <div className="w-full max-w-3xl mx-auto px-4">
-            <div className="relative h-10">
+            <div
+                className="relative h-10"
+                role="progressbar"
+                aria-valuemin={1}
+                aria-valuemax={steps}
+                aria-valuenow={current}
+            >
                 <div className="absolute left-0 right-0 top-4 h-2 bg-gray-200 rounded" />
                 <div
                     className="absolute left-0 top-4 h-2 bg-blue-600 rounded"
