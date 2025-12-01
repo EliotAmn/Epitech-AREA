@@ -1,10 +1,19 @@
+import { useContext, useLayoutEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import Button from "../component/button";
 import Widget from "../component/widget";
+import { ThemeContext } from "../context/ThemeContext";
 
 function Home() {
 	const navigate = useNavigate();
+	const { setTheme, resetTheme } = useContext(ThemeContext);
+
+	useLayoutEffect(() => {
+		setTheme("dark");
+		return () => resetTheme();
+	}, [setTheme, resetTheme]);
 
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-start">

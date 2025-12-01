@@ -29,3 +29,11 @@ export const services: CatalogItem[] = [
     { id: 's4', titre: 'Dropbox', plateforme: 'Dropbox', color: '#0061FF', path: '/service/dropbox' },
     { id: 's5', titre: 'Trello', plateforme: 'Trello', color: '#0079BF', path: '/service/trello' },
     ];
+
+export const temporaryAreas: CatalogItem[] = [
+    { id: 'area1', titre: 'Save Slack Messages to Notion', plateforme: 'Notion', color: '#000000', path: '/area/slack-to-notion' },
+    { id: 'area2', titre: 'Backup Dropbox Files to Google Drive', plateforme: 'Dropbox', color: '#0061FF', path: '/area/dropbox-to-google-drive' },
+    { id: 'area3', titre: 'Create Trello Cards from Gmail Emails', plateforme: 'Trello', color: '#0079BF', path: '/area/gmail-to-trello' },
+    { id: 'area4', titre: 'Post New GitHub Issues to Slack', plateforme: 'Slack', color: '#36C5F0', path: '/area/github-to-slack' },
+    { id: 'area5', titre: 'Send New Messages to Discord', plateforme: 'Discord', color: '#7289DA', path: '/area/discord-to-slack' },
+];
