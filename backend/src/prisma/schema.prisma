@@ -58,7 +58,8 @@ model AreaAction {
   action_name String
   area_id     String   @db.Uuid
   area        Area     @relation(fields: [area_id], references: [id], onDelete: Cascade)
-  config      Json?
+  params      Json     @default("{}")
+  cache       Json     @default("{}")
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
@@ -72,7 +73,8 @@ model AreaReaction {
   reaction_name String
   area_id       String   @db.Uuid
   area          Area     @relation(fields: [area_id], references: [id], onDelete: Cascade)
-  config        Json?
+  params        Json     @default("{}")
+  cache         Json     @default("{}")
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
