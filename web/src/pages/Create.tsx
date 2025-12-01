@@ -15,7 +15,7 @@ export default function Create() {
 	const goToStep = (s: number) => {
 		if (s === 2 && !actionService) s = 1;
 		if (s === 3 && !action) s = actionService ? 2 : 1;
-		if (s === 4 && !reactionService) s = reaction ? 4 : 3;
+		if (s === 4 && !reactionService) s = action ? 3 : (actionService ? 2 : 1)
 		if (s <= 1) {
 			setActionService(null);
 			setAction(null);

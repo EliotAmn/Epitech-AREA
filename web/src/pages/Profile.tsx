@@ -1,5 +1,3 @@
-import { useRef } from "react";
-
 import { useNavigate } from "react-router-dom";
 
 import Button from "../component/button";
@@ -7,7 +5,6 @@ import Input from "../component/input";
 
 export default function Profile() {
 	const navigate = useNavigate();
-	const passwordInputRef = useRef<HTMLInputElement>(null);
 
 	return (
 		<div className="min-h-screen flex flex-col items-center mt-4">
@@ -40,10 +37,9 @@ export default function Profile() {
 				</p>
 				<div className="flex flex-col items-center mb-4">
 					<Input
-						ref={passwordInputRef}
 						value="valouz"
 						isFixed={true}
-						isVisible={false}
+						isHidden={true}
 					/>
 					<div className="mt-4">
 						<Button

@@ -19,24 +19,18 @@ export default function Explore() {
             </div>
             <div className="w-3/4 mx-auto pt-4">
                 <div className="flex items-center justify-center gap-20 mb-4">
-                    <p
-                      className={`cursor-pointer text-2xl font-semibold text-center ${filter === "all" ? "underline" : "text-black"}`}
-                      onClick={() => setFilter("all")}
-                    >
+                    <button className={`cursor-pointer text-2xl font-semibold text-center ${filter === "all" ? "underline" : "text-black"}`}
+                      onClick={() => setFilter("all")}>
                       All
-                    </p>
-                    <p
-                      className={`cursor-pointer text-2xl font-semibold text-center ${filter === "actions" ? "underline" : "text-black"}`}
-                      onClick={() => setFilter("actions")}
-                    >
+                    </button>
+                    <button className={`cursor-pointer text-2xl font-semibold text-center ${filter === "actions" ? "underline" : "text-black"}`}
+                      onClick={() => setFilter("actions")}>
                       Actions
-                    </p>
-                    <p
-                      className={`cursor-pointer text-2xl font-semibold text-center ${filter === "services" ? "underline" : "text-black"}`}
-                      onClick={() => setFilter("services")}
-                    >
+                    </button>
+                    <button className={`cursor-pointer text-2xl font-semibold text-center ${filter === "services" ? "underline" : "text-black"}`}
+                      onClick={() => setFilter("services")}>
                       Services
-                    </p>
+                    </button>
                 </div>
             </div>
 

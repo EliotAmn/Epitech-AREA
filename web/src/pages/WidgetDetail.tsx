@@ -10,7 +10,7 @@ type WidgetLocationState = {
 export default function WidgetDetail() {
 	const location = useLocation() as { state?: WidgetLocationState };
 	const state = location.state ?? {};
-	const title = state.title ?? "Widget sans title";
+	const title = state.title ?? "Widget without title";
 	const color = typeof state.color === "string" ? state.color : "#ffffff";
 
 	return (

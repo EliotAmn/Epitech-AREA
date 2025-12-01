@@ -16,6 +16,7 @@ export default function Button({ label, onClick, icon, mode = "black", className
 			case "white":
 				return "bg-white text-black border-gray-300 hover:bg-gray-50 focus:ring-gray-200";
 			case "black":
+			default:
 				return "bg-black text-white border-transparent hover:bg-gray-900 focus:ring-gray-700";
 		}
 	})();
@@ -28,7 +29,7 @@ export default function Button({ label, onClick, icon, mode = "black", className
 		>
 			{icon ? (
 				typeof icon === "string" ? (
-					<img src={icon} alt="" className="w-4 h-4 object-contain mr-3" />
+					<img src={icon} alt="icon" className="w-4 h-4 object-contain mr-3" />
 				) : (
 					<span className="mr-3 flex items-center">{icon}</span>
 				)

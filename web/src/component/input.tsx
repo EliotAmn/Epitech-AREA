@@ -6,17 +6,17 @@ interface InputProps {
 	onChange?: (newValue: string) => void;
 	isFixed?: boolean;
 	showToggle?: boolean;
-	isVisible?: boolean; 
+	isHidden?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-	({ placeholder = "", value, onChange, isFixed = false, showToggle = false, isVisible }, ref) => {
+	({ placeholder = "", value, onChange, isFixed = false, showToggle = false, isHidden }, ref) => {
 		const [visible, setVisible] = useState<boolean>(false);
 
 		const type = showToggle
 			? (visible ? "text" : "password")
-			: typeof isVisible === "boolean"
-			? (isVisible ? "text" : "password")
+			: typeof isHidden === "boolean"
+			? (isHidden ? "password" : "text")
 			: "text";
 
 		return (

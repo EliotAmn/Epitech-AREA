@@ -1,12 +1,11 @@
-import React from "react";
-
+import { useState } from "react";
 import Button from "../component/button";
 import Input from "../component/input";
 
 export default function ChangePassword() {
-	const [currentPassword, setCurrentPassword] = React.useState("");
-	const [newPassword, setNewPassword] = React.useState("");
-	const [confirmNewPassword, setConfirmNewPassword] = React.useState("");
+	const [currentPassword, setCurrentPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
 	const isPasswordValid = (): boolean => {
 		// require current password to be provided and validate new password

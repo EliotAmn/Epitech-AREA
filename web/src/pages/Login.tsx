@@ -25,6 +25,7 @@ export default function Login() {
 						placeholder="Password"
 						value={password}
 						onChange={setPassword}
+						showToggle={true}
 					/>
 					<Button label="Login" onClick={() => navigate("/explore")} />
 				</div>

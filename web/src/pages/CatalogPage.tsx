@@ -22,8 +22,8 @@ export default function CatalogPage({
 		if (!q) return items;
 		return items.filter(
 			(it) =>
-				it.title.toLowerCase().includes(q) ||
-				it.platform.toLowerCase().includes(q)
+				(it.title.toLowerCase().includes(q) ||
+				it.platform.toLowerCase().includes(q))
 		);
 	}, [items, query]);
 
