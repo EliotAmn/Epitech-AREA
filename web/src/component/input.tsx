@@ -33,7 +33,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 				{showToggle && (
 					<button
 						type="button"
-						aria-pressed={visible}
 						onClick={() => setVisible((v) => !v)}
 						className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-8 h-8 rounded text-gray-600 hover:text-gray-800"
 						aria-label={visible ? "Hide content" : "Show content"}
