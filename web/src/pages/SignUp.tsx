@@ -1,15 +1,25 @@
-import { useState } from "react";
-
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 
 import logoGoogle from "../assets/logo_google.svg";
 import Button from "../component/button";
 import Input from "../component/input";
+import { ThemeContext } from "../context/ThemeContext";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    
+    const { setTheme, resetTheme } = useContext(ThemeContext);
+
+    useEffect(() => {
+      setTheme("light");
+      return () => {
+        resetTheme();
+      };
+    }, [setTheme, resetTheme]);
 
     return (
         <div className="min-h-screen flex items-center justify-center">
