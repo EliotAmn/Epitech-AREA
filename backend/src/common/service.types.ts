@@ -19,8 +19,8 @@ export interface ParameterDefinition {
     options?: string[]; // For SELECT type
 }
 
-export interface ServiceConfig<C = Record<string, any>> {
-    config: C;
+export interface ServiceConfig {
+    config: Record<string, any>;
 }
 
 export interface ActionTriggerOutput {
@@ -28,37 +28,37 @@ export interface ActionTriggerOutput {
     parameters: Record<string, ParameterValue>;
 }
 
-export abstract class ServiceActionDefinition<C = Record<string, any>> {
+export abstract class ServiceActionDefinition {
     name: string;
     label: string;
     description: string;
     output_params: ParameterDefinition[];
 
     // Function to reload the cache of the action in a user-area context
-    abstract reload_cache(sconf: ServiceConfig<C>): Promise<Record<string, any> >;
+    abstract reload_cache(sconf: ServiceConfig): Promise<Record<string, any> >;
 
-    abstract poll(sconf: ServiceConfig<C>): Promise<ActionTriggerOutput >;
+    abstract poll(sconf: ServiceConfig): Promise<ActionTriggerOutput >;
 
 }
 
-export abstract class ServiceReactionDefinition<C = Record<string, any>> {
+export abstract class ServiceReactionDefinition {
     name: string;
     description: string;
     input_params: ParameterDefinition[];
 
     // sconf: Service config, params: parameters/context given from the area (not the action params definition)
-    abstract execute(sconf: ServiceConfig<C>, params: Record<string, any>): Promise<void>;
+    abstract execute(sconf: ServiceConfig, params: Record<string, any>): Promise<void>;
 }
 
 // Constructor types for providing classes (subclasses) instead of instances.
-export type ServiceActionConstructor<C = Record<string, any>> = new (...args: any[]) => ServiceActionDefinition<C>;
-export type ServiceReactionConstructor<C = Record<string, any>> = new (...args: any[]) => ServiceReactionDefinition<C>;
+export type ServiceActionConstructor = new (...args: any[]) => ServiceActionDefinition;
+export type ServiceReactionConstructor = new (...args: any[]) => ServiceReactionDefinition;
 
-export interface ServiceDefinition<C = Record<string, any>> {
+export interface ServiceDefinition {
     name: string;
     label: string;
     description: string;
     // Accept either instances or class constructors (subclasses) for flexibility.
-    actions: Array<ServiceActionDefinition<C> | ServiceActionConstructor<C>>;
-    reactions: Array<ServiceReactionDefinition<C> | ServiceReactionConstructor<C>>;
+    actions: Array<ServiceActionConstructor>;
+    reactions: Array<ServiceReactionConstructor>;
 }

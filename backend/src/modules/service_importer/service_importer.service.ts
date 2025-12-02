@@ -18,5 +18,28 @@ export class ServiceImporterService {
         return this.services.find(service => service.name === name);
     }
 
+    getActionByName(actionName: string) {
+        const services = this.getAllServices();
+        for (const service of services) {
+            const action = service.actions.find(action => action.name === actionName);
+            if (action) {
+                return new action();
+            }
+        }
+        return undefined;
+    }
 
+    getReactionByName(reactionName: string) {
+        const services = this.getAllServices();
+        for (const service of services) {
+            const reaction_c = service.reactions.find(reaction => reaction.name === reactionName);
+            if (reaction_c) {
+                return {
+                    service: service,
+                    reaction: new reaction_c()
+                }
+            }
+        }
+        return undefined;
+    }
 }

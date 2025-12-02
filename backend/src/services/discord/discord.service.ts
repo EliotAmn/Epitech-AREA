@@ -26,7 +26,7 @@ class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
         },
     ];
 
-    execute(sconf: ServiceConfig<Record<string, any>>, params: Record<string, any>): Promise<void> {
+    execute(sconf: ServiceConfig, params: Record<string, any>): Promise<void> {
         throw new Error("Method not implemented.");
     }
 }
