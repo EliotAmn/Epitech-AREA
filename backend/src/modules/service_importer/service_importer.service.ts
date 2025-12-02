@@ -14,5 +14,9 @@ export class ServiceImporterService {
         return this.services;
     }
 
+    getServiceByName(name: string): ServiceDefinition | undefined {
+        return this.services.find(service => service.name === name);
+    }
+
 
 }
