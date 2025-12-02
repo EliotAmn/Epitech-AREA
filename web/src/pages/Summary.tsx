@@ -13,7 +13,7 @@ export default function Summary({ actionService, action, reactionService, reacti
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow text-center">
-      <h2 className="text-3xl font-bold mb-4">Résumé de votre configuration</h2>
+      <h2 className="text-3xl font-bold mb-4">Configuration</h2>
 
       <div className="text-left space-y-3 mb-6">
         <div><strong>Service (action) :</strong> {actionService ?? "—"}</div>

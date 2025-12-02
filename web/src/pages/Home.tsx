@@ -1,10 +1,20 @@
+import { useContext, useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import Button from "../component/button";
 import Widget from "../component/widget";
+import { ThemeContext } from "../context/ThemeContext";
+import { actions } from "../data/catalogData";
 
 function Home() {
 	const navigate = useNavigate();
+	const { setTheme, resetTheme } = useContext(ThemeContext);
+
+	useEffect(() => {
+		setTheme("dark");
+		return () => resetTheme();
+	}, [setTheme, resetTheme]);
 
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-start">
@@ -25,49 +35,19 @@ function Home() {
 			</h2>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center m-4">
-				<Widget
-					titre="Quickly create events in a Google Calendar"
-					plateforme="Google Calendar"
-					color="#3b82f6"
-					onClick={() =>
-						navigate("/widget/calendar", {
-							state: {
-								titre: "Quickly create events in a Google Calendar",
-								color: "#3b82f6",
-							},
-						})
-					}
-				/>
-				<Widget
-					titre="Widget"
-					plateforme="Autre"
-					color="#D639DB"
-					onClick={() =>
-						navigate("/widget/autre", {
-							state: { titre: "Widget", color: "#ef4444" },
-						})
-					}
-				/>
-				<Widget
-					titre="Widget"
-					plateforme="Autre"
-					color="#39DB8A"
-					onClick={() =>
-						navigate("/widget/autre", {
-							state: { titre: "Widget", color: "#ef4444" },
-						})
-					}
-				/>
-				<Widget
-					titre="Widget"
-					plateforme="Autre"
-					color="#ef4444"
-					onClick={() =>
-						navigate("/widget/autre", {
-							state: { titre: "Widget", color: "#ef4444" },
-						})
-					}
-				/>
+				{actions.map((act) => (
+					<Widget
+						key={act.id}
+						title={act.title}
+						platform={act.platform}
+						color={act.color}
+						onClick={() =>
+							navigate(`/widget/${act.id}`, {
+								state: { title: act.title, color: act.color },
+							})
+						}
+					/>
+				))}
 			</div>
 		</div>
 	);

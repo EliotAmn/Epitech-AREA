@@ -1,5 +1,6 @@
 /.idea/
-/.vscode/
 .env
+.vscode/
 /.postgres_data/
 backend/.env
+
