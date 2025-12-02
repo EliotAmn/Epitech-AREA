@@ -12,7 +12,7 @@ class LoginPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      barrierColor: Colors.black.withAlpha(100), // <-- overlay noir transparent
+      barrierColor: Colors.black.withAlpha(100),
       builder: (context) => Container(
         padding: EdgeInsets.only(
           bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
@@ -27,11 +27,15 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(
               decoration: AppInputDecorations.primary(context, 'Email or Username'),
+              textInputAction: TextInputAction.next,
             ),
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(
               decoration: AppInputDecorations.primary(context, 'Password'),
+              textInputAction: TextInputAction.done,
               obscureText: true,
+              autocorrect: false,
+              enableSuggestions: false,
             ),
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             ElevatedButton(
@@ -40,7 +44,6 @@ class LoginPage extends StatelessWidget {
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -58,7 +61,7 @@ class LoginPage extends StatelessWidget {
             TextButton(onPressed: () {
               // Handle sign up action
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SigninPage()),
+                MaterialPageRoute(builder: (context) => const SignUpPage()),
               );
             },
               style: TextButton.styleFrom(

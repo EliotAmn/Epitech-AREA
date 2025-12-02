@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../component/input/input_decorations.dart';
 
-class SigninPage extends StatelessWidget {
-  const SigninPage({super.key});
+class SignUpPage extends StatelessWidget {
+  const SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: context.mounted ? FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).pop();
         },
@@ -16,7 +16,7 @@ class SigninPage extends StatelessWidget {
         child: Icon(Icons.arrow_back,
           color: Theme.of(context).colorScheme.onInverseSurface,
         ),
-      ) : null,
+      ),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -43,15 +43,20 @@ class SigninPage extends StatelessWidget {
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
                   TextField(
                     decoration: AppInputDecorations.primary(context, 'Email'),
+                    textInputAction: TextInputAction.next,
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
                   TextField(
                     decoration: AppInputDecorations.primary(context, 'Username'),
+                    textInputAction: TextInputAction.next,
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
                   TextField(
                     decoration: AppInputDecorations.primary(context, 'Password'),
                     obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    autocorrect: false,
+                    enableSuggestions: false,
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
                   TextButton(onPressed: () {

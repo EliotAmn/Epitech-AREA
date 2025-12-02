@@ -10,7 +10,7 @@ class AppInputDecorations {
         color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
                     width: 3.0,
                     style: BorderStyle.solid,
@@ -18,7 +18,7 @@ class AppInputDecorations {
                     ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
                     width: 3.0,
                     style: BorderStyle.solid,
@@ -26,11 +26,11 @@ class AppInputDecorations {
                     ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
                     width: 3.0,
                     style: BorderStyle.solid,
-                    color: Theme.of(context).colorScheme.onSurface
+                    color: Theme.of(context).colorScheme.primary
                     ),
       ),
     );
