@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {ParamaterType, ServiceReactionConstructor} from "../../../common/service.types";
+import {ParameterType, ServiceReactionConstructor} from "../../../common/service.types";
 
 @Injectable()
 export class ReactionValider {
@@ -17,16 +17,16 @@ export class ReactionValider {
             if (param.name in input_params) {
                 const value = input_params[param.name];
                 switch (param.type) {
-                    case ParamaterType.STRING:
+                    case ParameterType.STRING:
                         if (typeof value !== 'string') return false;
                         break;
-                    case ParamaterType.NUMBER:
+                    case ParameterType.NUMBER:
                         if (typeof value !== 'number') return false;
                         break;
-                    case ParamaterType.BOOLEAN:
+                    case ParameterType.BOOLEAN:
                         if (typeof value !== 'boolean') return false;
                         break;
-                    case ParamaterType.SELECT:
+                    case ParameterType.SELECT:
                         if (typeof value !== 'string' || !param.options || !param.options.includes(value)) return false;
                         break;
                     default:

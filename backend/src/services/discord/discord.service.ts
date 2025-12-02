@@ -1,9 +1,9 @@
 import {
-    ParamaterType,
+    ParameterType,
     ServiceConfig,
     ServiceDefinition,
     ServiceReactionDefinition
-} from "../../service.types";
+} from "../../common/service.types";
 import {Injectable} from "@nestjs/common";
 
 class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
@@ -12,14 +12,14 @@ class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
     input_params = [
         {
             name: 'webhook_url',
-            type: ParamaterType.STRING,
+            type: ParameterType.STRING,
             label: 'Webhook URL',
             description: 'The URL of the Discord webhook to send the message to',
             required: true,
         },
         {
             name: 'message',
-            type: ParamaterType.STRING,
+            type: ParameterType.STRING,
             label: 'Message',
             description: 'The message to send to the Discord channel',
             required: true,

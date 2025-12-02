@@ -39,14 +39,14 @@ model UserService {
 }
 
 model Area {
-  id            String         @id @default(uuid()) @db.Uuid
-  name          String
-  user_id       String         @db.Uuid
-  user          User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  area_action   AreaAction[]
-  area_reaction AreaReaction[]
+  id         String         @id @default(uuid()) @db.Uuid
+  name       String
+  user_id    String         @db.Uuid
+  user       User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+  actions    AreaAction[]
+  reactions  AreaReaction[]
 
   @@index([user_id])
   @@index([created_at])
