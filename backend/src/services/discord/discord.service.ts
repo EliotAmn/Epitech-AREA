@@ -35,7 +35,7 @@ class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
 export default class DiscordService implements ServiceDefinition {
     name = 'discord';
     label = 'Discord';
-    description = 'Interract with your discord servers'
+    description = 'Interact with your discord servers'
     actions = [];
     reactions = [
         DiscordCustomWebhookReaction
