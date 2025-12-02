@@ -8,7 +8,7 @@ import {Injectable} from "@nestjs/common";
 
 class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
     name = 'custom_webhook';
-    description = 'Trigger when a custom webhook is called';
+    description = 'Send a message to a Discord channel via webhook';
     input_params = [
         {
             name: 'webhook_url',
