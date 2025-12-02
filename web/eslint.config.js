@@ -7,6 +7,7 @@ import reactPlugin from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
+import tsParser from "@typescript-eslint/parser"
 
 export default defineConfig([
   globalIgnores([
@@ -20,7 +21,7 @@ export default defineConfig([
   {
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     languageOptions: {
-      parser: "@typescript-eslint/parser",
+      parser: tsParser,
       ecmaVersion: "latest",
       sourceType: "module",
       globals: globals.browser,

@@ -13,7 +13,7 @@
   "singleQuote": false,
   "tabWidth": 4,
   "trailingComma": "es5",
-  "useTabs": true,
+  "useTabs": false,
   "vueIndentScriptAndStyle": false,
   "plugins": [
     "@ianvs/prettier-plugin-sort-imports"
