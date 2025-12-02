@@ -21,9 +21,12 @@ export class ServiceImporterService {
     getActionByName(actionName: string) {
         const services = this.getAllServices();
         for (const service of services) {
-            const action = service.actions.find(action => action.name === actionName);
-            if (action) {
-                return new action();
+            const action_c = service.actions.find(action => action.name === actionName);
+            if (action_c) {
+                return {
+                    service: service,
+                    action: new action_c()
+                }
             }
         }
         return undefined;
