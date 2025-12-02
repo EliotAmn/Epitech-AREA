@@ -21,7 +21,7 @@ export class AuthService {
         const ok = await this.passwordService.compare(password, user.password_hash);
         if (!ok) throw new UnauthorizedException('Invalid credentials');
 
-        // En vrai, ici tu retournerais un JWT
+        // Actually, here you would return a JWT
         return { message: 'Login success', userId: user.id };
     }
 }
