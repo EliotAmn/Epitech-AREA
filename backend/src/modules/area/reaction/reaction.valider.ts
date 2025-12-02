@@ -1,9 +1,8 @@
 import {Injectable} from "@nestjs/common";
-import {ParamaterType, ServiceReactionConstructor} from "../../common/service.types";
+import {ParamaterType, ServiceReactionConstructor} from "../../../common/service.types";
 
 @Injectable()
-export class ExecutorService {
-
+export class ReactionValider {
 
     validate_reaction_params(reaction: ServiceReactionConstructor, input_params: Record<string, any>): boolean {
         // Check that all required params are present
