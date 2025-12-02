@@ -1,0 +1,334 @@
+name: Release Build & Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - "*/cicd/*"
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release'
+        required: true
+        type: choice
+        options:
+          - development
+          - production
+        default: development
+      skip_docker:
+        description: 'Skip Docker image builds'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  # Mobile APK Build
+  build_mobile_apk:
+    name: "Build Mobile APK"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: flutter pub get
+      
+      - name: Build APK
+        working-directory: ./mobile
+        run: |
+          echo "Building Android APK..."
+          flutter build apk --release
+          
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          if [ -f "$APK_PATH" ]; then
+            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+            echo "✅ APK built: $APK_SIZE"
+          else
+            echo "::error::APK build failed"
+            exit 1
+          fi
+      
+      - name: Rename APK with version
+        working-directory: ./mobile
+        run: |
+          VERSION=$(grep "version:" pubspec.yaml | head -1 | awk '{print $2}')
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/area-mobile-${VERSION}.apk
+          echo "APK_VERSION=${VERSION}" >> $GITHUB_ENV
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-apk-release
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-release.apk
+            mobile/build/app/outputs/flutter-apk/area-mobile-*.apk
+          retention-days: 90
+
+  # Docker Images Build
+  build_docker_images:
+    name: "Build Docker Images"
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_docker }}
+    strategy:
+      matrix:
+        service: [backend, web]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Report build status
+        run: |
+          echo "## 🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service**: ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
+  # Web Build Artifacts
+  build_web_artifacts:
+    name: "Build Web Artifacts"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./web
+        run: npm ci
+      
+      - name: Build production bundle
+        working-directory: ./web
+        run: |
+          echo "Building production bundle..."
+          npm run build
+          
+          if [ -d "dist" ]; then
+            BUNDLE_SIZE=$(du -sh dist | cut -f1)
+            echo "✅ Build complete: $BUNDLE_SIZE"
+            echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_ENV
+          else
+            echo "::error::Build failed"
+            exit 1
+          fi
+      
+      - name: Create web archive
+        working-directory: ./web
+        run: |
+          tar -czf web-dist.tar.gz dist/
+          echo "✅ Archive created"
+      
+      - name: Upload web artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist-release
+          path: web/web-dist.tar.gz
+          retention-days: 90
+
+  # Create GitHub Release
+  create_release:
+    name: "Create GitHub Release"
+    runs-on: ubuntu-latest
+    needs: [build_mobile_apk, build_web_artifacts]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: mobile-apk-release
+          path: ./release-assets
+      
+      - name: Download web artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist-release
+          path: ./release-assets
+      
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          
+          cat > release_notes.md << EOF
+          # AREA Project Release $VERSION
+          
+          ## 📦 Assets
+          
+          ### Mobile Application
+          - **APK**: \`area-mobile-*.apk\` - Android application package
+          
+          ### Web Application
+          - **Web Bundle**: \`web-dist.tar.gz\` - Production web bundle
+          
+          ## 🚀 Deployment
+          
+          ### Mobile
+          1. Download the APK file
+          2. Install on Android device (enable "Install from unknown sources")
+          
+          ### Web
+          1. Download and extract \`web-dist.tar.gz\`
+          2. Serve the \`dist\` folder with any web server
+          
+          ### Docker
+          Docker images are available at:
+          - Backend: \`ghcr.io/${{ github.repository }}/backend:$VERSION\`
+          - Web: \`ghcr.io/${{ github.repository }}/web:$VERSION\`
+          
+          Use \`docker-compose.yml\` to run the full stack.
+          
+          ## 📝 Changes
+          
+          See the commit history for detailed changes in this release.
+          EOF
+          
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          files: |
+            ./release-assets/*.apk
+            ./release-assets/*.tar.gz
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') || contains(github.ref, '-alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Release summary
+        run: |
+          echo "## 🎉 Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${GITHUB_REF#refs/tags/}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release URL**: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${GITHUB_REF#refs/tags/}" >> $GITHUB_STEP_SUMMARY
+
+  # Docker Compose Test
+  test_docker_compose:
+    name: "Test Docker Compose Stack"
+    runs-on: ubuntu-latest
+    needs: [build_docker_images]
+    if: ${{ !inputs.skip_docker && github.event_name != 'push' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=test_user
+          POSTGRES_PASSWORD=test_password
+          POSTGRES_DB=test_db
+          EOF
+      
+      - name: Pull and start services
+        run: |
+          echo "Starting Docker Compose stack..."
+          docker compose up -d
+          sleep 30
+      
+      - name: Check service health
+        run: |
+          echo "Checking service health..."
+          
+          # Check if containers are running
+          docker compose ps
+          
+          # Check postgres
+          if docker compose exec -T postgres pg_isready -U test_user; then
+            echo "✅ PostgreSQL is healthy"
+          else
+            echo "::error::PostgreSQL is not healthy"
+            docker compose logs postgres
+            exit 1
+          fi
+          
+          # Check backend
+          if curl -f http://localhost:8080/health || [ $? -eq 0 ]; then
+            echo "✅ Backend is healthy"
+          else
+            echo "::warning::Backend health check failed (may not have /health endpoint yet)"
+            docker compose logs server
+          fi
+          
+          # Check web
+          if curl -f http://localhost:8081/health || [ $? -eq 0 ]; then
+            echo "✅ Web is healthy"
+          else
+            echo "::warning::Web health check failed"
+            docker compose logs client_web
+          fi
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose down -v
+          docker compose rm -f

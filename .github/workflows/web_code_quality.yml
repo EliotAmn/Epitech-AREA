@@ -1,0 +1,105 @@
+name: Web Frontend Code Quality
+
+on:
+  workflow_call:
+    inputs:
+      enable_eslint:
+        description: 'Whether to run ESLint analysis'
+        required: false
+        type: boolean
+        default: true
+      enable_prettier:
+        description: 'Whether to check Prettier formatting'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint_and_format:
+    name: "Web Frontend Linting & Formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./web
+        run: npm ci
+      
+      - name: Run ESLint
+        if: ${{ inputs.enable_eslint }}
+        working-directory: ./web
+        run: |
+          echo "Running ESLint..."
+          npm run lint 2>&1 | tee eslint-output.txt || true
+          
+          if grep -q "error" eslint-output.txt; then
+            echo "::error::ESLint found errors"
+            cat eslint-output.txt
+            exit 1
+          else
+            echo "✅ ESLint passed"
+          fi
+      
+      - name: Check Prettier formatting
+        if: ${{ inputs.enable_prettier }}
+        working-directory: ./web
+        run: |
+          echo "Checking Prettier formatting..."
+          npm run format -- --check || {
+            echo "::error::Code is not properly formatted. Run 'npm run format' to fix."
+            exit 1
+          }
+          echo "✅ Prettier check passed"
+      
+      - name: TypeScript type checking
+        working-directory: ./web
+        run: |
+          echo "Running TypeScript type checking..."
+          npx tsc --noEmit
+          echo "✅ TypeScript check passed"
+
+  security_audit:
+    name: "Web Frontend Security Audit"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      
+      - name: Security audit
+        working-directory: ./web
+        run: |
+          echo "Running npm audit..."
+          npm audit --audit-level=moderate || {
+            echo "::warning::Security vulnerabilities found"
+            npm audit --audit-level=moderate --json > audit-results.json || true
+          }
+        continue-on-error: true
+      
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-security-audit
+          path: web/audit-results.json
+          retention-days: 30
+        continue-on-error: true

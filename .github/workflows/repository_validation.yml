@@ -1,0 +1,177 @@
+name: Repository Validation & Cleanliness
+
+on:
+  workflow_call:
+    inputs:
+      strict_mode:
+        description: 'Enable strict validation mode'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  repository_cleanliness:
+    name: "Repository Cleanliness Check"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check for unwanted files
+        id: check_unwanted_files
+        run: |
+          echo "Checking for unwanted files in repository..."
+          
+          # Define unwanted file patterns
+          UNWANTED_FILES=$(find . -type f -not -path "./.git/*" \
+            -not -path "./node_modules/*" \
+            -not -path "./.dart_tool/*" \
+            -not -path "./build/*" \
+            -not -path "./dist/*" \
+            -not -path "./.venv/*" \
+            \( \
+            -path "*tmp/*" \
+            -o -name "*~" \
+            -o -name "*.log" \
+            -o -name ".DS_Store" \
+            -o -name "Thumbs.db" \
+            -o -name "*.swp" \
+            -o -name "*.swo" \
+            -o -name "*.orig" \
+            -o -name "*.rej" \
+            \) 2>/dev/null || true)
+          
+          if [ -n "$UNWANTED_FILES" ]; then
+            echo "## ❌ Unwanted Files Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            for FILE in $UNWANTED_FILES; do
+              echo "::error file=${FILE#./},title=Unwanted file detected::${FILE#./}"
+              echo "- \`${FILE#./}\`" >> $GITHUB_STEP_SUMMARY
+            done
+            if [ "${{ inputs.strict_mode }}" = "true" ]; then
+              exit 1
+            fi
+          else
+            echo "✅ No unwanted files detected"
+            echo "## ✅ Repository Cleanliness Check Passed" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Check for large files
+        run: |
+          echo "Checking for large files (>10MB)..."
+          LARGE_FILES=$(find . -type f -size +10M -not -path "./.git/*" 2>/dev/null || true)
+          
+          if [ -n "$LARGE_FILES" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## ⚠️ Large Files Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            for FILE in $LARGE_FILES; do
+              SIZE=$(ls -lh "$FILE" | awk '{print $5}')
+              echo "::warning file=${FILE#./},title=Large file detected (${SIZE})::${FILE#./}"
+              echo "- \`${FILE#./}\` (${SIZE})" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "✅ No large files found"
+          fi
+      
+      - name: Validate project structure
+        run: |
+          echo "Validating project structure..."
+          
+          REQUIRED_DIRS=("backend" "web" "mobile" ".github/workflows")
+          REQUIRED_FILES=("docker-compose.yml" "README.md" ".gitignore")
+          
+          MISSING_ITEMS=""
+          
+          for DIR in "${REQUIRED_DIRS[@]}"; do
+            if [ ! -d "$DIR" ]; then
+              echo "::error title=Missing directory::Required directory '$DIR' not found"
+              MISSING_ITEMS="$MISSING_ITEMS\n- Directory: \`$DIR\`"
+            fi
+          done
+          
+          for FILE in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$FILE" ]; then
+              echo "::error title=Missing file::Required file '$FILE' not found"
+              MISSING_ITEMS="$MISSING_ITEMS\n- File: \`$FILE\`"
+            fi
+          done
+          
+          if [ -n "$MISSING_ITEMS" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## ❌ Missing Required Items" >> $GITHUB_STEP_SUMMARY
+            echo -e "$MISSING_ITEMS" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ inputs.strict_mode }}" = "true" ]; then
+              exit 1
+            fi
+          else
+            echo "✅ All required files and directories present"
+          fi
+
+  dependency_validation:
+    name: "Dependency Validation"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate backend package.json
+        working-directory: ./backend
+        run: |
+          if [ -f "package.json" ]; then
+            echo "✅ Backend package.json found"
+            if jq empty package.json 2>/dev/null; then
+              echo "✅ Valid JSON format"
+            else
+              echo "::error file=backend/package.json::Invalid JSON format"
+              exit 1
+            fi
+          else
+            echo "::error::Backend package.json not found"
+            exit 1
+          fi
+      
+      - name: Validate web package.json
+        working-directory: ./web
+        run: |
+          if [ -f "package.json" ]; then
+            echo "✅ Web package.json found"
+            if jq empty package.json 2>/dev/null; then
+              echo "✅ Valid JSON format"
+            else
+              echo "::error file=web/package.json::Invalid JSON format"
+              exit 1
+            fi
+          else
+            echo "::error::Web package.json not found"
+            exit 1
+          fi
+      
+      - name: Validate mobile pubspec.yaml
+        working-directory: ./mobile
+        run: |
+          if [ -f "pubspec.yaml" ]; then
+            echo "✅ Mobile pubspec.yaml found"
+          else
+            echo "::error::Mobile pubspec.yaml not found"
+            exit 1
+          fi
+      
+      - name: Validate docker-compose.yml
+        run: |
+          if [ -f "docker-compose.yml" ]; then
+            echo "✅ docker-compose.yml found"
+            if docker compose config > /dev/null 2>&1; then
+              echo "✅ Valid docker-compose.yml format"
+            else
+              echo "::warning::docker-compose.yml may have issues"
+            fi
+          else
+            echo "::error::docker-compose.yml not found"
+            exit 1
+          fi

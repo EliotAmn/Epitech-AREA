@@ -1,0 +1,210 @@
+name: All Checks - AREA Project
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'dev'
+      - '*/cicd/*'
+      - 'feat/**'
+  pull_request:
+    branches-ignore:
+      - 'ga-ignore-*'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests execution'
+        required: false
+        type: boolean
+        default: false
+      skip_mobile_build:
+        description: 'Skip mobile APK build'
+        required: false
+        type: boolean
+        default: false
+      strict_validation:
+        description: 'Enable strict repository validation'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  actions: read
+  packages: read
+  security-events: write
+  pages: write
+  id-token: write
+
+jobs:
+  # Repository validation (runs first, fast feedback)
+  repository_validation:
+    name: "Repository Validation"
+    uses: ./.github/workflows/repository_validation.yml
+    with:
+      strict_mode: ${{ inputs.strict_validation || false }}
+
+  # Backend workflows
+  backend_code_quality:
+    name: "Backend Code Quality"
+    needs: [repository_validation]
+    uses: ./.github/workflows/backend_code_quality.yml
+    with:
+      enable_eslint: true
+      enable_prettier: true
+
+  backend_build_test:
+    name: "Backend Build & Test"
+    needs: [backend_code_quality]
+    uses: ./.github/workflows/backend_build_test.yml
+    with:
+      enable_tests: ${{ !inputs.skip_tests }}
+      enable_coverage: true
+
+  # Web frontend workflows
+  web_code_quality:
+    name: "Web Frontend Code Quality"
+    needs: [repository_validation]
+    uses: ./.github/workflows/web_code_quality.yml
+    with:
+      enable_eslint: true
+      enable_prettier: true
+
+  web_build_test:
+    name: "Web Frontend Build & Test"
+    needs: [web_code_quality]
+    uses: ./.github/workflows/web_build_test.yml
+    with:
+      enable_tests: ${{ !inputs.skip_tests }}
+
+  # Mobile workflows
+  mobile_code_quality:
+    name: "Mobile Code Quality"
+    needs: [repository_validation]
+    uses: ./.github/workflows/mobile_code_quality.yml
+    with:
+      enable_analysis: true
+      enable_format_check: true
+
+  mobile_build_test:
+    name: "Mobile Build & Test"
+    needs: [mobile_code_quality]
+    uses: ./.github/workflows/mobile_build_test.yml
+    with:
+      enable_tests: ${{ !inputs.skip_tests }}
+      build_apk: ${{ !inputs.skip_mobile_build }}
+
+  # Docker compose validation
+  docker_compose_validation:
+    name: "Docker Compose Validation"
+    runs-on: ubuntu-latest
+    needs: [repository_validation]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate docker-compose.yml
+        run: |
+          echo "Validating docker-compose.yml..."
+          docker compose config > /dev/null
+          echo "✅ docker-compose.yml is valid"
+      
+      - name: Check docker-compose services
+        run: |
+          echo "Checking required services..."
+          
+          REQUIRED_SERVICES=("postgres" "server" "client_web" "client_mobile")
+          
+          for SERVICE in "${REQUIRED_SERVICES[@]}"; do
+            if docker compose config --services | grep -q "^${SERVICE}$"; then
+              echo "✅ Service '$SERVICE' found"
+            else
+              echo "::error::Required service '$SERVICE' not found in docker-compose.yml"
+              exit 1
+            fi
+          done
+          
+          echo "## ✅ Docker Compose Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All required services are configured:" >> $GITHUB_STEP_SUMMARY
+          for SERVICE in "${REQUIRED_SERVICES[@]}"; do
+            echo "- \`$SERVICE\`" >> $GITHUB_STEP_SUMMARY
+          done
+
+  # Quality gate decision
+  quality_gate:
+    name: "Quality Gate Decision"
+    runs-on: ubuntu-latest
+    needs: 
+      - repository_validation
+      - backend_build_test
+      - web_build_test
+      - mobile_build_test
+      - docker_compose_validation
+    if: always()
+    
+    steps:
+      - name: Evaluate quality gate results
+        run: |
+          echo "## 🎯 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if all required jobs passed
+          REPOSITORY_VALIDATION="${{ needs.repository_validation.result }}"
+          BACKEND_BUILD="${{ needs.backend_build_test.result }}"
+          WEB_BUILD="${{ needs.web_build_test.result }}"
+          MOBILE_BUILD="${{ needs.mobile_build_test.result }}"
+          DOCKER_VALIDATION="${{ needs.docker_compose_validation.result }}"
+          
+          echo "### Job Results:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository Validation: **$REPOSITORY_VALIDATION**" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend Build & Test: **$BACKEND_BUILD**" >> $GITHUB_STEP_SUMMARY
+          echo "- Web Build & Test: **$WEB_BUILD**" >> $GITHUB_STEP_SUMMARY
+          echo "- Mobile Build & Test: **$MOBILE_BUILD**" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker Compose: **$DOCKER_VALIDATION**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Determine overall status
+          if [ "$REPOSITORY_VALIDATION" != "success" ] || \
+             [ "$BACKEND_BUILD" != "success" ] || \
+             [ "$WEB_BUILD" != "success" ] || \
+             [ "$MOBILE_BUILD" != "success" ] || \
+             [ "$DOCKER_VALIDATION" != "success" ]; then
+            echo "### ❌ Quality Gate: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "One or more checks did not pass. Please review the failed jobs above." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "### ✅ Quality Gate: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All checks passed successfully! 🎉" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ needs.repository_validation.result }}' === 'success' &&
+                          '${{ needs.backend_build_test.result }}' === 'success' &&
+                          '${{ needs.web_build_test.result }}' === 'success' &&
+                          '${{ needs.mobile_build_test.result }}' === 'success' &&
+                          '${{ needs.docker_compose_validation.result }}' === 'success';
+            
+            const body = status 
+              ? '✅ All quality checks passed! This PR is ready for review.'
+              : '❌ Some quality checks failed. Please review the workflow results.';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+        continue-on-error: true
