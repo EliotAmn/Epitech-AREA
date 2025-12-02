@@ -43,13 +43,17 @@ export class AreaService {
 
 
             // Apply variables from action to reaction parameters
-            const user_params = r_user.params as Prisma.JsonArray;
+            const user_params = r_user.params as Prisma.JsonObject;
             const action_out_params = action_out.parameters;
             let reaction_in_params: Record<string, ParameterValue> = {};
 
             // Fill reaction parameters from user-defined parameters
             Object.keys(user_params).forEach(param_name => {
-                reaction_in_params[param_name] = user_params[param_name];
+                const name_type = r_def.input_params.find(p => p.name === param_name)?.type;
+                reaction_in_params[param_name] = {
+                    type: name_type || ParameterType.STRING,
+                    value: user_params[param_name]
+                };
             });
 
             // Apply variable replacesments from action output parameters
