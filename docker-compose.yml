@@ -2,11 +2,72 @@ services:
   postgres:
     image: postgres:17
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-area_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-area_password}
+      POSTGRES_DB: ${POSTGRES_DB:-area_db}
     restart: unless-stopped
     ports:
       - "5432:5432"
     volumes:
-      - ./.postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-area_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - area-network
+
+  server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-area_user}:${POSTGRES_PASSWORD:-area_password}@postgres:5432/${POSTGRES_DB:-area_db}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - area-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  client_mobile:
+    build:
+      context: ./mobile
+      dockerfile: Dockerfile
+      target: builder
+    volumes:
+      - ./mobile/build/app/outputs/flutter-apk:/app/build/app/outputs/flutter-apk
+    networks:
+      - area-network
+
+  client_web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - VITE_API_URL=http://server:8080
+    depends_on:
+      - client_mobile
+      - server
+    restart: unless-stopped
+    networks:
+      - area-network
+
+networks:
+  area-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
