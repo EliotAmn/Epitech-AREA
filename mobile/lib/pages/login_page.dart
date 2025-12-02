@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'signin_page.dart';
+import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
 
 class LoginPage extends StatelessWidget {
@@ -26,7 +26,7 @@ class LoginPage extends StatelessWidget {
           children: [
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(
-              decoration: AppInputDecorations.primary(context, 'Username'),
+              decoration: AppInputDecorations.primary(context, 'Email or Username'),
             ),
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(

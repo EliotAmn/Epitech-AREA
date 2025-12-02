@@ -37,7 +37,7 @@ class SigninPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Sign In',
+                  Text('Sign Up',
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
