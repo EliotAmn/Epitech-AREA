@@ -14,9 +14,9 @@ export class AuthService {
 
         if (!user) throw new UnauthorizedException('Invalid credentials');
 
-        if (user.auth_platform != "local") throw new UnauthorizedException('Invalid credentials (oauth2 user)');
+        if (user.auth_platform != "local") throw new UnauthorizedException('Invalid credentials');
 
-        if (!user.password_hash) throw new UnauthorizedException('Invalid credentials (oauth2 user)');
+        if (!user.password_hash) throw new UnauthorizedException('Invalid credentials');
 
         const ok = await this.passwordService.compare(password, user.password_hash);
         if (!ok) throw new UnauthorizedException('Invalid credentials');
