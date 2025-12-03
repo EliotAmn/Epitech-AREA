@@ -1,0 +1,40 @@
+.responsiveGrid,
+.responsiveGridCols4 {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+    justify-items: center;
+    margin: 1rem;
+}
+
+@media (min-width: 800px) {
+    .responsiveGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (min-width: 1150px) {
+    .responsiveGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (min-width: 1500px) {
+    .responsiveGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 800px) {
+    .responsiveGridCols4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (min-width: 1150px) {
+    .responsiveGridCols4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (min-width: 1500px) {
+    .responsiveGridCols4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
