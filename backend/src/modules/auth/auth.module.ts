@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import AuthController from './auth.controller';
-import { UserModule } from 'src/user/user.module';
+
+import { PasswordModule } from '../common/password/password.module';
+import { UserModule } from '../user/user.module';
+import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-
-import { PasswordService } from '../common/password/password.service';
 
 @Module({
   imports: [
@@ -16,15 +16,21 @@ import { PasswordService } from '../common/password/password.service';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (cs: ConfigService) => ({
-        secret: cs.get<string>('jwtSecret'),
-        signOptions: { expiresIn: '1h' },
-      }),
+      useFactory: (cs: ConfigService) => {
+        const secret = cs.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
+        if (!secret) {
+          throw new Error(
+            'JWT secret not configured. Set JWT_SECRET env var in config.',
+          );
+        }
+        return { secret, signOptions: { expiresIn: '1h' } };
+      },
     }),
     UserModule,
+    PasswordModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, PasswordService, JwtStrategy],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

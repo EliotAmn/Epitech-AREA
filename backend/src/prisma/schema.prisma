@@ -8,11 +8,94 @@ generator client {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
+  id            String        @id @default(uuid()) @db.Uuid
+  email         String        @unique
   name          String
   auth_platform String   @default("local")
   auth_id       String?
   password_hash String?
+  created_at    DateTime      @default(now())
+  area          Area[]
+  user_service  UserService[]
+  oauth_link    OauthLink[]
+
+  @@index([created_at])
+  @@map("user")
+}
+
+model UserService {
+  id             String   @id @default(uuid()) @db.Uuid
+  service_id     String
+  service_config Json?
+  errored        Boolean  @default(false)
+  user_id        String   @db.Uuid
+  user           User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@unique([user_id, service_id])
+  @@index([user_id])
+  @@index([service_id])
+  @@index([errored])
+  @@map("user_service")
+}
+
+model Area {
+  id         String         @id @default(uuid()) @db.Uuid
+  name       String
+  user_id    String         @db.Uuid
+  user       User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+  actions    AreaAction[]
+  reactions  AreaReaction[]
+
+  @@index([user_id])
+  @@index([created_at])
+  @@map("area")
+}
+
+model AreaAction {
+  id          String   @id @default(uuid()) @db.Uuid
+  action_name String
+  area_id     String   @db.Uuid
+  area        Area     @relation(fields: [area_id], references: [id], onDelete: Cascade)
+  params      Json     @default("{}")
+  cache       Json     @default("{}")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([area_id])
+  @@index([action_name])
+  @@map("area_action")
+}
+
+model AreaReaction {
+  id            String   @id @default(uuid()) @db.Uuid
+  reaction_name String
+  area_id       String   @db.Uuid
+  area          Area     @relation(fields: [area_id], references: [id], onDelete: Cascade)
+  params        Json     @default("{}")
+  cache         Json     @default("{}")
   created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([area_id])
+  @@index([reaction_name])
+  @@map("area_reaction")
+}
+
+model OauthLink {
+  id               String   @id @default(uuid()) @db.Uuid
+  provider_name    String
+  provider_user_id String
+  user_id          String   @db.Uuid
+  user             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@unique([provider_name, provider_user_id])
+  @@index([user_id])
+  @@index([provider_name])
+  @@map("oauth_link")
 }

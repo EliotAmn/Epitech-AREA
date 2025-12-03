@@ -1,14 +1,14 @@
 interface WidgetProps {
-	titre: string;
-	plateforme: string;
+	title: string;
+	platform: string;
 	color?: string;
 	onClick?: () => void;
 }
 
 export default function Widget({
-	titre,
+	title,
 	color = "#ffffff",
-	plateforme,
+	platform,
 	onClick,
 }: WidgetProps) {
 	return (
@@ -17,10 +17,10 @@ export default function Widget({
 			style={{ backgroundColor: color }}
 			onClick={onClick}
 		>
-			<h2 className="text-3xl text-[#ffffff] font-semibold mb-2">
-				{titre}
+			<h2 className="text-3xl text-left text-[#ffffff] font-semibold mb-2">
+				{title}
 			</h2>
-			<p className="text-sm sm:text-md text-[#ffffff]">{plateforme}</p>
+			<p className="text-sm sm:text-md text-[#ffffff]">{platform}</p>
 		</div>
 	);
 }
