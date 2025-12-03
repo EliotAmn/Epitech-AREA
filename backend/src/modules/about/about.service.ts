@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ServiceImporterService } from './modules/service_importer/service_importer.service';
+import { ServiceImporterService } from '../service_importer/service_importer.service';
 import { 
   ServiceDefinition, 
   ServiceActionConstructor, 
   ServiceReactionConstructor 
-} from './common/service.types';
+} from '../../common/service.types';
 
 type ServiceClassOrInstance = (new () => ServiceDefinition) | ServiceDefinition;
 

@@ -4,8 +4,8 @@ import {ConfigModule} from '@nestjs/config';
 
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
-import {AboutController} from './about.controller';
-import {AboutService} from './about.service';
+import {AboutController} from './modules/about/about.controller';
+import {AboutService} from './modules/about/about.service';
 import configuration from './common/configuration';
 import {PrismaModule} from './modules/prisma/prisma.module';
 import {UserModule} from './modules/user/user.module';
