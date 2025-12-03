@@ -1,7 +1,7 @@
 import { Controller, Get, Ip } from '@nestjs/common';
 import { AboutService } from './about.service';
 import type { AboutResponse } from './about.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AboutController {
