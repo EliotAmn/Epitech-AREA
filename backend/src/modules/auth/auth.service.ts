@@ -45,11 +45,9 @@ export class AuthService {
       // UserService will hash the password internally
       createdUser = await this.usersService.create(dto);
     } catch (e: unknown) {
-      throw new InternalServerErrorException(e || 'Failed to create user');
-    }
-
-    if (typeof createdUser !== 'object' || createdUser === null) {
-      throw new InternalServerErrorException('Created user has invalid shape');
+      throw new InternalServerErrorException(
+        (e as Error)?.message || 'Failed to create user',
+      );
     }
 
     const safeUser: Record<string, unknown> = {
@@ -66,7 +64,7 @@ export class AuthService {
       return { user: safeUser, access_token: token };
     } catch (e) {
       throw new InternalServerErrorException(
-        e || 'Failed to create access token',
+        (e as Error)?.message || 'Failed to create access token',
       );
     }
   }

@@ -6,7 +6,7 @@ import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private cs: ConfigService) {
-    const secret = cs.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
+    const secret = cs.get<string>('JWT_SECRET');
     if (!secret) {
       throw new Error('JWT secret not configured. Set JWT_SECRET env var.');
     }

@@ -14,12 +14,10 @@ export class PasswordService {
     hash: string,
   ) => Promise<boolean>;
   async hash(plain: string): Promise<string> {
-    const hashed = await this.hashFn(plain, this.saltRounds);
-    return hashed;
+    return this.hashFn(plain, this.saltRounds);
   }
 
   async compare(plain: string, hash: string): Promise<boolean> {
-    const matched = await this.compareFn(plain, hash);
-    return matched;
+    return this.compareFn(plain, hash);
   }
 }

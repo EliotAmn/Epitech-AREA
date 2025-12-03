@@ -8,7 +8,7 @@ import configuration from './common/configuration';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Validation DTO automatique
+  // Auto validation
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   // Swagger

@@ -39,4 +39,14 @@ export class CreateUserDto {
       'Password too weak. Use upper, lower, number and special character.',
   })
   password?: string;
+
+  @ApiProperty({
+    example: 'local',
+    description: 'Authentication platform',
+    enum: ['local', 'google', 'github'],
+    default: 'local',
+  })
+  @IsString()
+  @IsOptional()
+  auth_platform?: 'local' | 'google' | 'github';
 }

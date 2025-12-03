@@ -17,7 +17,7 @@ import { JwtStrategy } from './jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (cs: ConfigService) => {
-        const secret = cs.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
+        const secret = cs.get<string>('JWT_SECRET');
         if (!secret) {
           throw new Error(
             'JWT secret not configured. Set JWT_SECRET env var in config.',

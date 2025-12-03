@@ -23,7 +23,7 @@ export class UserService {
       email: dto.email,
       name: dto.name,
       password_hash: passwordHash,
-      auth_platform: 'local',
+      auth_platform: dto.auth_platform,
     });
   }
 
