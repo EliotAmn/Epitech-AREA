@@ -1,5 +1,4 @@
-import { Controller, Get, Req } from '@nestjs/common';
-import type { Request } from 'express';
+import { Controller, Get, Ip } from '@nestjs/common';
 import { AboutService } from './about.service';
 import type { AboutResponse } from './about.service';
 
@@ -10,7 +9,7 @@ export class AboutController {
   ) {}
 
   @Get('about.json')
-  getAbout(@Req() request: Request): AboutResponse {
-    return this.aboutService.getAboutInfo(request);
+  getAbout(@Ip() clientIp: string): AboutResponse {
+    return this.aboutService.getAboutInfo(clientIp);
   }
 }

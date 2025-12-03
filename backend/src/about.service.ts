@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { Request } from 'express';
 import { ServiceImporterService } from './modules/service_importer/service_importer.service';
 import { 
   ServiceDefinition, 
@@ -41,28 +40,19 @@ export class AboutService {
     private readonly serviceImporterService: ServiceImporterService,
   ) {}
 
-  getAboutInfo(request: Request): AboutResponse {
-    const clientIp = this.extractClientIp(request);
+  getAboutInfo(clientIp: string): AboutResponse {
     const currentTime = this.getCurrentTimestamp();
     const services = this.formatServices();
 
     return {
       client: {
-        host: clientIp,
+        host: clientIp || 'unknown',
       },
       server: {
         current_time: currentTime,
         services,
       },
     };
-  }
-
-  private extractClientIp(request: Request): string {
-    return (
-      (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-      request.socket.remoteAddress ||
-      'unknown'
-    );
   }
 
   private getCurrentTimestamp(): number {
