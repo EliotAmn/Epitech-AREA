@@ -172,6 +172,16 @@ export default function Header({
         );
     };
 
+    const mobileMenuClass = [
+        "absolute top-full right-4 mt-2 w-48 rounded-md shadow-lg z-50 transform origin-top-right transition ease-out duration-150",
+        appliedTheme === "dark"
+            ? "bg-[#242424] text-white"
+            : "bg-white text-black",
+        menuOpen
+            ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+            : "opacity-0 translate-y-2 scale-95 pointer-events-none",
+    ].join(" ");
+
     return (
         <div
             className={`relative w-full flex justify-between items-center ${themeClasses} ${className}`}
@@ -214,7 +224,7 @@ export default function Header({
                     id="mobile-menu"
                     ref={menuRef}
                     aria-hidden={!menuOpen}
-                    className={`absolute top-full right-4 mt-2 w-48 rounded-md shadow-lg z-50 transform origin-top-right transition ease-out duration-150 ${appliedTheme === "dark" ? "bg-[#242424] text-white" : "bg-white text-black"} ${menuOpen ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" : "opacity-0 translate-y-2 scale-95 pointer-events-none"}`}
+                    className={mobileMenuClass}
                 >
                     <div className="flex flex-col p-2 space-y-1">
                         {(isLoggedIn ? loggedInItems : loggedOutItems).map(
