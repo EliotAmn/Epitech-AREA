@@ -5,6 +5,7 @@ import {
   ServiceActionConstructor, 
   ServiceReactionConstructor 
 } from '../../common/service.types';
+import { Logger } from '@nestjs/common'
 
 type ServiceClassOrInstance = (new () => ServiceDefinition) | ServiceDefinition;
 
@@ -36,6 +37,8 @@ export interface AboutResponse {
 
 @Injectable()
 export class AboutService {
+  private readonly logger = new Logger(AboutService.name);
+
   constructor(
     private readonly serviceImporterService: ServiceImporterService,
   ) {}
@@ -79,7 +82,7 @@ export class AboutService {
           reactions,
         };
       } catch (error) {
-        console.error(`Failed to format service:`, error);
+        this.logger.error(`Failed to format service:`, error);
         return {
           name: 'unknown',
           actions: [],
@@ -98,7 +101,7 @@ export class AboutService {
           description: actionInstance.description || 'No description available',
         };
       } catch (error) {
-        console.error(`Failed to instantiate action:`, error);
+        this.logger.error(`Failed to instantiate action:`, error);
         return {
           name: 'unknown_action',
           description: 'Failed to load action',
@@ -116,7 +119,7 @@ export class AboutService {
           description: reactionInstance.description || 'No description available',
         };
       } catch (error) {
-        console.error(`Failed to instantiate reaction:`, error);
+        this.logger.error(`Failed to instantiate reaction:`, error);
         return {
           name: 'unknown_reaction',
           description: 'Failed to load reaction',
