@@ -4,6 +4,7 @@ import {ConfigModule} from '@nestjs/config';
 
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
+import {AboutController} from './about.controller';
 import configuration from './common/configuration';
 import {PrismaModule} from './modules/prisma/prisma.module';
 import {UserModule} from './modules/user/user.module';
@@ -24,7 +25,7 @@ import {ServiceImporterModule} from "./modules/service_importer/service_importer
         }),
         ServiceImporterModule.register()
     ],
-    controllers: [AppController],
+    controllers: [AppController, AboutController],
     providers: [
         AppService,
     ],
