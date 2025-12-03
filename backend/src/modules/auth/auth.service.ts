@@ -38,30 +38,20 @@ export class AuthService {
   }
 
   async register(dto: CreateUserDto) {
-    const incoming = dto;
-    if (!incoming.password) throw new BadRequestException('Password required');
-
-    const hash = await this.passwordService.hash(incoming.password);
-    const payload = {
-      ...incoming,
-      password_hash: hash,
-    };
-    delete payload.password;
+    if (!dto.password) throw new BadRequestException('Password required');
 
     let createdUser: User | null = null;
     try {
-      createdUser = await this.usersService.create(payload);
+      // UserService will hash the password internally
+      createdUser = await this.usersService.create(dto);
     } catch (e: unknown) {
-      const errMsg = e instanceof Error ? e.message : String(e);
-      const errStack = e instanceof Error ? e.stack : undefined;
-      console.error('AuthService.register: user creation failed:', errMsg);
-      if (errStack) console.error(errStack);
-      throw new InternalServerErrorException(errMsg || 'Failed to create user');
+      throw new InternalServerErrorException(e || 'Failed to create user');
     }
 
     if (typeof createdUser !== 'object' || createdUser === null) {
       throw new InternalServerErrorException('Created user has invalid shape');
     }
+
     const safeUser: Record<string, unknown> = {
       ...(createdUser as Record<string, unknown>),
     };
@@ -75,9 +65,9 @@ export class AuthService {
       });
       return { user: safeUser, access_token: token };
     } catch (e) {
-      console.error('AuthService.register: jwt sign failed', e);
-
-      throw new InternalServerErrorException('Failed to create access token');
+      throw new InternalServerErrorException(
+        e || 'Failed to create access token',
+      );
     }
   }
 }

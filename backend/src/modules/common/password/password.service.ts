@@ -5,7 +5,6 @@ import { compare as bcryptCompare, hash as bcryptHash } from 'bcrypt';
 export class PasswordService {
   private readonly saltRounds = 12;
 
-  // Typed wrappers to avoid unsafe-call / any errors from the bcrypt import
   private readonly hashFn = bcryptHash as unknown as (
     s: string,
     rounds: number,

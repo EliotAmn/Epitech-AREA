@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 import { PasswordService } from '../common/password/password.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -9,47 +8,46 @@ import { UserRepository } from './user.repository';
 @Injectable()
 export class UserService {
   constructor(
-    private repo: UserRepository,
-    private passwordService: PasswordService,
+    private readonly repository: UserRepository,
+    private readonly passwordService: PasswordService,
   ) {}
 
   async create(dto: CreateUserDto) {
-    const incoming = dto;
-
-    const payload: Prisma.UserCreateInput = {
-      email: incoming.email,
-      name: incoming.name,
-    } as Prisma.UserCreateInput;
-
-    if (incoming.password) {
-      const hash = await this.passwordService.hash(incoming.password);
-      (payload as unknown as Record<string, unknown>).password_hash = hash;
+    // Hash the password if provided
+    let passwordHash: string | undefined;
+    if (dto.password) {
+      passwordHash = await this.passwordService.hash(dto.password);
     }
 
-    return this.repo.create(payload);
+    return this.repository.create({
+      email: dto.email,
+      name: dto.name,
+      password_hash: passwordHash,
+      auth_platform: 'local',
+    });
   }
 
   findAll() {
-    return this.repo.findAll();
+    return this.repository.findAll();
   }
 
   async findOne(id: string) {
-    const user = await this.repo.findById(id);
+    const user = await this.repository.findById(id);
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
   async findByEmail(email: string) {
-    return this.repo.findByEmail(email);
+    return this.repository.findByEmail(email);
   }
 
   async update(id: string, dto: UpdateUserDto) {
     await this.findOne(id);
-    return this.repo.update(id, dto);
+    return this.repository.update(id, dto);
   }
 
   async remove(id: string) {
     await this.findOne(id);
-    return this.repo.delete(id);
+    return this.repository.delete(id);
   }
 }
