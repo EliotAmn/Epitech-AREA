@@ -8,6 +8,11 @@ interface WidgetProps {
 }
 
 function lightenColor(color: string, percent: number): string {
+    if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
+        console.error("Invalid color format. Expected a valid hex color code.");
+        return color;
+    }
+
     const num = parseInt(color.replace("#", ""), 16);
     const amt = Math.round(2.55 * percent);
     const R = (num >> 16) + amt;
@@ -39,10 +44,9 @@ export default function Widget({
 
     return (
         <div
-            className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-start justify-start shrink-0`}
+            className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-start shrink-0`}
             style={{
                 backgroundColor: isHovered ? lightenColor(color, 5) : color,
-                transition: "background-color 0.3s ease",
             }}
             onClick={onClick}
             onMouseEnter={() => setIsHovered(true)}

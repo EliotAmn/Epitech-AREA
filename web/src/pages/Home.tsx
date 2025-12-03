@@ -38,7 +38,7 @@ function Home() {
                 Get started with any Applet
             </h2>
 
-            <div className="responsiveGridCols4">
+            <div className="responsiveGrid">
                 {actions.map((act) => (
                     <Widget
                         key={act.id}
