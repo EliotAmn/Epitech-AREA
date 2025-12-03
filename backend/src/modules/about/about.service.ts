@@ -5,7 +5,7 @@ import {
   ServiceActionConstructor, 
   ServiceReactionConstructor 
 } from '../../common/service.types';
-import { Logger } from '@nestjs/common'
+import { Logger } from '@nestjs/common';
 
 type ServiceClassOrInstance = (new () => ServiceDefinition) | ServiceDefinition;
 
