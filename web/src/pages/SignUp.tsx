@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
+import { useNavigate } from "react-router-dom";
 
 import logoGoogle from "../assets/logo_google.svg";
 import Button from "../component/button";
 import Input from "../component/input";
-import { ThemeContext } from "../context/ThemeContext";
+import { ThemeContext } from "../context/theme";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
@@ -15,14 +15,14 @@ export default function SignUp() {
     const { setTheme, resetTheme } = useContext(ThemeContext);
 
     useEffect(() => {
-      setTheme("light");
-      return () => {
-        resetTheme();
-      };
+        setTheme("light");
+        return () => {
+            resetTheme();
+        };
     }, [setTheme, resetTheme]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex justify-center">
             <div className="w-full max-w-md p-6">
                 <h1 className="text-4xl text-[#000000] font-bold mb-6 text-center">
                     Sign Up
@@ -40,10 +40,12 @@ export default function SignUp() {
                         onChange={setPassword}
                         showToggle={true}
                     />
-					<button className="text-sm text-gray-600 underline cursor-pointer"
-						onClick={() => navigate("/login")}>
-							Already have an account? Log in
-					</button>
+                    <button
+                        className="text-sm text-gray-600 underline cursor-pointer"
+                        onClick={() => navigate("/login")}
+                    >
+                        Already have an account? Log in
+                    </button>
                     <Button
                         label="Sign up"
                         onClick={() => navigate("/explore")}
