@@ -1,10 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  final VoidCallback onLoginSuccess;
+  const LoginPage({super.key, required this.onLoginSuccess});
 
  
 
@@ -41,6 +43,7 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Handle login logic here
+                onLoginSuccess.call();
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
@@ -84,15 +87,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        scrolledUnderElevation: 0.0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        title: Text('AREA',
-          style: Theme.of(context).textTheme.displayLarge,
-        ),
-      ),
+      
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
