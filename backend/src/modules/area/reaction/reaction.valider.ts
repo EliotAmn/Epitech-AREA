@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import {
   ParameterType,
+  ParameterValue,
   ServiceReactionDefinition,
 } from '@/common/service.types';
 
@@ -9,7 +10,7 @@ import {
 export class ReactionValider {
   validate_reaction_params(
     reaction: ServiceReactionDefinition,
-    input_params: Record<string, any>,
+    input_params: Record<string, ParameterValue>,
   ): boolean {
     // Check that all required params are present
     for (const param of reaction.input_params) {
@@ -21,7 +22,8 @@ export class ReactionValider {
     // Check that all params are of the correct type
     for (const param of reaction.input_params) {
       if (param.name in input_params) {
-        const value = input_params[param.name];
+        const paramValue = input_params[param.name];
+        const value = paramValue.value as string | number | boolean;
         switch (param.type) {
           case ParameterType.STRING:
             if (typeof value !== 'string') return false;

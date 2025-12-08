@@ -3,15 +3,21 @@ import { join } from 'path';
 import { DynamicModule, Module } from '@nestjs/common';
 
 import { SERVICE_DEFINITION } from '@/common/consts';
+import { ServiceDefinition } from '@/common/service.types';
 import { ServiceImporterService } from './service_importer.service';
+
+interface ServiceModule {
+  default?: new () => ServiceDefinition;
+  [key: string]: unknown;
+}
 
 @Module({})
 export class ServiceImporterModule {
-  static register(): DynamicModule {
+  static async register(): Promise<DynamicModule> {
     const pluginPath = join(__dirname, '../../services');
     const dirs = readdirSync(pluginPath, { withFileTypes: true });
 
-    const discoveredServices: any[] = [];
+    const discoveredServices: Array<new () => ServiceDefinition> = [];
 
     for (const dir of dirs) {
       if (!dir.isDirectory()) continue;
@@ -21,23 +27,35 @@ export class ServiceImporterModule {
       const moduleFile = join(pluginPath, dir.name, `${dir.name}.module`);
 
       try {
-        // Prefer requiring the service implementation file (no extension) so Node/ts-node resolves .ts/.js
-        const importedService = require(serviceFileBase);
+        // Prefer importing the service implementation file so Node/ts-node resolves .ts/.js
+
+        const importedService = (await import(
+          serviceFileBase
+        )) as ServiceModule;
+
         // default export or named export with same name
         const svc =
           importedService.default ??
-          importedService[Object.keys(importedService)[0]];
-        if (svc) discoveredServices.push(svc);
-        else
+          (Object.keys(importedService)[0]
+            ? (importedService[Object.keys(importedService)[0]] as new () =>
+                | ServiceDefinition
+                | undefined)
+            : undefined);
+
+        if (svc && typeof svc === 'function') {
+          discoveredServices.push(svc as new () => ServiceDefinition);
+        } else {
           console.warn(
             `[service] ${dir.name} ignored (no valid service export found)`,
           );
-      } catch (errService) {
+        }
+      } catch {
         try {
-          // Fallback: try to require the module file and attempt to read a provider out of it
-          const importedModule = require(moduleFile);
+          // Fallback: try to import the module file and attempt to read a provider out of it
+
+          const _importedModule = (await import(moduleFile)) as ServiceModule;
           // Nothing else to do here; modules may register providers themselves but we will not rely on that
-        } catch (errModule) {
+        } catch {
           console.warn(
             `[service] ${dir.name} ignored (no service or module file found)`,
           );
@@ -47,14 +65,24 @@ export class ServiceImporterModule {
 
     const serviceProvider = {
       provide: SERVICE_DEFINITION,
-      useFactory: () => {
+      useFactory: (): Array<new () => ServiceDefinition> => {
         return discoveredServices;
       },
     };
 
     console.log(
-      `[service] Discovered services: ${discoveredServices.map((svc) => svc.name).join(', ')}`,
+      `[service] Discovered services: ${discoveredServices
+        .map((ServiceClass) => {
+          try {
+            const instance = new ServiceClass();
+            return instance.name;
+          } catch {
+            return 'unknown';
+          }
+        })
+        .join(', ')}`,
     );
+
     return {
       module: ServiceImporterModule,
       providers: [ServiceImporterService, serviceProvider],

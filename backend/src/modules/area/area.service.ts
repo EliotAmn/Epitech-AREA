@@ -49,7 +49,7 @@ export class AreaService {
         );
       }
       const r_def = defs.reaction;
-      const s_def = defs.service;
+      const _s_def = defs.service;
 
       // Apply variables from action to reaction parameters
       const user_params = r_user.params as Prisma.JsonObject;
@@ -67,22 +67,36 @@ export class AreaService {
         };
       });
 
-      // Apply variable replacesments from action output parameters
-      mapRecord(action_out_params, (key, value) => {
-        if (!reaction_in_params.hasOwnProperty(key)) return;
+      // Apply variable replacements from action output parameters
+      mapRecord(action_out_params, (key, _value) => {
+        if (!Object.prototype.hasOwnProperty.call(reaction_in_params, key))
+          return;
+
         // Replace parameter value if it's a string containing $(param_name)
         if (reaction_in_params[key].type === ParameterType.STRING) {
-          let replaced_value = reaction_in_params[key].value;
+          const current_value = reaction_in_params[key].value as string;
+
+          // Type guard to ensure we're working with a string
+          if (typeof current_value !== 'string') return;
+
           const var_pattern = /\$\(([^)]+)\)/g;
-          replaced_value = replaced_value.replace(
+          const replaced_value = current_value.replace(
             var_pattern,
-            (match, var_name) => {
+            (match: string, var_name: string): string => {
               if (var_name === key) {
                 // Prevent self-replacement infinite loop
                 return match;
               }
-              if (action_out_params.hasOwnProperty(var_name)) {
-                return action_out_params[var_name].value;
+              if (
+                Object.prototype.hasOwnProperty.call(
+                  action_out_params,
+                  var_name,
+                )
+              ) {
+                const replacement = action_out_params[var_name]
+                  ?.value as string;
+
+                return typeof replacement === 'string' ? replacement : match;
               }
               return match; // No replacement found
             },
