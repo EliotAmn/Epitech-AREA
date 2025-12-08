@@ -28,20 +28,18 @@ function App() {
             }
         };
 
+        const handleAuthChange = () => {
+            setIsLoggedIn(AuthService.isAuthenticated());
+        };
+
         window.addEventListener("storage", handleStorageChange);
-        return () => window.removeEventListener("storage", handleStorageChange);
+        window.addEventListener("authStateChanged", handleAuthChange);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+            window.removeEventListener("authStateChanged", handleAuthChange);
+        };
     }, []);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const currentAuthState = AuthService.isAuthenticated();
-            if (currentAuthState !== isLoggedIn) {
-                setIsLoggedIn(currentAuthState);
-            }
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [isLoggedIn]);
 
     return (
         <ThemeProvider>
@@ -49,6 +47,7 @@ function App() {
                 <Header isLoggedIn={isLoggedIn} />
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/explore" element={<Explore />} />
                     <Route path="/widget/:id" element={<WidgetDetail />} />
                     <Route
                         path="/signup"
@@ -71,14 +70,6 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Areas />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/explore"
-                        element={
-                            <ProtectedRoute>
-                                <Explore />
                             </ProtectedRoute>
                         }
                     />

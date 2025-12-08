@@ -1,32 +1,12 @@
 import type { ChangePasswordDto, UpdateUserDto, User } from "@/types/api.types";
+import { getCurrentUserId } from "@/utils/jwt";
 import { apiClient } from "./apiClient";
 
 class UserService {
     private readonly basePath = "/users";
 
     static getCurrentUserId(): string | null {
-        const token = localStorage.getItem("authToken");
-        if (!token) return null;
-
-        try {
-            const base64Url = token.split(".")[1];
-            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-            const jsonPayload = decodeURIComponent(
-                atob(base64)
-                    .split("")
-                    .map(
-                        (c) =>
-                            "%" +
-                            ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-                    )
-                    .join("")
-            );
-            const payload = JSON.parse(jsonPayload);
-            return payload.sub || payload.id || null;
-        } catch (error) {
-            console.error("Error decoding token:", error);
-            return null;
-        }
+        return getCurrentUserId();
     }
 
     async getUser(userId: string): Promise<User> {

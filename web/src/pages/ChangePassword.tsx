@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "@/component/button";
 import Input from "@/component/input";
 import { ApiClientError, userService } from "@/services/api";
+import { validatePassword, validatePasswordsMatch } from "@/utils/validation";
 
 export default function ChangePassword() {
     const navigate = useNavigate();
@@ -15,22 +16,27 @@ export default function ChangePassword() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
-    const isPasswordValid = (): boolean => {
-        return (
-            currentPassword.length > 0 &&
-            newPassword === confirmNewPassword &&
-            newPassword.length >= 8
-        );
-    };
-
     const handleChangePassword = async () => {
         setError("");
         setSuccess(false);
 
-        if (!isPasswordValid()) {
-            setError(
-                "Passwords do not match or new password is less than 8 characters."
-            );
+        if (!currentPassword) {
+            setError("Please enter your current password");
+            return;
+        }
+
+        const passwordValidation = validatePassword(newPassword);
+        if (!passwordValidation.isValid) {
+            setError(passwordValidation.error || "Invalid password");
+            return;
+        }
+
+        const matchValidation = validatePasswordsMatch(
+            newPassword,
+            confirmNewPassword
+        );
+        if (!matchValidation.isValid) {
+            setError(matchValidation.error || "Passwords do not match");
             return;
         }
 
@@ -134,6 +140,7 @@ export default function ChangePassword() {
                                       : "Confirm"
                             }
                             onClick={handleChangePassword}
+                            disabled={loading || success}
                         />
                     </div>
                 </div>

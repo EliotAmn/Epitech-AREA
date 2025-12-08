@@ -71,6 +71,7 @@ export default function Login() {
                     <Button
                         label={loading ? "Loading..." : "Login"}
                         onClick={handleLogin}
+                        disabled={loading}
                     />
                 </div>
             </div>

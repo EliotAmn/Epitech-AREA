@@ -3,6 +3,7 @@ import React from "react";
 interface ButtonProps {
     label: string;
     onClick?: () => void;
+    disabled?: boolean;
     icon?: string | React.ReactNode;
     mode?: "white" | "black";
     className?: string;
@@ -11,6 +12,7 @@ interface ButtonProps {
 export default function Button({
     label,
     onClick,
+    disabled = false,
     icon,
     mode = "black",
     className = "",
@@ -33,6 +35,7 @@ export default function Button({
             type="button"
             className={`${base} ${modeClasses} ${className}`}
             onClick={onClick}
+            disabled={disabled}
         >
             {icon ? (
                 typeof icon === "string" ? (

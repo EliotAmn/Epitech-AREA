@@ -7,6 +7,7 @@ import Button from "@/component/button";
 import Input from "@/component/input";
 import { ThemeContext } from "@/context/theme";
 import { ApiClientError, authService } from "@/services/api";
+import { validateEmail, validatePassword } from "@/utils/validation";
 
 export default function SignUp() {
     const [name, setName] = useState("");
@@ -31,14 +32,15 @@ export default function SignUp() {
             return;
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError("Please enter a valid email address");
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.isValid) {
+            setError(emailValidation.error || "Invalid email");
             return;
         }
 
-        if (password.length < 8) {
-            setError("Password must be at least 8 characters long");
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.isValid) {
+            setError(passwordValidation.error || "Invalid password");
             return;
         }
 
@@ -106,11 +108,13 @@ export default function SignUp() {
                     <Button
                         label={loading ? "Creating account..." : "Sign up"}
                         onClick={handleSignUp}
+                        disabled={loading}
                     />
                     <Button
                         label="Sign up with Google"
                         mode="white"
                         icon={logoGoogle}
+                        disabled={loading}
                     />
                 </div>
             </div>
