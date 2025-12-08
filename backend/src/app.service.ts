@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -56,7 +57,11 @@ export class AppService {
       );
       return response.data;
     } catch (error) {
-      this.logger.error('Error fetching token', error.response?.data);
+      if (error instanceof AxiosError) {
+        this.logger.error('Error sending message', error.response?.data);
+      } else {
+        this.logger.error('Error sending message', error);
+      }
       throw error;
     }
   }
@@ -79,7 +84,11 @@ export class AppService {
       );
       return response.data;
     } catch (error) {
-      this.logger.error('Error sending message', error.response?.data);
+      if (error instanceof AxiosError) {
+        this.logger.error('Error sending message', error.response?.data);
+      } else {
+        this.logger.error('Error sending message', error);
+      }
       throw error;
     }
   }
