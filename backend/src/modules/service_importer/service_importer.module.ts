@@ -13,7 +13,7 @@ interface ServiceModule {
 
 @Module({})
 export class ServiceImporterModule {
-  static async register(): Promise<DynamicModule> {
+  static register(): DynamicModule {
     const pluginPath = join(__dirname, '../../services');
     const dirs = readdirSync(pluginPath, { withFileTypes: true });
 
@@ -22,16 +22,14 @@ export class ServiceImporterModule {
     for (const dir of dirs) {
       if (!dir.isDirectory()) continue;
 
-      // Try to import the service file (try both .service and module filenames)
+      // Try to require the service file (try both .service and module filenames)
       const serviceFileBase = join(pluginPath, dir.name, `${dir.name}.service`);
       const moduleFile = join(pluginPath, dir.name, `${dir.name}.module`);
 
       try {
-        // Prefer importing the service implementation file so Node/ts-node resolves .ts/.js
-
-        const importedService = (await import(
-          serviceFileBase
-        )) as ServiceModule;
+        // Prefer requiring the service implementation file so Node/ts-node resolves .ts/.js
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const importedService = require(serviceFileBase) as ServiceModule;
 
         // default export or named export with same name
         const svc =
@@ -51,10 +49,10 @@ export class ServiceImporterModule {
         }
       } catch {
         try {
-          // Fallback: try to import the module file and attempt to read a provider out of it
-
-          const _importedModule = (await import(moduleFile)) as ServiceModule;
-          // Nothing else to do here; modules may register providers themselves but we will not rely on that
+          // Fallback: try to require the module file
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const _importedModule = require(moduleFile) as ServiceModule;
+          // Nothing else to do here; modules may register providers themselves
         } catch {
           console.warn(
             `[service] ${dir.name} ignored (no service or module file found)`,
