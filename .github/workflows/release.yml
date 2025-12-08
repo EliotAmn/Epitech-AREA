@@ -28,8 +28,46 @@ permissions:
   packages: write
 
 jobs:
+  # Detect which files changed
+  detect_changes:
+    name: "Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.set-outputs.outputs.frontend_changed }}
+      backend_changed: ${{ steps.set-outputs.outputs.backend_changed }}
+      mobile_changed: ${{ steps.set-outputs.outputs.mobile_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            web/**
+            backend/**
+            mobile/**
+
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          FRONT=false
+          BACK=false
+          MOBILE=false
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "web/"; then FRONT=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "backend/"; then BACK=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "mobile/"; then MOBILE=true; fi
+          echo "frontend_changed=$FRONT" >> $GITHUB_OUTPUT
+          echo "backend_changed=$BACK" >> $GITHUB_OUTPUT
+          echo "mobile_changed=$MOBILE" >> $GITHUB_OUTPUT
+
   # Mobile APK Build
   build_mobile_apk:
+    needs: [detect_changes]
+    if: ${{ needs.detect_changes.outputs.mobile_changed == 'true' || github.event_name == 'workflow_dispatch' }}
     name: "Build Mobile APK"
     runs-on: ubuntu-latest
     
@@ -89,11 +127,13 @@ jobs:
   # Docker Images Build
   build_docker_images:
     name: "Build Docker Images"
+    needs: [detect_changes]
     runs-on: ubuntu-latest
-    if: ${{ !inputs.skip_docker }}
+    if: ${{ (needs.detect_changes.outputs.backend_changed == 'true' || needs.detect_changes.outputs.frontend_changed == 'true') && !inputs.skip_docker }}
     strategy:
       matrix:
         service: [backend, web]
+      fail-fast: false
     
     steps:
       - name: Checkout code
@@ -119,7 +159,9 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -190,7 +232,7 @@ jobs:
   create_release:
     name: "Create GitHub Release"
     runs-on: ubuntu-latest
-    needs: [build_mobile_apk, build_web_artifacts]
+    needs: [build_mobile_apk, build_web_artifacts, build_docker_images]
     if: startsWith(github.ref, 'refs/tags/v')
     
     steps:
@@ -213,6 +255,7 @@ jobs:
         id: release_notes
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
+          REGISTRY_URL="ghcr.io/${{ github.repository }}"
           
           cat > release_notes.md << EOF
           # AREA Project Release $VERSION
@@ -225,26 +268,84 @@ jobs:
           ### Web Application
           - **Web Bundle**: \`web-dist.tar.gz\` - Production web bundle
           
+          ### Docker Images
+          All Docker images are available on GitHub Container Registry (GHCR).
+          
+          \`\`\`bash
+          # Pull the images
+          docker pull $REGISTRY_URL/backend:$VERSION
+          docker pull $REGISTRY_URL/web:$VERSION
+          docker pull $REGISTRY_URL/backend:latest
+          docker pull $REGISTRY_URL/web:latest
+          \`\`\`
+          
           ## 🚀 Deployment
           
           ### Mobile
           1. Download the APK file
           2. Install on Android device (enable "Install from unknown sources")
+          3. Grant necessary permissions when prompted
           
           ### Web
           1. Download and extract \`web-dist.tar.gz\`
-          2. Serve the \`dist\` folder with any web server
+          2. Serve the \`dist\` folder with any web server:
+             - \`npm install -g http-server && http-server dist\`
+             - Or use your preferred web server (nginx, Apache, etc.)
           
-          ### Docker
-          Docker images are available at:
-          - Backend: \`ghcr.io/${{ github.repository }}/backend:$VERSION\`
-          - Web: \`ghcr.io/${{ github.repository }}/web:$VERSION\`
+          ### Docker - Full Stack
+          Use \`docker-compose.yml\` with the built images:
           
-          Use \`docker-compose.yml\` to run the full stack.
+          \`\`\`bash
+          # Create .env file with configuration
+          cat > .env << EOF2
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=your_password
+          POSTGRES_DB=area
+          EOF2
+          
+          # Start all services
+          docker compose up -d
+          \`\`\`
+          
+          **Services:**
+          - Backend (NestJS): http://localhost:8080
+          - Web Frontend: http://localhost:8081
+          - PostgreSQL: localhost:5432
+          
+          ### Manual Image Deployment
+          
+          **Backend:**
+          \`\`\`bash
+          docker run -d \\
+            --name area-backend \\
+            -p 8080:3000 \\
+            -e DATABASE_URL=postgresql://user:pass@host/db \\
+            $REGISTRY_URL/backend:$VERSION
+          \`\`\`
+          
+          **Web:**
+          \`\`\`bash
+          docker run -d \\
+            --name area-web \\
+            -p 8081:80 \\
+            $REGISTRY_URL/web:$VERSION
+          \`\`\`
           
           ## 📝 Changes
           
-          See the commit history for detailed changes in this release.
+          See the [commit history](https://github.com/${{ github.repository }}/commits/$VERSION) for detailed changes in this release.
+          
+          ## 🔗 Container Registry
+          
+          All Docker images are hosted on GitHub Container Registry:
+          - **Registry**: \`ghcr.io\`
+          - **Owner**: \`${{ github.repository_owner }}\`
+          - **Repository**: \`${{ github.repository }}\`
+          
+          To pull images, ensure you're logged in:
+          \`\`\`bash
+          docker login ghcr.io
+          \`\`\`
           EOF
           
           echo "release_notes<<EOF" >> $GITHUB_OUTPUT
@@ -274,8 +375,8 @@ jobs:
   test_docker_compose:
     name: "Test Docker Compose Stack"
     runs-on: ubuntu-latest
-    needs: [build_docker_images]
-    if: ${{ !inputs.skip_docker && github.event_name != 'push' }}
+    needs: [build_docker_images, detect_changes]
+    if: ${{ needs.build_docker_images.result == 'success' && !inputs.skip_docker && github.event_name == 'workflow_dispatch' }}
     
     steps:
       - name: Checkout code
