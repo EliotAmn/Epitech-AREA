@@ -58,9 +58,9 @@ export class AppService {
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        this.logger.error('Error sending message', error.response?.data);
+        this.logger.error('Error fetching access token', error.response?.data);
       } else {
-        this.logger.error('Error sending message', error);
+        this.logger.error('Error fetching access token', error);
       }
       throw error;
     }
