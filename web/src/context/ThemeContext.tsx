@@ -1,45 +1,31 @@
-import React, { createContext, useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 
-export type Theme = "light" | "dark";
-
-type ThemeContextShape = {
-	theme: Theme;
-	setTheme: (t: Theme) => void;
-	resetTheme: () => void;
-	initialTheme: Theme;
-};
-
-export const ThemeContext = createContext<ThemeContextShape>({
-	theme: "light",
-	setTheme: () => {},
-	resetTheme: () => {},
-	initialTheme: "light",
-});
+import { ThemeContext, type Theme } from "./theme";
 
 export function ThemeProvider({
-	children,
-	initialTheme = "light",
+    children,
+    initialTheme = "light",
 }: {
-	children: React.ReactNode;
-	initialTheme?: Theme;
+    children: React.ReactNode;
+    initialTheme?: Theme;
 }) {
-	const [theme, setThemeState] = useState<Theme>(initialTheme);
-	const setTheme = useCallback((t: Theme) => {
-		setThemeState(t);
-	}, []);
+    const [theme, setThemeState] = useState<Theme>(initialTheme);
+    const setTheme = useCallback((t: Theme) => {
+        setThemeState(t);
+    }, []);
 
-	const resetTheme = useCallback(
-		() => setThemeState(initialTheme),
-		[initialTheme]
-	);
+    const resetTheme = useCallback(
+        () => setThemeState(initialTheme),
+        [initialTheme]
+    );
 
-	return (
-		<ThemeContext.Provider
-			value={{ theme, setTheme, resetTheme, initialTheme }}
-		>
-			{children}
-		</ThemeContext.Provider>
-	);
+    return (
+        <ThemeContext.Provider
+            value={{ theme, setTheme, resetTheme, initialTheme }}
+        >
+            {children}
+        </ThemeContext.Provider>
+    );
 }
 
 export default ThemeProvider;

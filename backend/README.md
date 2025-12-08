@@ -11,27 +11,30 @@ git clone https://github.com/EliotAmn/Epitech-AREA.git
 cd Epitech-AREA/
 ```
 
+2. Setup environment variables:
 
-2. Setup environment variables: 
 ```bash
 cp .env.example .env
 cp backend/.env.example backend/.env
 ```
+
 > NOTE: Make sure to edit the .env files to set your own configuration values.
 
 3. Run the database
+
 ```bash
 docker compose up -d postgres
 ```
 
 4. Setup the backend
+
 ```bash
 cd backend/
 # Install dependencies
 npm install
 # Run database migrations
-npx prisma migrate generate
-npx prisma migrate deploy
+npx prisma generate --schema src/prisma/schema.prisma
+npx prisma migrate deploy --schema src/prisma/schema.prisma
 
 # Start the backend server
 npm start
