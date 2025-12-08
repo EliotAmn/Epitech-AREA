@@ -1,31 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../component/input/input_decorations.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  late TextEditingController _emailController;
+  late TextEditingController _usernameController;
+  late TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _usernameController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void signUp(BuildContext context) {
+    String email = _emailController.text;
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    http.post(
+      Uri.parse('${dotenv.env['API_URL']}/auth/register'),
+      body: {
+        'email': email,
+        'name': username,
+        'password': password,
+      },
+    ).then((response) {
+      if (response.statusCode == 201) {
+        debugPrint('Sign up successful');
+        Navigator.of(context).pop();
+      } else {
+        debugPrint('Sign up failed with status code: ${response.statusCode} & body: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sign up failed: ${response.statusCode}')),
+        );
+      }
+    }).catchError((error) {
+      debugPrint('Sign up failed with error: $error');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-        child: Icon(Icons.arrow_back,
-          color: Theme.of(context).colorScheme.onInverseSurface,
-        ),
-      ),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        scrolledUnderElevation: 0.0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        title:
-            Text('AREA',
-              style: Theme.of(context).textTheme.displayLarge,
-            ),
+        title: const Text('Sign Up'),
       ),
       body: Center(
         child: Column(
@@ -42,16 +79,19 @@ class SignUpPage extends StatelessWidget {
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
                   TextField(
+                    controller: _emailController,
                     decoration: AppInputDecorations.primary(context, 'Email'),
                     textInputAction: TextInputAction.next,
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
                   TextField(
+                    controller: _usernameController,
                     decoration: AppInputDecorations.primary(context, 'Username'),
                     textInputAction: TextInputAction.next,
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
                   TextField(
+                    controller: _passwordController,
                     decoration: AppInputDecorations.primary(context, 'Password'),
                     obscureText: true,
                     textInputAction: TextInputAction.done,
@@ -59,9 +99,8 @@ class SignUpPage extends StatelessWidget {
                     enableSuggestions: false,
                   ),
                   SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-                  TextButton(onPressed: () {
-                    // Handle sign up action
-                  },
+                  TextButton(
+                    onPressed: () => signUp(context),
                     style: TextButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.inverseSurface,
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
@@ -70,12 +109,18 @@ class SignUpPage extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onInverseSurface,
                         fontWeight: FontWeight.bold,
-                    ))
+                      )
+                    )
                   ),
                 ],
               ),
             ),
-            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
           ],
         ),
       ),

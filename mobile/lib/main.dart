@@ -4,8 +4,10 @@ import 'pages/home_page.dart';
 import 'pages/counter_page.dart';
 import 'pages/login_page.dart';
 import 'themes.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

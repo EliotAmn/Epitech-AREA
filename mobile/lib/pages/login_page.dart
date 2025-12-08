@@ -1,14 +1,70 @@
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
+import 'package:http/http.dart' as http;
+import '../global/cache.dart' as cache;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   final VoidCallback onLoginSuccess;
+
   const LoginPage({super.key, required this.onLoginSuccess});
 
- 
+  @override
+  State<LoginPage> createState() => _LoginPageState(onLoginSuccess: onLoginSuccess);
+
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final VoidCallback onLoginSuccess;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+  _LoginPageState({required this.onLoginSuccess});
+
+   @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void loginControls(BuildContext context) {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    http.post(
+      Uri.parse('${dotenv.env['API_URL']}/auth/login'),
+      body: {
+        'email': email,
+        'password': password,
+      },
+      ).then((response) {
+        if (response.statusCode == 201) {
+          final data = jsonDecode(response.body) as Map<String, dynamic>;
+          final token = data['access_token'] as String;
+
+          debugPrint('Login successful');
+          cache.AuthStore().saveToken(token);
+          onLoginSuccess.call();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: ${response.statusCode}')),
+          );
+          debugPrint('Login failed with status code: ${response.statusCode} & body: ${response.body}');
+        }
+      }).catchError((error) {
+        debugPrint('Login failed with error: $error');
+      }
+    );
+  }
 
   void openLoginDialog(BuildContext context) {
     showModalBottomSheet(
@@ -28,13 +84,15 @@ class LoginPage extends StatelessWidget {
           children: [
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(
-              decoration: AppInputDecorations.primary(context, 'Email or Username'),
+              decoration: AppInputDecorations.primary(context, 'Email'),
               textInputAction: TextInputAction.next,
+              controller: _emailController,
             ),
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(
               decoration: AppInputDecorations.primary(context, 'Password'),
               textInputAction: TextInputAction.done,
+              controller: _passwordController,
               obscureText: true,
               autocorrect: false,
               enableSuggestions: false,
@@ -42,8 +100,7 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             ElevatedButton(
               onPressed: () {
-                // Handle login logic here
-                onLoginSuccess.call();
+                loginControls(context);
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
