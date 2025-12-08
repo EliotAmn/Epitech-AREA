@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { ServiceImporterService } from '../service_importer/service_importer.service';
-import { 
-  ServiceDefinition, 
-  ServiceActionConstructor, 
-  ServiceReactionConstructor 
-} from '../../common/service.types';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+
+import {
+  ServiceActionConstructor,
+  ServiceDefinition,
+  ServiceReactionConstructor,
+} from '@/common/service.types';
+import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
 
 type ServiceClassOrInstance = (new () => ServiceDefinition) | ServiceDefinition;
 
@@ -64,17 +64,20 @@ export class AboutService {
 
   private formatServices(): ServiceInfo[] {
     const services = this.serviceImporterService.getAllServices();
-    
+
     /* Doing hacky stuff with ServiceDefinition to obtain usable instances, would likely
     be better if it had a clear type */
     return services.map((serviceClassOrInstance: ServiceClassOrInstance) => {
       try {
-        const service = typeof serviceClassOrInstance === 'function' 
-          ? new serviceClassOrInstance() 
-          : serviceClassOrInstance;
+        const service =
+          typeof serviceClassOrInstance === 'function'
+            ? new serviceClassOrInstance()
+            : serviceClassOrInstance;
 
         const actions: ActionInfo[] = this.formatActions(service.actions || []);
-        const reactions: ReactionInfo[] = this.formatReactions(service.reactions || []);
+        const reactions: ReactionInfo[] = this.formatReactions(
+          service.reactions || [],
+        );
 
         return {
           name: service.name,
@@ -92,7 +95,9 @@ export class AboutService {
     });
   }
 
-  private formatActions(actionClasses: ServiceActionConstructor[]): ActionInfo[] {
+  private formatActions(
+    actionClasses: ServiceActionConstructor[],
+  ): ActionInfo[] {
     return actionClasses.map((ActionClass) => {
       try {
         const actionInstance = new ActionClass();
@@ -110,13 +115,16 @@ export class AboutService {
     });
   }
 
-  private formatReactions(reactionClasses: ServiceReactionConstructor[]): ReactionInfo[] {
+  private formatReactions(
+    reactionClasses: ServiceReactionConstructor[],
+  ): ReactionInfo[] {
     return reactionClasses.map((ReactionClass) => {
       try {
         const reactionInstance = new ReactionClass();
         return {
           name: reactionInstance.name || 'unknown_reaction',
-          description: reactionInstance.description || 'No description available',
+          description:
+            reactionInstance.description || 'No description available',
         };
       } catch (error) {
         this.logger.error(`Failed to instantiate reaction:`, error);

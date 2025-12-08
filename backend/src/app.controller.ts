@@ -1,7 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
 @Controller('notify')
 export class AppController {
-  constructor(
-  ) {}
+  constructor() {}
 }
