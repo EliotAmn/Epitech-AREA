@@ -22,7 +22,7 @@ export class ServiceImporterModule {
     for (const dir of dirs) {
       if (!dir.isDirectory()) continue;
 
-      // Try to require the service file (try both .service and module filenames)
+      // Try to import the service file (try both .service and module filenames)
       const serviceFileBase = join(pluginPath, dir.name, `${dir.name}.service`);
       const moduleFile = join(pluginPath, dir.name, `${dir.name}.module`);
 
