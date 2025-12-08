@@ -48,7 +48,7 @@ export abstract class ServiceReactionDefinition {
   // sconf: Service config, params: parameters/context given from the area (not the action params definition)
   abstract execute(
     sconf: ServiceConfig,
-    params: Record<string, any>,
+    params: Record<string, ParameterValue>,
   ): Promise<void>;
 }
 
