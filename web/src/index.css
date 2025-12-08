@@ -1,81 +1,114 @@
 @import "tailwindcss";
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
 
-  /* color-scheme: light dark;
+    /* color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424; */
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 
-  --gap-1: 0.25rem;
-  --gap-2: 0.5rem;
-  --gap-3: 0.75rem;
-  --gap-4: 1rem;
-  --gap-5: 1.25rem;
-  --gap-6: 1.5rem;
-  --gap-8: 2rem;
+    --gap-1: 0.25rem;
+    --gap-2: 0.5rem;
+    --gap-3: 0.75rem;
+    --gap-4: 1rem;
+    --gap-5: 1.25rem;
+    --gap-6: 1.5rem;
+    --gap-8: 2rem;
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+    color: #535bf2;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
 }
 
-
 /* utilitaires gap simples : utilisez className="gap-6" (fonctionne sur flex/grid) */
-.gap-1 { gap: var(--gap-1); }
-.gap-2 { gap: var(--gap-2); }
-.gap-3 { gap: var(--gap-3); }
-.gap-4 { gap: var(--gap-4); }
-.gap-5 { gap: var(--gap-5); }
-.gap-6 { gap: var(--gap-6); }
-.gap-8 { gap: var(--gap-8); }
+.gap-1 {
+    gap: var(--gap-1);
+}
+.gap-2 {
+    gap: var(--gap-2);
+}
+.gap-3 {
+    gap: var(--gap-3);
+}
+.gap-4 {
+    gap: var(--gap-4);
+}
+.gap-5 {
+    gap: var(--gap-5);
+}
+.gap-6 {
+    gap: var(--gap-6);
+}
+.gap-8 {
+    gap: var(--gap-8);
+}
 
 /* Fallback uniquement pour navigateurs ne supportant pas gap sur les flex containers */
 @supports not (gap: 1px) {
-  .gap-1 > * { margin-right: var(--gap-1); margin-bottom: var(--gap-1); }
-  .gap-2 > * { margin-right: var(--gap-2); margin-bottom: var(--gap-2); }
-  .gap-3 > * { margin-right: var(--gap-3); margin-bottom: var(--gap-3); }
-  .gap-4 > * { margin-right: var(--gap-4); margin-bottom: var(--gap-4); }
-  .gap-5 > * { margin-right: var(--gap-5); margin-bottom: var(--gap-5); }
-  .gap-6 > * { margin-right: var(--gap-6); margin-bottom: var(--gap-6); }
-  .gap-8 > * { margin-right: var(--gap-8); margin-bottom: var(--gap-8); }
+    .gap-1 > * {
+        margin-right: var(--gap-1);
+        margin-bottom: var(--gap-1);
+    }
+    .gap-2 > * {
+        margin-right: var(--gap-2);
+        margin-bottom: var(--gap-2);
+    }
+    .gap-3 > * {
+        margin-right: var(--gap-3);
+        margin-bottom: var(--gap-3);
+    }
+    .gap-4 > * {
+        margin-right: var(--gap-4);
+        margin-bottom: var(--gap-4);
+    }
+    .gap-5 > * {
+        margin-right: var(--gap-5);
+        margin-bottom: var(--gap-5);
+    }
+    .gap-6 > * {
+        margin-right: var(--gap-6);
+        margin-bottom: var(--gap-6);
+    }
+    .gap-8 > * {
+        margin-right: var(--gap-8);
+        margin-bottom: var(--gap-8);
+    }
 
-  .gap-1 > *:last-child,
-  .gap-2 > *:last-child,
-  .gap-3 > *:last-child,
-  .gap-4 > *:last-child,
-  .gap-5 > *:last-child,
-  .gap-6 > *:last-child,
-  .gap-8 > *:last-child {
-    margin-right: 0;
-  }
+    .gap-1 > *:last-child,
+    .gap-2 > *:last-child,
+    .gap-3 > *:last-child,
+    .gap-4 > *:last-child,
+    .gap-5 > *:last-child,
+    .gap-6 > *:last-child,
+    .gap-8 > *:last-child {
+        margin-right: 0;
+    }
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
+    :root {
+        color: #213547;
+        background-color: #ffffff;
+    }
+    a:hover {
+        color: #747bff;
+    }
 }
-
