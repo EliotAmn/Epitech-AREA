@@ -41,9 +41,46 @@ permissions:
   id-token: write
 
 jobs:
+  # Detect which files changed
+  detect_changes:
+    name: "Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.set-outputs.outputs.frontend_changed }}
+      backend_changed: ${{ steps.set-outputs.outputs.backend_changed }}
+      mobile_changed: ${{ steps.set-outputs.outputs.mobile_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            web/**
+            backend/**
+            mobile/**
+
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          FRONT=false
+          BACK=false
+          MOBILE=false
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "web/"; then FRONT=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "backend/"; then BACK=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "mobile/"; then MOBILE=true; fi
+          echo "frontend_changed=$FRONT" >> $GITHUB_OUTPUT
+          echo "backend_changed=$BACK" >> $GITHUB_OUTPUT
+          echo "mobile_changed=$MOBILE" >> $GITHUB_OUTPUT
+
   # Repository validation (runs first, fast feedback)
   repository_validation:
     name: "Repository Validation"
+    needs: [detect_changes]
     uses: ./.github/workflows/repository_validation.yml
     with:
       strict_mode: ${{ inputs.strict_validation || false }}
@@ -51,7 +88,8 @@ jobs:
   # Backend workflows
   backend_code_quality:
     name: "Backend Code Quality"
-    needs: [repository_validation]
+    needs: [repository_validation, detect_changes]
+    if: ${{ needs.detect_changes.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/backend_code_quality.yml
     with:
       enable_eslint: true
@@ -59,7 +97,8 @@ jobs:
 
   backend_build_test:
     name: "Backend Build & Test"
-    needs: [backend_code_quality]
+    needs: [backend_code_quality, detect_changes]
+    if: ${{ needs.detect_changes.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/backend_build_test.yml
     with:
       enable_tests: ${{ !inputs.skip_tests }}
@@ -68,7 +107,8 @@ jobs:
   # Web frontend workflows
   web_code_quality:
     name: "Web Frontend Code Quality"
-    needs: [repository_validation]
+    needs: [repository_validation, detect_changes]
+    if: ${{ needs.detect_changes.outputs.frontend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/web_code_quality.yml
     with:
       enable_eslint: true
@@ -76,7 +116,8 @@ jobs:
 
   web_build_test:
     name: "Web Frontend Build & Test"
-    needs: [web_code_quality]
+    needs: [web_code_quality, detect_changes]
+    if: ${{ needs.detect_changes.outputs.frontend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/web_build_test.yml
     with:
       enable_tests: ${{ !inputs.skip_tests }}
@@ -84,7 +125,8 @@ jobs:
   # Mobile workflows
   mobile_code_quality:
     name: "Mobile Code Quality"
-    needs: [repository_validation]
+    needs: [repository_validation, detect_changes]
+    if: ${{ needs.detect_changes.outputs.mobile_changed == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/mobile_code_quality.yml
     with:
       enable_analysis: true
@@ -92,7 +134,8 @@ jobs:
 
   mobile_build_test:
     name: "Mobile Build & Test"
-    needs: [mobile_code_quality]
+    needs: [mobile_code_quality, detect_changes]
+    if: ${{ needs.detect_changes.outputs.mobile_changed == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/mobile_build_test.yml
     with:
       enable_tests: ${{ !inputs.skip_tests }}
@@ -142,6 +185,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - repository_validation
+      - detect_changes
       - backend_build_test
       - web_build_test
       - mobile_build_test
@@ -154,36 +198,85 @@ jobs:
           echo "## 🎯 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Check if all required jobs passed
+          # Determine which jobs ran based on changes
+          BACKEND_CHANGED="${{ needs.detect_changes.outputs.backend_changed }}"
+          WEB_CHANGED="${{ needs.detect_changes.outputs.frontend_changed }}"
+          MOBILE_CHANGED="${{ needs.detect_changes.outputs.mobile_changed }}"
+          
+          # Check results
           REPOSITORY_VALIDATION="${{ needs.repository_validation.result }}"
           BACKEND_BUILD="${{ needs.backend_build_test.result }}"
           WEB_BUILD="${{ needs.web_build_test.result }}"
           MOBILE_BUILD="${{ needs.mobile_build_test.result }}"
           DOCKER_VALIDATION="${{ needs.docker_compose_validation.result }}"
           
+          echo "### Changes Detected:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: **$BACKEND_CHANGED**" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend (Web): **$WEB_CHANGED**" >> $GITHUB_STEP_SUMMARY
+          echo "- Mobile: **$MOBILE_CHANGED**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Job Results:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- Repository Validation: **$REPOSITORY_VALIDATION**" >> $GITHUB_STEP_SUMMARY
-          echo "- Backend Build & Test: **$BACKEND_BUILD**" >> $GITHUB_STEP_SUMMARY
-          echo "- Web Build & Test: **$WEB_BUILD**" >> $GITHUB_STEP_SUMMARY
-          echo "- Mobile Build & Test: **$MOBILE_BUILD**" >> $GITHUB_STEP_SUMMARY
+          
+          # Only check build results if they ran
+          if [ "$BACKEND_CHANGED" = "true" ]; then
+            echo "- Backend Build & Test: **$BACKEND_BUILD**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Backend Build & Test: **skipped** (no changes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "$WEB_CHANGED" = "true" ]; then
+            echo "- Web Build & Test: **$WEB_BUILD**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Web Build & Test: **skipped** (no changes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "$MOBILE_CHANGED" = "true" ]; then
+            echo "- Mobile Build & Test: **$MOBILE_BUILD**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Mobile Build & Test: **skipped** (no changes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "- Docker Compose: **$DOCKER_VALIDATION**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Determine overall status
-          if [ "$REPOSITORY_VALIDATION" != "success" ] || \
-             [ "$BACKEND_BUILD" != "success" ] || \
-             [ "$WEB_BUILD" != "success" ] || \
-             [ "$MOBILE_BUILD" != "success" ] || \
-             [ "$DOCKER_VALIDATION" != "success" ]; then
+          FAILED=false
+          
+          # Repository validation always runs
+          if [ "$REPOSITORY_VALIDATION" != "success" ]; then
+            FAILED=true
+          fi
+          
+          # Docker validation always runs
+          if [ "$DOCKER_VALIDATION" != "success" ]; then
+            FAILED=true
+          fi
+          
+          # Check build results only if they ran
+          if [ "$BACKEND_CHANGED" = "true" ] && [ "$BACKEND_BUILD" != "success" ]; then
+            FAILED=true
+          fi
+          
+          if [ "$WEB_CHANGED" = "true" ] && [ "$WEB_BUILD" != "success" ]; then
+            FAILED=true
+          fi
+          
+          if [ "$MOBILE_CHANGED" = "true" ] && [ "$MOBILE_BUILD" != "success" ]; then
+            FAILED=true
+          fi
+          
+          if [ "$FAILED" = true ]; then
             echo "### ❌ Quality Gate: FAILED" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "One or more checks did not pass. Please review the failed jobs above." >> $GITHUB_STEP_SUMMARY
+            echo "One or more required checks did not pass. Please review the failed jobs above." >> $GITHUB_STEP_SUMMARY
             exit 1
           else
             echo "### ✅ Quality Gate: PASSED" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "All checks passed successfully! 🎉" >> $GITHUB_STEP_SUMMARY
+            echo "All required checks passed successfully! 🎉" >> $GITHUB_STEP_SUMMARY
           fi
       
       - name: Comment on PR
