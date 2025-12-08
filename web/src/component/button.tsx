@@ -16,15 +16,15 @@ export default function Button({
     className = "",
 }: ButtonProps) {
     const base =
-        "inline-flex items-center justify-center px-4 py-2 w-full sm:w-[300px] md:w-[340px] h-12 sm:h-14 rounded-full border focus:ring-2 focus:ring-offset-2";
+        "inline-flex items-center justify-center px-4 py-2 w-full sm:w-[300px] md:w-[340px] h-12 sm:h-14 hover:font-bold rounded-full border";
 
     const modeClasses = (() => {
         switch (mode) {
             case "white":
-                return "bg-white text-black border-gray-300 hover:bg-gray-50 focus:ring-gray-200";
+                return "bg-white text-black border-gray-300 hover:scale-105 focus:bg-gray-100";
             case "black":
             default:
-                return "bg-black text-white border-transparent hover:bg-gray-900 focus:ring-gray-700";
+                return "bg-black text-white border-transparent hover:scale-105 focus:bg-gray-800";
         }
     })();
 

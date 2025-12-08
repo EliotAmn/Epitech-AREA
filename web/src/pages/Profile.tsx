@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Button from "@/component/button";
+import UserIcon from "@/component/icons/UserIcon";
 import Input from "@/component/input";
 import { ApiClientError, userService } from "@/services/api";
 import type { User } from "@/types/api.types";
@@ -58,48 +59,51 @@ export default function Profile() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center mt-4">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-24 w-24"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-            </svg>
-            <h1 className="text-4xl text-black font-bold mt-4">User Profile</h1>
-            <div className="w-lg h-1 bg-zinc-300 rounded-full mt-8" />
-            <div className="w-full max-w-md mt-6">
-                <p className="text-2xl text-black font-semibold mb-4">Email</p>
-                <div className="flex flex-col items-center mb-4">
-                    <Input value={user.email} isFixed={true} />
+        <div className="min-h-screen flex justify-center">
+            <div className="w-full max-w-md p-6">
+                <div className="flex flex-col items-center">
+                    <UserIcon className="h-24 w-24" />
+
+                    <h1 className="text-2xl sm:text-4xl text-black font-bold mt-4">
+                        User Profile
+                    </h1>
                 </div>
-                {user.name && (
-                    <>
-                        <p className="text-2xl text-black font-semibold mb-4">
-                            Name
+
+                <div className="w-full h-1 bg-zinc-300 rounded-full my-4" />
+
+                <div className="flex flex-col gap-4 justify-center items-center">
+                    <div className="w-full">
+                        <p className="text-xl sm:text-2xl text-black font-semibold mb-2">
+                            Email
                         </p>
-                        <div className="flex flex-col items-center mb-4">
+                        <Input value={user.email} isFixed={true} />
+                    </div>
+
+                    {user.name && (
+                        <>
+                            <p className="text-xl sm:text-2xl text-black font-semibold mb-2">
+                                Name
+                            </p>
                             <Input value={user.name} isFixed={true} />
-                        </div>
-                    </>
-                )}
-                <p className="text-2xl text-black font-semibold mb-4">
-                    Password
-                </p>
-                <div className="flex flex-col items-center mb-4">
-                    <Input value="••••••••" isFixed={true} isHidden={true} />
-                    <div className="mt-4">
-                        <Button
-                            label="Change Password"
-                            onClick={() => navigate("/change-password")}
+                        </>
+                    )}
+
+                    <div className="w-full">
+                        <p className="text-xl sm:text-2xl text-black font-semibold mb-2">
+                            Password
+                        </p>
+                        <Input
+                            value="••••••••"
+                            isFixed={true}
+                            isHidden={true}
                         />
+
+                        <div className="w-full flex justify-center mt-4">
+                            <Button
+                                label="Change Password"
+                                onClick={() => navigate("/change-password")}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 
 import SearchBar from "../component/SearchBar";
 import Widget from "../component/widget";
+
+import "../styles/responsiveGrids.css";
+
 import type { CatalogItem } from "../data/catalogData";
 
 interface CatalogPageProps {
@@ -26,7 +29,6 @@ export default function CatalogPage({
                 it.platform.toLowerCase().includes(q)
         );
     }, [items, query]);
-
     return (
         <div className="min-h-screen flex flex-col items-center px-4 sm:px-8">
             {description && (
@@ -34,6 +36,7 @@ export default function CatalogPage({
                     {description}
                 </div>
             )}
+
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="w-full flex justify-center">
                     <div className="w-full sm:w-auto">
@@ -47,7 +50,7 @@ export default function CatalogPage({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center m-4">
+            <div className="responsiveGrid">
                 {filtered.length === 0 ? (
                     <div className="col-span-full text-center text-gray-500 py-8 rounded bg-gray-50">
                         No results
