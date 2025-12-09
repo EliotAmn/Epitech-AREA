@@ -1,11 +1,13 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import configuration from './common/configuration';
+import { DiscordClientManager } from './services/discord/discord.client';
 
 async function bootstrap() {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
   // Auto validation
@@ -28,6 +30,21 @@ async function bootstrap() {
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory);
+
+  // Initialize Discord bot
+  const discordToken = configuration().discordBotToken;
+  if (discordToken) {
+    try {
+      logger.log('Initializing Discord bot...');
+      await DiscordClientManager.getInstance().initialize(discordToken);
+      logger.log('Discord bot initialized successfully');
+    } catch (error) {
+      logger.error('Failed to initialize Discord bot:', error);
+      logger.warn('Discord service will not be available');
+    }
+  } else {
+    logger.warn('DISCORD_BOT_TOKEN not found in environment variables. Discord service will not be available.');
+  }
 
   await app.listen(process.env.PORT || 3000);
 }

@@ -1,43 +1,25 @@
-import {
-    ParameterType,
-    ServiceConfig,
-    ServiceDefinition,
-    ServiceReactionDefinition
-} from "../../common/service.types";
-import {Injectable} from "@nestjs/common";
-
-class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
-    name = 'custom_webhook';
-    description = 'Send a message to a Discord channel via webhook';
-    input_params = [
-        {
-            name: 'webhook_url',
-            type: ParameterType.STRING,
-            label: 'Webhook URL',
-            description: 'The URL of the Discord webhook to send the message to',
-            required: true,
-        },
-        {
-            name: 'message',
-            type: ParameterType.STRING,
-            label: 'Message',
-            description: 'The message to send to the Discord channel',
-            required: true,
-        },
-    ];
-
-    execute(sconf: ServiceConfig, params: Record<string, any>): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
-}
-
+import { ServiceDefinition } from "../../common/service.types";
+import { NewMessageInChannelAction } from "./actions/new-message-in-channel.action";
+import { UserJoinedServerAction } from "./actions/user-joined-server.action";
+import { MessageContainsKeywordAction } from "./actions/message-contains-keyword.action";
+import { SendMessageToChannelReaction } from "./reactions/send-message-to-channel.reaction";
+import { AddRoleToUserReaction } from "./reactions/add-role-to-user.reaction";
+import { SendDirectMessageReaction } from "./reactions/send-direct-message.reaction";
 
 export default class DiscordService implements ServiceDefinition {
-    name = 'discord';
-    label = 'Discord';
-    description = 'Interact with your discord servers'
-    actions = [];
+    name = "discord";
+    label = "Discord";
+    description = "Discord bot integration with OAuth for server management and automation";
+    
+    actions = [
+        NewMessageInChannelAction,
+        UserJoinedServerAction,
+        MessageContainsKeywordAction,
+    ];
+    
     reactions = [
-        DiscordCustomWebhookReaction
-    ]
+        SendMessageToChannelReaction,
+        AddRoleToUserReaction,
+        SendDirectMessageReaction,
+    ];
 }
