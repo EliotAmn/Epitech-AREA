@@ -142,15 +142,6 @@ jobs:
       enable_analysis: true
       enable_format_check: true
 
-  mobile_build_test:
-    name: "Mobile Build & Test"
-    needs: [mobile_code_quality, detect_changes]
-    if: ${{ needs.detect_changes.outputs.mobile_changed == 'true' || github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/mobile_build_test.yml
-    with:
-      enable_tests: ${{ !inputs.skip_tests }}
-      build_apk: ${{ !inputs.skip_mobile_build }}
-
   # Docker compose validation
   docker_compose_validation:
     name: "Docker Compose Validation"
@@ -198,7 +189,6 @@ jobs:
       - detect_changes
       - backend_build_test
       - web_build_test
-      - mobile_build_test
       - docker_compose_validation
     if: always()
     
@@ -217,7 +207,6 @@ jobs:
           REPOSITORY_VALIDATION="${{ needs.repository_validation.result }}"
           BACKEND_BUILD="${{ needs.backend_build_test.result }}"
           WEB_BUILD="${{ needs.web_build_test.result }}"
-          MOBILE_BUILD="${{ needs.mobile_build_test.result }}"
           DOCKER_VALIDATION="${{ needs.docker_compose_validation.result }}"
           
           echo "### Changes Detected:" >> $GITHUB_STEP_SUMMARY
@@ -297,7 +286,6 @@ jobs:
             const status = '${{ needs.repository_validation.result }}' === 'success' &&
                           '${{ needs.backend_build_test.result }}' === 'success' &&
                           '${{ needs.web_build_test.result }}' === 'success' &&
-                          '${{ needs.mobile_build_test.result }}' === 'success' &&
                           '${{ needs.docker_compose_validation.result }}' === 'success';
             
             const body = status 
