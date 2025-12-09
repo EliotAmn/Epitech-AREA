@@ -102,7 +102,7 @@ async function testDiscordService() {
             triggered = true;
             break;
         }
-    }
+    }''
     
     if (!triggered) {
         console.log('⚠️  No message detected (this is OK if you didn\'t send one)\n');

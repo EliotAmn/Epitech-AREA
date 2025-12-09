@@ -65,4 +65,9 @@ export class AddRoleToUserReaction extends ServiceReactionDefinition {
             throw error;
         }
     }
+
+    async reload_cache(sconf?: ServiceConfig): Promise<Record<string, any>> {
+        // Reactions don't need to maintain cache as they don't listen to events
+        return {};
+    }
 }
