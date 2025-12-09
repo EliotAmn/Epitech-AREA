@@ -48,5 +48,15 @@ export class CreateUserDto {
   })
   @IsString()
   @IsOptional()
-  auth_platform?: 'local' | 'google' | 'github';
+  auth_platform?: AuthPlatform;
+}
+
+export type AuthPlatform = 'local' | 'google' | 'github';
+
+export const AUTH_PLATFORMS = ['local', 'google', 'github'] as const;
+
+export function isAuthPlatform(v: unknown): v is AuthPlatform {
+  return (
+    typeof v === 'string' && (AUTH_PLATFORMS as readonly string[]).includes(v)
+  );
 }

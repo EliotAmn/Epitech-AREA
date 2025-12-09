@@ -79,6 +79,86 @@ class AuthService {
     static getToken(): string | null {
         return localStorage.getItem("authToken");
     }
+
+    async oauthSignIn(provider: string): Promise<void> {
+        const resp = await apiClient.post<{ url: string }>(
+            `${this.basePath}/oauth/${provider}/authorize`
+        );
+
+        const url = resp.url;
+        if (!url) throw new Error("No authorize URL returned from server");
+
+        let popup: Window | null = null;
+
+        const width = 600;
+        const height = 700;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+
+        popup = window.open(
+            url,
+            `oauth_${provider}`,
+            `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        if (!popup) throw new Error("Failed to open popup window");
+
+        return new Promise<void>((resolve, reject) => {
+            let settled = false;
+
+            const cleanup = () => {
+                window.removeEventListener("message", onMessage);
+                try {
+                    if (popup && !popup.closed) popup.close();
+                } catch {
+                    // ignore
+                }
+            };
+
+            const onMessage = async (event: MessageEvent) => {
+                if (event.source !== popup) return;
+
+                const data = event.data as { grant_code?: string } | undefined;
+                if (!data || !data.grant_code) return;
+
+                try {
+                    const tokenResp = await apiClient.get<{
+                        access_token?: string;
+                        token?: string;
+                    }>(`${this.basePath}/oauth/consume`, {
+                        code: data.grant_code,
+                    });
+
+                    const token = tokenResp.access_token || tokenResp.token;
+                    if (!token)
+                        throw new Error("No token returned from grant consume");
+
+                    localStorage.setItem("authToken", token);
+                    AuthService.dispatchAuthChange();
+
+                    settled = true;
+                    cleanup();
+                    resolve();
+                } catch (err) {
+                    settled = true;
+                    cleanup();
+                    reject(err);
+                }
+            };
+
+            window.addEventListener("message", onMessage);
+
+            const poll = setInterval(() => {
+                if (!popup || popup.closed) {
+                    clearInterval(poll);
+                    if (!settled) {
+                        cleanup();
+                        reject(new Error("OAuth popup closed by user"));
+                    }
+                }
+            }, 500);
+        });
+    }
 }
 
 export const authService = new AuthService();

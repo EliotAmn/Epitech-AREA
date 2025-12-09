@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import logoGoogle from "@/assets/logo_google.svg";
 import Button from "@/component/button";
 import Input from "@/component/input";
 import { ApiClientError, authService } from "@/services/api";
@@ -43,6 +44,25 @@ export default function Login() {
         }
     };
 
+    const handleGoogleLogin = async () => {
+        setError("");
+        setLoading(true);
+        try {
+            await authService.oauthSignIn("google");
+            navigate("/explore");
+        } catch (err) {
+            if (err instanceof ApiClientError) {
+                setError("Google login failed: " + err.message);
+            } else if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Google login failed");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex justify-center">
             <div className="w-full max-w-md p-6">
@@ -71,6 +91,13 @@ export default function Login() {
                     <Button
                         label={loading ? "Loading..." : "Login"}
                         onClick={handleLogin}
+                        disabled={loading}
+                    />
+                    <Button
+                        label="Login with Google"
+                        mode="white"
+                        onClick={handleGoogleLogin}
+                        icon={logoGoogle}
                         disabled={loading}
                     />
                 </div>

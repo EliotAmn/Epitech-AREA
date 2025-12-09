@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { NextFunction, Request, Response } from 'express';
+import type { VerifyOptions } from 'jsonwebtoken';
 
 type JwtPayload = {
   sub?: string;
@@ -40,13 +41,11 @@ export class AuthMiddleware implements NestMiddleware {
     const token = match[1];
     try {
       const secret = this.configService.get<string>('JWT_SECRET');
-      // verify returns unknown/any — treat as unknown then assert to JwtPayload
-      const verified = secret
-        ? (this.jwtService.verify(token, { secret } as unknown) as unknown)
-        : (this.jwtService.verify(token) as unknown);
+      const options: (VerifyOptions & { secret?: string }) | undefined = secret
+        ? { secret }
+        : undefined;
 
-      const payload = verified as JwtPayload;
-      req.user = payload;
+      req.user = this.jwtService.verify<JwtPayload>(token, options);
       return next();
     } catch (err) {
       const message =

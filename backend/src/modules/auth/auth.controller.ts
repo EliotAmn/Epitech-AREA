@@ -20,7 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { CreateUserDto } from '../user/dto/create-user.dto';
+import { CreateUserDto, isAuthPlatform } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { OauthService } from './oauth.service';
@@ -184,6 +184,17 @@ export class AuthController {
 
     const grant = this.oauthService.createGrant(result.access_token);
 
-    return this.buildRedirectHtmlWithGrant(result.user, grant, origin);
+    const rawUser = result.user as Partial<Record<string, unknown>>;
+    const candidate = rawUser
+      ? (rawUser as Record<string, unknown>)['auth_platform']
+      : undefined;
+    const auth_platform = isAuthPlatform(candidate) ? candidate : undefined;
+
+    const userDto: Partial<CreateUserDto> = {
+      ...(rawUser as Partial<CreateUserDto>),
+      auth_platform,
+    };
+
+    return this.buildRedirectHtmlWithGrant(userDto, grant, origin);
   }
 }
