@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
+import type { StrategyOptions } from 'passport-google-oauth20';
 
 interface GoogleProfile {
   id: string;
@@ -29,12 +30,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     );
     const callbackURL = `${appUrl}/auth/google/redirect`;
 
-    super({
+    const options: StrategyOptions = {
       clientID,
       clientSecret,
       callbackURL,
       scope: ['email', 'profile'],
-    });
+    };
+
+    super(options);
 
     this.logger.debug(
       `GoogleStrategy configured callbackURL=${callbackURL} clientID=${!!clientID}`,
@@ -46,8 +49,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       this.logger.debug(
         `Google profile received id=${profile.id} email=${profile.emails?.[0]?.value}`,
       );
-    } catch (e) {
-      this.logger.debug(e || 'Google profile received (unable to stringify)');
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : String(err);
+      this.logger.debug(msg || 'Google profile received (unable to stringify)');
     }
 
     return {
