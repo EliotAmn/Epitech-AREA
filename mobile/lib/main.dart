@@ -50,9 +50,18 @@ class _MainNavigationState extends State<MainNavigation> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.plus_one), label: 'Counter'),
-          BottomNavigationBarItem(icon: Icon(Icons.login), label: 'Login'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.plus_one),
+            label: 'Counter',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.login),
+            label: 'Login',
+          ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

@@ -6,6 +6,8 @@ import '../component/input/input_decorations.dart';
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
+ 
+
   void openLoginDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -22,19 +24,12 @@ class LoginPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-            ),
+            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(
-              decoration: AppInputDecorations.primary(
-                context,
-                'Email or Username',
-              ),
+              decoration: AppInputDecorations.primary(context, 'Email or Username'),
               textInputAction: TextInputAction.next,
             ),
-            SizedBox(
-              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-            ),
+            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             TextField(
               decoration: AppInputDecorations.primary(context, 'Password'),
               textInputAction: TextInputAction.done,
@@ -42,9 +37,7 @@ class LoginPage extends StatelessWidget {
               autocorrect: false,
               enableSuggestions: false,
             ),
-            SizedBox(
-              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-            ),
+            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
             ElevatedButton(
               onPressed: () {
                 // Handle login logic here
@@ -55,43 +48,31 @@ class LoginPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 15,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               ),
-              child: Text(
-                'Login',
+              child: Text('Login',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  fontWeight: FontWeight.bold,
+                )
+              )
             ),
-            SizedBox(
-              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-            ),
-            TextButton(
-              onPressed: () {
-                // Handle sign up action
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const SignUpPage()),
-                );
-              },
+            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+            TextButton(onPressed: () {
+              // Handle sign up action
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SignUpPage()),
+              );
+            },
               style: TextButton.styleFrom(
                 backgroundColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 7,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
               ),
-              child: Text(
-                'Sign Up',
+              child: Text('Sign Up', 
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.inverseSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+                  color: Theme.of(context).colorScheme.inverseSurface,
+                  fontWeight: FontWeight.bold,
+              ))
             ),
           ],
         ),
@@ -108,7 +89,9 @@ class LoginPage extends StatelessWidget {
         elevation: 0.0,
         scrolledUnderElevation: 0.0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
-        title: Text('AREA', style: Theme.of(context).textTheme.displayLarge),
+        title: Text('AREA',
+          style: Theme.of(context).textTheme.displayLarge,
+        ),
       ),
       body: Center(
         child: Column(
@@ -119,39 +102,26 @@ class LoginPage extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 300,
-                  child: Text(
-                    'Automatisez le travail et la maison',
+                  child: Text( 'Automatisez le travail et la maison',
                     style: Theme.of(context).textTheme.displayLarge,
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(
-                  height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Handle login action
-                    openLoginDialog(context);
-                  },
+                SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                TextButton(onPressed: () {
+                  // Handle login action
+                  openLoginDialog(context);
+                },
                   style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.inverseSurface,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 15,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text(
-                    'Login',
+                  child: Text('Login', 
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                      fontWeight: FontWeight.bold,
+                  ))
                 ),
               ],
             ),
