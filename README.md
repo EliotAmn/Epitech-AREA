@@ -74,7 +74,7 @@ Then follow the service-specific steps below.
 cd backend
 npm install
 # run database migration / generate prisma client
-npx prisma migrate --schema=./prisma/schema.prisma dev --name init
+npx prisma migrate dev --name init --schema=./prisma/schema.prisma
 # or if no migration needed:
 # npx prisma generate --schema=./prisma/schema.prisma
 # start in dev mode (hot reload)

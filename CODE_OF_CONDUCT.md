@@ -20,7 +20,7 @@ We want AÉRA to be a welcoming, respectful, and productive environment for ever
 
 - **Methodology:** We use an Agile workflow on GitHub Projects.
 - **Sprints:** We work in **1-week sprints**.
-- **Weekly Meeting:** Every **Day at 10:30**
+- **Daily Meeting:** Every **Day at 10:30**
   - _Agenda:_ Demo of finished tasks, retro of the week, assignment of new tasks.
   - _Attendance:_ Mandatory. Absence must be notified 24h in advance.
 - **Updates:** We regularly send updates in the group chat about the progress of our tasks.
