@@ -1,33 +1,53 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserRepository } from './user.repository';
+
+import { PasswordService } from '../common/password/password.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-    constructor(private repo: UserRepository) {}
+  constructor(
+    private readonly repository: UserRepository,
+    private readonly passwordService: PasswordService,
+  ) {}
 
-    create(dto: CreateUserDto) {
-        return this.repo.create(dto);
+  async create(dto: CreateUserDto) {
+    // Hash the password if provided
+    let passwordHash: string | undefined;
+    if (dto.password) {
+      passwordHash = await this.passwordService.hash(dto.password);
     }
 
-    findAll() {
-        return this.repo.findAll();
-    }
+    return this.repository.create({
+      email: dto.email,
+      name: dto.name,
+      password_hash: passwordHash,
+      auth_platform: dto.auth_platform,
+    });
+  }
 
-    async findOne(id: string) {
-        const user = await this.repo.findById(id);
-        if (!user) throw new NotFoundException('User not found');
-        return user;
-    }
+  findAll() {
+    return this.repository.findAll();
+  }
 
-    async update(id: string, dto: UpdateUserDto) {
-        await this.findOne(id);
-        return this.repo.update(id, dto);
-    }
+  async findOne(id: string) {
+    const user = await this.repository.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
 
-    async remove(id: string) {
-        await this.findOne(id);
-        return this.repo.delete(id);
-    }
+  async findByEmail(email: string) {
+    return this.repository.findByEmail(email);
+  }
+
+  async update(id: string, dto: UpdateUserDto) {
+    await this.findOne(id);
+    return this.repository.update(id, dto);
+  }
+
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.repository.delete(id);
+  }
 }

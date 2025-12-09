@@ -1,8 +1,8 @@
 export enum ParameterType {
-    STRING = "string",
-    NUMBER = "number",
-    BOOLEAN = "boolean",
-    SELECT = "select",
+    STRING = 'string',
+    NUMBER = 'number',
+    BOOLEAN = 'boolean',
+    SELECT = 'select',
 }
 
 export interface ParameterValue {
@@ -35,10 +35,9 @@ export abstract class ServiceActionDefinition {
     output_params: ParameterDefinition[];
 
     // Function to reload the cache of the action in a user-area context
-    abstract reload_cache(sconf: ServiceConfig): Promise<Record<string, any> >;
+    abstract reload_cache(sconf: ServiceConfig): Promise<Record<string, any>>;
 
-    abstract poll(sconf: ServiceConfig): Promise<ActionTriggerOutput >;
-
+    abstract poll(sconf: ServiceConfig): Promise<ActionTriggerOutput>;
 }
 
 export abstract class ServiceReactionDefinition {
@@ -48,14 +47,21 @@ export abstract class ServiceReactionDefinition {
     input_params: ParameterDefinition[];
 
     // sconf: Service config, params: parameters/context given from the area (not the action params definition)
-    abstract execute(sconf: ServiceConfig, params: Record<string, any>): Promise<void>;
+    abstract execute(
+        sconf: ServiceConfig,
+        params: Record<string, ParameterValue>,
+    ): Promise<void>;
 
-    abstract reload_cache(sconf: ServiceConfig): Promise<Record<string, any> >;
+    abstract reload_cache(sconf: ServiceConfig): Promise<Record<string, any>>;
 }
 
 // Constructor types for providing classes (subclasses) instead of instances.
-export type ServiceActionConstructor = new (...args: any[]) => ServiceActionDefinition;
-export type ServiceReactionConstructor = new (...args: any[]) => ServiceReactionDefinition;
+export type ServiceActionConstructor = new (
+    ...args: any[]
+) => ServiceActionDefinition;
+export type ServiceReactionConstructor = new (
+    ...args: any[]
+) => ServiceReactionDefinition;
 
 export interface ServiceDefinition {
     name: string;

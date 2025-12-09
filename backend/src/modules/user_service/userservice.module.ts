@@ -10,5 +10,4 @@ import {UserServiceRepository} from "./userservice.repository";
     ],
     exports: [],
 })
-export class UserServiceModule {
-}
+export class UserServiceModule {}
