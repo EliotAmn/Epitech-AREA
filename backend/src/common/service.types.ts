@@ -43,11 +43,14 @@ export abstract class ServiceActionDefinition {
 
 export abstract class ServiceReactionDefinition {
     name: string;
+    label: string;
     description: string;
     input_params: ParameterDefinition[];
 
     // sconf: Service config, params: parameters/context given from the area (not the action params definition)
     abstract execute(sconf: ServiceConfig, params: Record<string, any>): Promise<void>;
+
+    abstract reload_cache(sconf: ServiceConfig): Promise<Record<string, any> >;
 }
 
 // Constructor types for providing classes (subclasses) instead of instances.

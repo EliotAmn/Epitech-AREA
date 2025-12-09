@@ -7,6 +7,9 @@ import {
 import {Injectable} from "@nestjs/common";
 
 class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
+    reload_cache(sconf: ServiceConfig): Promise<Record<string, any>> {
+        return Promise.resolve({});
+    }
     name = 'custom_webhook';
     description = 'Send a message to a Discord channel via webhook';
     input_params = [

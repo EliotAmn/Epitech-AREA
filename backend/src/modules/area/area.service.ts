@@ -6,6 +6,15 @@ import {ReactionValider} from "./reaction/reaction.valider";
 import {ServiceImporterService} from "../service_importer/service_importer.service";
 import {mapRecord} from "../../common/tools";
 import {Prisma} from "@prisma/client";
+import {UserServiceService} from "../user_service/userservice.service";
+import {ReactionRepository} from "./reaction/reaction.repository";
+
+interface AreaContext {
+    area: Prisma.AreaDefaultArgs,
+    user_services: Prisma.UserServiceDefaultArgs[],
+    actions: Prisma.AreaActionDefaultArgs[],
+    reactions: Prisma.AreaReactionDefaultArgs[],
+}
 
 @Injectable()
 export class AreaService {
@@ -14,6 +23,7 @@ export class AreaService {
         private readonly area_repository: AreaRepository,
         private readonly reaction_valider: ReactionValider,
         private readonly service_importer_service: ServiceImporterService,
+        private readonly userservice_service: UserServiceService,
     ) {
     }
 
@@ -90,5 +100,24 @@ export class AreaService {
                     console.error(`Error executing reaction ${r_user.reaction_name} for area ${area.id}:`, err);
                 });
         })
+    }
+
+
+
+    async getAreaContext(areaId: string) {
+        // const user_action = await this.action_repository.findById(areaId);
+        // if (!user_action)
+        //     throw new Error(`Action with id ${} not found`);
+        // const def_reaction = this.serviceImporterService.getReactionByName(user_reaction.reaction_name);
+        // if (!def_reaction)
+        //     throw new Error(`Reaction definition with name ${user_reaction.reaction_name} not found`);
+        //
+        // const service_name = def_reaction.service.name;
+        // const user_id = user_reaction.area.user_id;
+        // const user_service = await this.userservice_service.fromUserIdAndServiceName(user_id, service_name);
+        // if (!user_service)
+        //     throw new Error(`User service with name ${service_name} not found for user ${user_id}`);
+        // const service_config = user_service.service_config as Prisma.JsonObject;
+        // const cache = def_reaction.reaction.reload_cache();
     }
 }
