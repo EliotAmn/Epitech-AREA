@@ -1,20 +1,12 @@
 /*
-  Warnings:
-
-  - You are about to drop the column `config` on the `area_action` table. All the data in the column will be lost.
-  - You are about to drop the column `config` on the `area_reaction` table. All the data in the column will be lost.
-
+  Migration: add auth platform to users.
+  NOTE: area_action / area_reaction columns (config -> cache/params)
+  were already applied in an earlier migration (20251202092722). To
+  avoid re-applying those changes and causing errors during a fresh
+  migrate run, this migration contains only the user table alteration.
 */
--- AlterTable
-ALTER TABLE "area_action" DROP COLUMN "config",
-ADD COLUMN     "cache" JSONB NOT NULL DEFAULT '{}',
-ADD COLUMN     "params" JSONB NOT NULL DEFAULT '{}';
 
--- AlterTable
-ALTER TABLE "area_reaction" DROP COLUMN "config",
-ADD COLUMN     "cache" JSONB NOT NULL DEFAULT '{}',
-ADD COLUMN     "params" JSONB NOT NULL DEFAULT '{}';
-
--- AlterTable
-ALTER TABLE "user" ADD COLUMN     "auth_id" TEXT,
-ADD COLUMN     "auth_platform" TEXT NOT NULL DEFAULT 'local';
+-- AlterTable: add auth fields to users
+ALTER TABLE "user"
+  ADD COLUMN IF NOT EXISTS "auth_id" TEXT,
+  ADD COLUMN IF NOT EXISTS "auth_platform" TEXT NOT NULL DEFAULT 'local';
