@@ -174,11 +174,11 @@ jobs:
         working-directory: ./backend
         run: |
           echo "Building Docker image..."
-          docker build -t area-backend:test .
+          docker build -t server:test .
           echo "✅ Docker image built successfully"
       
       - name: Test Docker image
         run: |
           echo "Testing Docker image..."
-          docker images area-backend:test
+          docker images server:test
           echo "✅ Docker image test passed"

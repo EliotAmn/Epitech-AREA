@@ -136,11 +136,11 @@ jobs:
         working-directory: ./web
         run: |
           echo "Building Docker image..."
-          docker build -t area-web:test .
+          docker build -t client_web:test .
           echo "✅ Docker image built successfully"
       
       - name: Test Docker image
         run: |
           echo "Testing Docker image..."
-          docker images area-web:test
+          docker images client_web:test
           echo "✅ Docker image test passed"

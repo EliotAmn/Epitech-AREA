@@ -317,8 +317,9 @@ jobs:
           **Backend:**
           \`\`\`bash
           docker run -d \\
-            --name area-backend \\
-            -p 8080:3000 \\
+            --name server \\
+            -p 8080:8080 \\  
+
             -e DATABASE_URL=postgresql://user:pass@host/db \\
             $REGISTRY_URL/backend:$VERSION
           \`\`\`
@@ -326,8 +327,8 @@ jobs:
           **Web:**
           \`\`\`bash
           docker run -d \\
-            --name area-web \\
-            -p 8081:80 \\
+            --name client_web \\
+            -p 8081:8081 \\
             $REGISTRY_URL/web:$VERSION
           \`\`\`
           
