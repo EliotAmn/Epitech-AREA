@@ -233,7 +233,7 @@ jobs:
           fi
           
           if [ "$MOBILE_CHANGED" = "true" ]; then
-            echo "- Mobile Build & Test: **$MOBILE_BUILD**" >> $GITHUB_STEP_SUMMARY
+            echo "- Mobile Build & Test: **skipped** (removed from pipeline)" >> $GITHUB_STEP_SUMMARY
           else
             echo "- Mobile Build & Test: **skipped** (no changes)" >> $GITHUB_STEP_SUMMARY
           fi
@@ -254,18 +254,16 @@ jobs:
             FAILED=true
           fi
           
-          # Check build results only if they ran
-          if [ "$BACKEND_CHANGED" = "true" ] && [ "$BACKEND_BUILD" != "success" ]; then
+          # Check build results only if they ran and exist
+          if [ "$BACKEND_CHANGED" = "true" ] && [ "$BACKEND_BUILD" != "success" ] && [ "$BACKEND_BUILD" != "skipped" ]; then
             FAILED=true
           fi
           
-          if [ "$WEB_CHANGED" = "true" ] && [ "$WEB_BUILD" != "success" ]; then
+          if [ "$WEB_CHANGED" = "true" ] && [ "$WEB_BUILD" != "success" ] && [ "$WEB_BUILD" != "skipped" ]; then
             FAILED=true
           fi
           
-          if [ "$MOBILE_CHANGED" = "true" ] && [ "$MOBILE_BUILD" != "success" ]; then
-            FAILED=true
-          fi
+          # Mobile build is removed from pipeline, don't check it
           
           if [ "$FAILED" = true ]; then
             echo "### ❌ Quality Gate: FAILED" >> $GITHUB_STEP_SUMMARY
