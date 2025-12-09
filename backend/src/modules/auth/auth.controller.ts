@@ -11,7 +11,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('oauth/:provider/authorize')
-  authorize(@Param('provider') provider: string) {
+  authorize(@Param('provider') _provider: string) {
     // Implementation for OAuth authorization
   }
 
