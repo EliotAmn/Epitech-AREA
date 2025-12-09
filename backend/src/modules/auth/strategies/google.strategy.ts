@@ -15,6 +15,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   private readonly logger = new Logger(GoogleStrategy.name);
 
   constructor(private readonly configService: ConfigService) {
+    const clientID = configService.get<string>('GOOGLE_CLIENT_ID');
+    const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET');
+    if (!clientID || !clientSecret) {
+      throw new Error(
+        'Google OAuth not configured: set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables',
+      );
+    }
+
     const appUrl = (configService.get<string>('APP_URL') || '').replace(
       /\/$/,
       '',
@@ -22,14 +30,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const callbackURL = `${appUrl}/auth/google/redirect`;
 
     super({
-      clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
-      clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
+      clientID,
+      clientSecret,
       callbackURL,
       scope: ['email', 'profile'],
     });
 
     this.logger.debug(
-      `GoogleStrategy configured callbackURL=${callbackURL} clientID=${!!configService.get<string>('GOOGLE_CLIENT_ID')}`,
+      `GoogleStrategy configured callbackURL=${callbackURL} clientID=${!!clientID}`,
     );
   }
 

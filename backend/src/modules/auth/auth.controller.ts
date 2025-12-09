@@ -11,7 +11,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
@@ -28,7 +35,7 @@ export class AuthController {
   ) {}
 
   private buildRedirectHtmlWithGrant(
-    userPayload: any,
+    userPayload: Partial<CreateUserDto>,
     grantCode: string,
     origin: string,
   ) {
@@ -64,63 +71,67 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Start Google OAuth flow' })
+  @ApiResponse({ status: 302, description: 'Redirects to Google consent page' })
   googleAuth() {}
 
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google OAuth callback' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns an HTML page that posts grant_code to the frontend',
+  })
   async googleRedirect(@Req() req: { user?: unknown }) {
-    const profile = req.user;
-    if (!profile) throw new BadRequestException('Invalid provider response');
-    const result = await this.oauthService.handleProviderCallback(
-      'google',
-      profile,
-    );
-
-    const frontend =
-      this.configService.get<string>('FRONTEND_URL') ||
-      this.configService.get<string>('APP_URL') ||
-      '*';
-    const origin = frontend === '*' ? '*' : frontend.replace(/\/$/, '');
-
-    const grant = await this.oauthService.createGrant(result.access_token);
-
-    return this.buildRedirectHtmlWithGrant(result.user, grant, origin);
+    return this.handleProviderRedirect('google', req);
   }
 
   @Get('github')
   @UseGuards(AuthGuard('github'))
+  @ApiOperation({ summary: 'Start GitHub OAuth flow' })
+  @ApiResponse({ status: 302, description: 'Redirects to GitHub consent page' })
   githubAuth() {}
 
   @Get('github/redirect')
   @UseGuards(AuthGuard('github'))
+  @ApiOperation({ summary: 'GitHub OAuth callback' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns an HTML page that posts grant_code to the frontend',
+  })
   async githubRedirect(@Req() req: { user?: unknown }) {
-    const profile = req.user;
-    if (!profile) throw new BadRequestException('Invalid provider response');
-    const result = await this.oauthService.handleProviderCallback(
-      'github',
-      profile,
-    );
-
-    const frontend =
-      this.configService.get<string>('FRONTEND_URL') ||
-      this.configService.get<string>('APP_URL') ||
-      '*';
-    const origin = frontend === '*' ? '*' : frontend.replace(/\/$/, '');
-
-    const grant = await this.oauthService.createGrant(result.access_token);
-
-    return this.buildRedirectHtmlWithGrant(result.user, grant, origin);
+    return this.handleProviderRedirect('github', req);
   }
 
   @Get('oauth/consume')
-  async consumeGrant(@Query('code') code: string) {
+  @ApiOperation({
+    summary: 'Consume an OAuth grant code to receive an access token',
+  })
+  @ApiQuery({
+    name: 'code',
+    required: true,
+    description: 'Grant code returned by the provider redirect',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns access_token when code is valid',
+  })
+  @ApiResponse({ status: 400, description: 'Missing or invalid code' })
+  consumeGrant(@Query('code') code: string) {
     if (!code) throw new BadRequestException('code required');
-    const token = await this.oauthService.consumeGrant(code);
+    const token = this.oauthService.consumeGrant(code);
     if (!token) throw new BadRequestException('Invalid or expired code');
     return { access_token: token };
   }
 
   @Post('oauth/:provider/authorize')
+  @ApiOperation({ summary: 'Get provider authorize URL for frontend' })
+  @ApiParam({ name: 'provider', description: 'Provider name (google|github)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a URL to start OAuth flow',
+  })
+  @ApiResponse({ status: 400, description: 'Unsupported provider' })
   authorize(@Param('provider') provider: string) {
     const allowed = ['google', 'github'];
     if (!allowed.includes(provider)) {
@@ -133,12 +144,46 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Login with email and password' })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({ status: 200, description: 'Returns JWT access token' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto.email, loginDto.password);
   }
 
   @Post('register')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User created and may return token or user info',
+  })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   register(@Body() dto: CreateUserDto) {
     return this.authService.register(dto);
+  }
+
+  private async handleProviderRedirect(
+    provider: string,
+    req: { user?: unknown },
+  ) {
+    const profile = req.user;
+    if (!profile) throw new BadRequestException('Invalid provider response');
+
+    const result = await this.oauthService.handleProviderCallback(
+      provider,
+      profile,
+    );
+
+    const frontend =
+      this.configService.get<string>('FRONTEND_URL') ||
+      this.configService.get<string>('APP_URL') ||
+      '*';
+    const origin = frontend === '*' ? '*' : frontend.replace(/\/$/, '');
+
+    const grant = this.oauthService.createGrant(result.access_token);
+
+    return this.buildRedirectHtmlWithGrant(result.user, grant, origin);
   }
 }

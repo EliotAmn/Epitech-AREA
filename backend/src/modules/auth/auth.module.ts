@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+import { AuthMiddleware } from '@/middleware/auth.middleware';
 import { PasswordModule } from '../common/password/password.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
@@ -41,7 +42,12 @@ import { GoogleStrategy } from './strategies/google.strategy';
     // GithubStrategy,
     OauthService,
     OauthLinkRepository,
+    AuthMiddleware,
   ],
   exports: [AuthService, OauthService],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).exclude('auth/(.*)').forRoutes('*');
+  }
+}
