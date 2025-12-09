@@ -60,11 +60,6 @@ This directory contains the CI/CD workflows for the AREA project, following a mo
   - Lint checks
   - Package validation
 
-- **`mobile_build_test.yml`** - Build and test mobile app
-  - Flutter tests with coverage
-  - Android APK build
-  - Docker image build for mobile
-
 ### Release Workflow
 
 - **`release.yml`** - Production release builds
@@ -153,7 +148,6 @@ all_checks.yml
 ├── web_code_quality.yml
 │   └── web_build_test.yml
 ├── mobile_code_quality.yml
-│   └── mobile_build_test.yml
 ├── docker_compose_validation
 └── quality_gate (final decision)
 ```
