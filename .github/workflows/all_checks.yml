@@ -63,6 +63,8 @@ jobs:
             web/**
             backend/**
             mobile/**
+          # For PRs, compare against the base branch; for pushes, compare against previous commit
+          base_sha: ${{ github.event.pull_request.base.sha || github.event.before }}
 
       - name: Set outputs
         id: set-outputs
@@ -70,9 +72,17 @@ jobs:
           FRONT=false
           BACK=false
           MOBILE=false
+          
+          echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+          
           if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "web/"; then FRONT=true; fi
           if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "backend/"; then BACK=true; fi
           if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "mobile/"; then MOBILE=true; fi
+          
+          echo "Frontend changed: $FRONT"
+          echo "Backend changed: $BACK"
+          echo "Mobile changed: $MOBILE"
+          
           echo "frontend_changed=$FRONT" >> $GITHUB_OUTPUT
           echo "backend_changed=$BACK" >> $GITHUB_OUTPUT
           echo "mobile_changed=$MOBILE" >> $GITHUB_OUTPUT
