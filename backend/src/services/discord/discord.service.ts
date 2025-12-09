@@ -3,12 +3,13 @@ import {
   ServiceConfig,
   ServiceDefinition,
   ServiceReactionDefinition,
-} from '../../common/service.types';
+} from '@/common/service.types';
 
 class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
-  reload_cache(sconf: ServiceConfig): Promise<Record<string, any>> {
+  reload_cache(): Promise<Record<string, any>> {
     return Promise.resolve({});
   }
+
   name = 'custom_webhook';
   description = 'Send a message to a Discord channel via webhook';
   input_params = [

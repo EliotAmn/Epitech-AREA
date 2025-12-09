@@ -123,21 +123,4 @@ export class AreaService {
       });
     });
   }
-
-  async getAreaContext(areaId: string) {
-    // const user_action = await this.action_repository.findById(areaId);
-    // if (!user_action)
-    //     throw new Error(`Action with id ${} not found`);
-    // const def_reaction = this.serviceImporterService.getReactionByName(user_reaction.reaction_name);
-    // if (!def_reaction)
-    //     throw new Error(`Reaction definition with name ${user_reaction.reaction_name} not found`);
-    //
-    // const service_name = def_reaction.service.name;
-    // const user_id = user_reaction.area.user_id;
-    // const user_service = await this.userservice_service.fromUserIdAndServiceName(user_id, service_name);
-    // if (!user_service)
-    //     throw new Error(`User service with name ${service_name} not found for user ${user_id}`);
-    // const service_config = user_service.service_config as Prisma.JsonObject;
-    // const cache = def_reaction.reaction.reload_cache();
-  }
 }

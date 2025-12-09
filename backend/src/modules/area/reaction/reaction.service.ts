@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
-import { ServiceConfig } from '../../../common/service.types';
-import { ServiceImporterService } from '../../service_importer/service_importer.service';
-import { UserServiceService } from '../../user_service/userservice.service';
+import { ServiceConfig } from '@/common/service.types';
+import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
+import { UserServiceService } from '@/modules/user_service/userservice.service';
 import { AreaRepository } from '../area.repository';
 import { ReactionRepository } from './reaction.repository';
 
@@ -43,6 +43,6 @@ export class ReactionService {
     const sconf = {
       config: service_config,
     } as ServiceConfig;
-    const cache = def_reaction.reaction.reload_cache(sconf);
+    await def_reaction.reaction.reload_cache(sconf);
   }
 }
