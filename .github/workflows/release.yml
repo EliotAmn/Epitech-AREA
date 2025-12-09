@@ -318,7 +318,7 @@ jobs:
           \`\`\`bash
           docker run -d \\
             --name server \\
-            -p 8080:8080 \\  
+            -p 8080:8080 \\
 
             -e DATABASE_URL=postgresql://user:pass@host/db \\
             $REGISTRY_URL/backend:$VERSION
