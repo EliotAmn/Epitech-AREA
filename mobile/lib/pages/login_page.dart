@@ -63,9 +63,9 @@ class LoginPage extends StatelessWidget {
               child: Text(
                 'Login',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
             SizedBox(
@@ -88,9 +88,9 @@ class LoginPage extends StatelessWidget {
               child: Text(
                 'Sign Up',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.inverseSurface,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: Theme.of(context).colorScheme.inverseSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
           ],
@@ -148,9 +148,9 @@ class LoginPage extends StatelessWidget {
                   child: Text(
                     'Login',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ),
               ],

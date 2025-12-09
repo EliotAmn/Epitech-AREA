@@ -92,9 +92,10 @@ class SignUpPage extends StatelessWidget {
                     child: Text(
                       'Sign Up',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onInverseSurface,
-                        fontWeight: FontWeight.bold,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onInverseSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ),
                 ],

@@ -5,8 +5,8 @@ class AppInputDecorations {
     return InputDecoration(
       labelText: label,
       labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-        color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
-      ),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
+          ),
       border: OutlineInputBorder(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
