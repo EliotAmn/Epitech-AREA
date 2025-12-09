@@ -8,6 +8,7 @@ import {
 } from '@/common/service.types';
 import { mapRecord } from '@/common/tools';
 import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
+import { UserServiceService } from '@/modules/user_service/userservice.service';
 import { ActionRepository } from './action/action.repository';
 import { AreaRepository } from './area.repository';
 import { ReactionValider } from './reaction/reaction.valider';
@@ -19,6 +20,7 @@ export class AreaService {
     private readonly area_repository: AreaRepository,
     private readonly reaction_valider: ReactionValider,
     private readonly service_importer_service: ServiceImporterService,
+    private readonly userservice_service: UserServiceService,
   ) {}
 
   async handle_action_trigger(

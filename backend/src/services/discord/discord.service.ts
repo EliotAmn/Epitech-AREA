@@ -6,7 +6,12 @@ import {
 } from '@/common/service.types';
 
 class DiscordCustomWebhookReaction extends ServiceReactionDefinition {
+  reload_cache(): Promise<Record<string, any>> {
+    return Promise.resolve({});
+  }
+
   name = 'custom_webhook';
+  label = 'Custom Webhook';
   description = 'Send a message to a Discord channel via webhook';
   input_params = [
     {
