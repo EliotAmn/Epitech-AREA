@@ -46,12 +46,16 @@ class _SignUpPageState extends State<SignUpPage> {
     ).then((response) {
       if (response.statusCode == 201) {
         debugPrint('Sign up successful');
-        Navigator.of(context).pop();
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       } else {
         debugPrint('Sign up failed with status code: ${response.statusCode} & body: ${response.body}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sign up failed: ${response.statusCode}')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Sign up failed: ${response.statusCode}')),
+          );
+        }
       }
     }).catchError((error) {
       debugPrint('Sign up failed with error: $error');

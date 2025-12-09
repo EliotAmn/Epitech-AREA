@@ -12,15 +12,15 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.onLoginSuccess});
 
   @override
-  State<LoginPage> createState() => _LoginPageState(onLoginSuccess: onLoginSuccess);
+  State<LoginPage> createState() => _LoginPageState();
 
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final VoidCallback onLoginSuccess;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  _LoginPageState({required this.onLoginSuccess});
+  String _errorMessage = '';
+
 
    @override
   void initState() {
@@ -53,15 +53,18 @@ class _LoginPageState extends State<LoginPage> {
 
           debugPrint('Login successful');
           cache.AuthStore().saveToken(token);
-          onLoginSuccess.call();
+          widget.onLoginSuccess.call();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login failed: ${response.statusCode}')),
-          );
+          setState(() {
+            _errorMessage = 'Login failed: ${response.statusCode}';
+          });
           debugPrint('Login failed with status code: ${response.statusCode} & body: ${response.body}');
         }
       }).catchError((error) {
-        debugPrint('Login failed with error: $error');
+        setState(() {
+          _errorMessage = 'Network error: $error';
+        });
+        debugPrint('Network Login failed with error: $error');
       }
     );
   }
@@ -71,72 +74,82 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       isScrollControlled: true,
       barrierColor: Colors.black.withAlpha(100),
-      builder: (context) => Container(
-        padding: EdgeInsets.only(
-          bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
-          top: 16,
-          left: 20,
-          right: 20,
-        ),
-        color: Colors.transparent,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-            TextField(
-              decoration: AppInputDecorations.primary(context, 'Email'),
-              textInputAction: TextInputAction.next,
-              controller: _emailController,
-            ),
-            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-            TextField(
-              decoration: AppInputDecorations.primary(context, 'Password'),
-              textInputAction: TextInputAction.done,
-              controller: _passwordController,
-              obscureText: true,
-              autocorrect: false,
-              enableSuggestions: false,
-            ),
-            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-            ElevatedButton(
-              onPressed: () {
-                loginControls(context);
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: EdgeInsets.only(
+            bottom: 20 + MediaQuery.of(context).viewInsets.bottom,
+            top: 16,
+            left: 20,
+            right: 20,
+          ),
+          color: Colors.transparent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+              TextField(
+                decoration: AppInputDecorations.primary(context, 'Email'),
+                textInputAction: TextInputAction.next,
+                controller: _emailController,
+              ),
+              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+              TextField(
+                decoration: AppInputDecorations.primary(context, 'Password'),
+                textInputAction: TextInputAction.done,
+                controller: _passwordController,
+                obscureText: true,
+                autocorrect: false,
+                enableSuggestions: false,
+              ),
+              if (_errorMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    _errorMessage,
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
                 ),
-                backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              child: Text('Login',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                  fontWeight: FontWeight.bold,
+              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+              ElevatedButton(
+                onPressed: () {
+                  loginControls(context);
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                ),
+                child: Text('Login',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    fontWeight: FontWeight.bold,
+                  )
                 )
-              )
-            ),
-            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-            TextButton(onPressed: () {
-              // Handle sign up action
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SignUpPage()),
-              );
-            },
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
               ),
-              child: Text('Sign Up', 
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.inverseSurface,
-                  fontWeight: FontWeight.bold,
-              ))
-            ),
-          ],
+              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+              TextButton(onPressed: () {
+                // Handle sign up action
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const SignUpPage()),
+                );
+              },
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
+                ),
+                child: Text('Sign Up', 
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.inverseSurface,
+                    fontWeight: FontWeight.bold,
+                ))
+              ),
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 
