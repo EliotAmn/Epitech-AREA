@@ -8,6 +8,10 @@ import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
+import { OauthLinkRepository } from './oauth-link.repository';
+import { OauthService } from './oauth.service';
+// import { GithubStrategy } from './strategies/github.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
@@ -30,7 +34,14 @@ import { JwtStrategy } from './jwt.strategy';
     PasswordModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    GoogleStrategy,
+    // GithubStrategy,
+    OauthService,
+    OauthLinkRepository,
+  ],
+  exports: [AuthService, OauthService],
 })
 export class AuthModule {}
