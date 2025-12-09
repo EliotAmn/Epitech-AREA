@@ -37,6 +37,13 @@ jobs:
         working-directory: ./backend
         run: npm ci
       
+      - name: Generate Prisma Client
+        working-directory: ./backend
+        run: |
+          echo "Generating Prisma Client..."
+          npx prisma generate --schema=./src/prisma/schema.prisma
+          echo "✅ Prisma Client generated"
+      
       - name: Run ESLint
         if: ${{ inputs.enable_eslint }}
         working-directory: ./backend
