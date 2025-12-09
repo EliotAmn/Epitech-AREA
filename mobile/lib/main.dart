@@ -48,7 +48,11 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Widget getCurrentPage() {
     if (!_isLogined) {
-      return LoginPage(onLoginSuccess: _onLoginSuccess);
+      if (mounted) {
+        return LoginPage(onLoginSuccess: _onLoginSuccess);
+      } else {
+        return const SizedBox.shrink();
+      }
     }
     return _pages[_selectedIndex];
   }
