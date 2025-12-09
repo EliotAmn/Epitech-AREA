@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
             label: 'Go to Counter Page',
             icon: Icons.explore,
             onTap: () {
-              Navigator.of(context).pushNamed('/counter');
+              // implement navigation to Counter Page
             },
             color: Colors.blue,
             textColor: Colors.white,

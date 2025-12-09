@@ -44,7 +44,7 @@ class _MainNavigationState extends State<MainNavigation> {
   void initState() {
     super.initState();
     cache.AuthStore().loadToken().then((token) {
-      if (token != null && token.isNotEmpty) {
+      if (token != 'auth_token' && token != null && token.isNotEmpty) {
         setState(() {
           _isLogined = true;
         });
@@ -62,11 +62,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Widget getCurrentPage() {
     if (!_isLogined) {
-      if (mounted) {
-        return LoginPage(onLoginSuccess: _onLoginSuccess);
-      } else {
-        return const SizedBox.shrink();
-      }
+      return LoginPage(onLoginSuccess: _onLoginSuccess);
     }
     return _pages[_selectedIndex];
   }

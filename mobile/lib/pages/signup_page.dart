@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../component/input/input_decorations.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -32,14 +33,35 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void signUp(BuildContext context) {
-    String email = _emailController.text;
-    String username = _usernameController.text;
+    String email = _emailController.text.trim();
+    String username = _usernameController.text.trim();
     String password = _passwordController.text;
+
+    // Validation
+    if (email.isEmpty || username.isEmpty || password.isEmpty) {
+      _showError(context, 'All fields are required');
+      return;
+    }
+
+    if (!_isValidEmail(email)) {
+      _showError(context, 'Please enter a valid email');
+      return;
+    }
+
+    if (password.length < 6) {
+      _showError(context, 'Password must be at least 6 characters');
+      return;
+    }
 
     http
         .post(
           Uri.parse('${dotenv.env['API_URL']}/auth/register'),
-          body: {'email': email, 'name': username, 'password': password},
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': email,
+            'name': username,
+            'password': password,
+          }),
         )
         .then((response) {
           if (response.statusCode == 201) {
@@ -63,6 +85,19 @@ class _SignUpPageState extends State<SignUpPage> {
         .catchError((error) {
           debugPrint('Sign up failed with error: $error');
         });
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    return emailRegex.hasMatch(email);
+  }
+
+  void _showError(BuildContext context, String message) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   @override
