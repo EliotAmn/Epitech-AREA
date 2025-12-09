@@ -25,9 +25,7 @@ class CardButton extends StatelessWidget {
     return Card(
       elevation: elevation,
       margin: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: color,
       child: InkWell(
         onTap: onTap,
@@ -43,7 +41,9 @@ class CardButton extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 label,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: textColor),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: textColor),
               ),
             ],
           ),

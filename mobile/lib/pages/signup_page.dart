@@ -36,38 +36,39 @@ class _SignUpPageState extends State<SignUpPage> {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    http.post(
-      Uri.parse('${dotenv.env['API_URL']}/auth/register'),
-      body: {
-        'email': email,
-        'name': username,
-        'password': password,
-      },
-    ).then((response) {
-      if (response.statusCode == 201) {
-        debugPrint('Sign up successful');
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
-      } else {
-        debugPrint('Sign up failed with status code: ${response.statusCode} & body: ${response.body}');
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign up failed: ${response.statusCode}')),
-          );
-        }
-      }
-    }).catchError((error) {
-      debugPrint('Sign up failed with error: $error');
-    });
+    http
+        .post(
+          Uri.parse('${dotenv.env['API_URL']}/auth/register'),
+          body: {'email': email, 'name': username, 'password': password},
+        )
+        .then((response) {
+          if (response.statusCode == 201) {
+            debugPrint('Sign up successful');
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          } else {
+            debugPrint(
+              'Sign up failed with status code: ${response.statusCode} & body: ${response.body}',
+            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Sign up failed: ${response.statusCode}'),
+                ),
+              );
+            }
+          }
+        })
+        .catchError((error) {
+          debugPrint('Sign up failed with error: $error');
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-      ),
+      appBar: AppBar(title: const Text('Sign Up')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -78,43 +79,68 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Sign Up',
+                  Text(
+                    'Sign Up',
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
                   TextField(
                     controller: _emailController,
                     decoration: AppInputDecorations.primary(context, 'Email'),
                     textInputAction: TextInputAction.next,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
                   TextField(
                     controller: _usernameController,
-                    decoration: AppInputDecorations.primary(context, 'Username'),
+                    decoration: AppInputDecorations.primary(
+                      context,
+                      'Username',
+                    ),
                     textInputAction: TextInputAction.next,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
                   TextField(
                     controller: _passwordController,
-                    decoration: AppInputDecorations.primary(context, 'Password'),
+                    decoration: AppInputDecorations.primary(
+                      context,
+                      'Password',
+                    ),
                     obscureText: true,
                     textInputAction: TextInputAction.done,
                     autocorrect: false,
                     enableSuggestions: false,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
                   TextButton(
                     onPressed: () => signUp(context),
                     style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.inverseSurface,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 7,
+                      ),
                     ),
-                    child: Text('Sign Up', 
+                    child: Text(
+                      'Sign Up',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onInverseSurface,
                         fontWeight: FontWeight.bold,
-                      )
-                    )
+                      ),
+                    ),
                   ),
                 ],
               ),

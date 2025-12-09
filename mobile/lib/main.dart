@@ -35,10 +35,7 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
   bool _isLogined = false;
 
-  final List<Widget> _pages = [
-    const HomePage(),
-    const CounterPage(),
-  ];
+  final List<Widget> _pages = [const HomePage(), const CounterPage()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -61,25 +58,22 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('AREA',
-          style: Theme.of(context).textTheme.displayLarge,
-        ),
+        title: Text('AREA', style: Theme.of(context).textTheme.displayLarge),
       ),
       body: getCurrentPage(),
-      bottomNavigationBar: _isLogined ? BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.plus_one),
-            label: 'Counter',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ) : null,
+      bottomNavigationBar: _isLogined
+          ? BottomNavigationBar(
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.plus_one),
+                  label: 'Counter',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+            )
+          : null,
     );
   }
 

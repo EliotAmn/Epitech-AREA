@@ -13,14 +13,13 @@ class LoginPage extends StatefulWidget {
 
   @override
   State<LoginPage> createState() => _LoginPageState();
-
 }
 
 class _LoginPageState extends State<LoginPage> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
 
-   @override
+  @override
   void initState() {
     super.initState();
     _emailController = TextEditingController();
@@ -36,32 +35,33 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    http.post(
-      Uri.parse('${dotenv.env['API_URL']}/auth/login'),
-      body: {
-        'email': email,
-        'password': password,
-      },
-      ).then((response) {
-        if (!mounted) return;
-        if (response.statusCode == 201) {
-          final data = jsonDecode(response.body) as Map<String, dynamic>;
-          final token = data['access_token'] as String;
+    http
+        .post(
+          Uri.parse('${dotenv.env['API_URL']}/auth/login'),
+          body: {'email': email, 'password': password},
+        )
+        .then((response) {
+          if (!mounted) return;
+          if (response.statusCode == 201) {
+            final data = jsonDecode(response.body) as Map<String, dynamic>;
+            final token = data['access_token'] as String;
 
-          debugPrint('Login successful');
-          cache.AuthStore().saveToken(token);
-          if (modalContext.mounted) {
-            Navigator.of(modalContext).pop();
-            widget.onLoginSuccess();
+            debugPrint('Login successful');
+            cache.AuthStore().saveToken(token);
+            if (modalContext.mounted) {
+              Navigator.of(modalContext).pop();
+              widget.onLoginSuccess();
+            }
+          } else {
+            debugPrint(
+              'Login failed with status code: ${response.statusCode} & body: ${response.body}',
+            );
           }
-        } else {
-          debugPrint('Login failed with status code: ${response.statusCode} & body: ${response.body}');
-        }
-      }).catchError((error) {
-        if (!mounted) return;
-        debugPrint('Login failed with error: $error');
-      }
-    );
+        })
+        .catchError((error) {
+          if (!mounted) return;
+          debugPrint('Login failed with error: $error');
+        });
   }
 
   void openLoginDialog(BuildContext context) {
@@ -82,13 +82,17 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+              SizedBox(
+                height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+              ),
               TextField(
                 decoration: AppInputDecorations.primary(context, 'Email'),
                 textInputAction: TextInputAction.next,
                 controller: _emailController,
               ),
-              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+              SizedBox(
+                height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+              ),
               TextField(
                 decoration: AppInputDecorations.primary(context, 'Password'),
                 textInputAction: TextInputAction.done,
@@ -102,10 +106,14 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
                     errorMessage,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
-              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+              SizedBox(
+                height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+              ),
               ElevatedButton(
                 onPressed: () {
                   _loginControlsModal(modalcontext, setModalState, (msg) {
@@ -117,30 +125,42 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 15,
+                  ),
                 ),
-                child: Text('Login',
+                child: Text(
+                  'Login',
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onInverseSurface,
                     fontWeight: FontWeight.bold,
-                  )
-                )
+                  ),
+                ),
               ),
-              SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-              TextButton(onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const SignUpPage()),
-                );
-              },
+              SizedBox(
+                height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const SignUpPage()),
+                  );
+                },
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 7,
+                  ),
                 ),
-                child: Text('Sign Up',
+                child: Text(
+                  'Sign Up',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.inverseSurface,
                     fontWeight: FontWeight.bold,
-                ))
+                  ),
+                ),
               ),
             ],
           ),
@@ -149,38 +169,43 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _loginControlsModal(BuildContext modalContext, Function setModalState, Function(String) setError) {
+  void _loginControlsModal(
+    BuildContext modalContext,
+    Function setModalState,
+    Function(String) setError,
+  ) {
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    http.post(
-      Uri.parse('${dotenv.env['API_URL']}/auth/login'),
-      body: {
-        'email': email,
-        'password': password,
-      },
-      ).then((response) {
-        if (response.statusCode == 201) {
-          final data = jsonDecode(response.body) as Map<String, dynamic>;
-          final token = data['access_token'] as String;
+    http
+        .post(
+          Uri.parse('${dotenv.env['API_URL']}/auth/login'),
+          body: {'email': email, 'password': password},
+        )
+        .then((response) {
+          if (response.statusCode == 201) {
+            final data = jsonDecode(response.body) as Map<String, dynamic>;
+            final token = data['access_token'] as String;
 
-          debugPrint('Login successful');
-          cache.AuthStore().saveToken(token);
-          Navigator.of(modalContext).pop();
-          widget.onLoginSuccess();
-        } else {
+            debugPrint('Login successful');
+            cache.AuthStore().saveToken(token);
+            Navigator.of(modalContext).pop();
+            widget.onLoginSuccess();
+          } else {
+            setModalState(() {
+              setError('Login failed: ${response.statusCode}');
+            });
+            debugPrint(
+              'Login failed with status code: ${response.statusCode} & body: ${response.body}',
+            );
+          }
+        })
+        .catchError((error) {
           setModalState(() {
-            setError('Login failed: ${response.statusCode}');
+            setError('Network error: $error');
           });
-          debugPrint('Login failed with status code: ${response.statusCode} & body: ${response.body}');
-        }
-      }).catchError((error) {
-        setModalState(() {
-          setError('Network error: $error');
+          debugPrint('Login failed with error: $error');
         });
-        debugPrint('Login failed with error: $error');
-      }
-    );
   }
 
   @override
@@ -195,26 +220,39 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 SizedBox(
                   width: 300,
-                  child: Text( 'Automatisez le travail et la maison',
+                  child: Text(
+                    'Automatisez le travail et la maison',
                     style: Theme.of(context).textTheme.displayLarge,
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-                TextButton(onPressed: () {
-                  // Handle login action
-                  openLoginDialog(context);
-                },
+                SizedBox(
+                  height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Handle login action
+                    openLoginDialog(context);
+                  },
                   style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.inverseSurface,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 15,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: Text('Login',
+                  child: Text(
+                    'Login',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onInverseSurface,
                       fontWeight: FontWeight.bold,
-                  ))
+                    ),
+                  ),
                 ),
               ],
             ),
