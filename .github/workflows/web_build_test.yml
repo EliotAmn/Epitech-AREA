@@ -117,7 +117,7 @@ jobs:
         working-directory: ./web
         run: |
           echo "Running unit tests..."
-          npm test || echo "Tests not yet implemented"
+          npm test --passWithNoTests || echo "Tests not yet implemented"
         continue-on-error: true
 
   docker_build:
