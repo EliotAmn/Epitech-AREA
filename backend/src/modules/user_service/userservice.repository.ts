@@ -7,10 +7,12 @@ export class UserServiceRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   fromUserIdAndServiceName(userId: string, serviceName: string) {
-    return this.prismaService.userService.findFirst({
+    return this.prismaService.userService.findUnique({
       where: {
-        user_id: userId,
-        service_name: serviceName,
+        user_id_service_name: {
+          user_id: userId,
+          service_name: serviceName,
+        },
       },
     });
   }
