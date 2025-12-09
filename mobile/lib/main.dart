@@ -4,9 +4,14 @@ import 'pages/counter_page.dart';
 import 'pages/login_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'global/cache.dart' as cache;
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Error loading .env file: $e");
+  }
   runApp(const MyApp());
 }
 
@@ -34,6 +39,18 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
   bool _isLogined = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cache.AuthStore().loadToken().then((token) {
+      if (token != null && token.isNotEmpty) {
+        setState(() {
+          _isLogined = true;
+        });
+      }
+    });
+  }
 
   final List<Widget> _pages = [const HomePage(), const CounterPage()];
 

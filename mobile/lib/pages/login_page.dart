@@ -31,39 +31,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void loginControls(BuildContext modalContext) {
-    String email = _emailController.text;
-    String password = _passwordController.text;
-
-    http
-        .post(
-          Uri.parse('${dotenv.env['API_URL']}/auth/login'),
-          body: {'email': email, 'password': password},
-        )
-        .then((response) {
-          if (!mounted) return;
-          if (response.statusCode == 201) {
-            final data = jsonDecode(response.body) as Map<String, dynamic>;
-            final token = data['access_token'] as String;
-
-            debugPrint('Login successful');
-            cache.AuthStore().saveToken(token);
-            if (modalContext.mounted) {
-              Navigator.of(modalContext).pop();
-              widget.onLoginSuccess();
-            }
-          } else {
-            debugPrint(
-              'Login failed with status code: ${response.statusCode} & body: ${response.body}',
-            );
-          }
-        })
-        .catchError((error) {
-          if (!mounted) return;
-          debugPrint('Login failed with error: $error');
-        });
-  }
-
   void openLoginDialog(BuildContext context) {
     String errorMessage = '';
     showModalBottomSheet(
@@ -180,7 +147,8 @@ class _LoginPageState extends State<LoginPage> {
     http
         .post(
           Uri.parse('${dotenv.env['API_URL']}/auth/login'),
-          body: {'email': email, 'password': password},
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email, 'password': password}),
         )
         .then((response) {
           if (response.statusCode == 201) {
@@ -189,8 +157,10 @@ class _LoginPageState extends State<LoginPage> {
 
             debugPrint('Login successful');
             cache.AuthStore().saveToken(token);
-            Navigator.of(modalContext).pop();
-            widget.onLoginSuccess();
+            if (modalContext.mounted) {
+              Navigator.of(modalContext).pop();
+              widget.onLoginSuccess();
+            }
           } else {
             setModalState(() {
               setError('Login failed: ${response.statusCode}');
