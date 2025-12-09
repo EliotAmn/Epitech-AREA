@@ -26,6 +26,10 @@ echo "📝 Setting up environment..."
 
 # Create .env if it doesn't exist
 if [ ! -f .env ]; then
+    if [ ! -f .env.example ]; then
+        echo "❌ .env.example file not found. Please provide a .env.example file to create .env."
+        exit 1
+    fi
     cp .env.example .env
     echo "✅ Created .env file from .env.example"
     echo "⚠️  Please edit .env with your configuration"
