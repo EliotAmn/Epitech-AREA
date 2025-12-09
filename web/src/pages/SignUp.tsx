@@ -73,6 +73,21 @@ export default function SignUp() {
         }
     };
 
+    const handleGoogleSignUp = async () => {
+        setError("");
+        setLoading(true);
+        try {
+            await authService.oauthSignIn("google");
+            navigate("/explore");
+        } catch (err) {
+            if (err instanceof ApiClientError) setError(err.message);
+            else if (err instanceof Error) setError(err.message);
+            else setError("Failed to sign in with Google");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex justify-center">
             <div className="w-full max-w-md p-6">
@@ -113,6 +128,7 @@ export default function SignUp() {
                     <Button
                         label="Sign up with Google"
                         mode="white"
+                        onClick={handleGoogleSignUp}
                         icon={logoGoogle}
                         disabled={loading}
                     />
