@@ -316,11 +316,17 @@ jobs:
           
           **Backend:**
           \`\`\`bash
+          # Create env file for secure credential management
+          cat > backend.env << EOF2
+          NODE_ENV=production
+          PORT=8080
+          DATABASE_URL=postgresql://user:pass@host/db
+          EOF2
+          
           docker run -d \\
             --name server \\
             -p 8080:8080 \\
-
-            -e DATABASE_URL=postgresql://user:pass@host/db \\
+            --env-file backend.env \\
             $REGISTRY_URL/backend:$VERSION
           \`\`\`
           
@@ -329,6 +335,7 @@ jobs:
           docker run -d \\
             --name client_web \\
             -p 8081:8081 \\
+            -e VITE_API_URL=http://localhost:8080 \\
             $REGISTRY_URL/web:$VERSION
           \`\`\`
           
@@ -414,7 +421,7 @@ jobs:
           fi
           
           # Check backend
-          if curl -f http://localhost:8080/health || [ $? -eq 0 ]; then
+          if curl -f http://localhost:8080/health 2>/dev/null; then
             echo "✅ Backend is healthy"
           else
             echo "::warning::Backend health check failed (may not have /health endpoint yet)"
@@ -422,7 +429,7 @@ jobs:
           fi
           
           # Check web
-          if curl -f http://localhost:8081/health || [ $? -eq 0 ]; then
+          if curl -f http://localhost:8081/ 2>/dev/null; then
             echo "✅ Web is healthy"
           else
             echo "::warning::Web health check failed"

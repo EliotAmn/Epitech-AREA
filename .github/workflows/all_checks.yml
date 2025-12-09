@@ -246,21 +246,30 @@ jobs:
           
           # Repository validation always runs
           if [ "$REPOSITORY_VALIDATION" != "success" ]; then
+            echo "::error::Repository validation failed with status: $REPOSITORY_VALIDATION"
             FAILED=true
           fi
           
           # Docker validation always runs
           if [ "$DOCKER_VALIDATION" != "success" ]; then
+            echo "::error::Docker validation failed with status: $DOCKER_VALIDATION"
             FAILED=true
           fi
           
-          # Check build results only if they ran and exist
-          if [ "$BACKEND_CHANGED" = "true" ] && [ "$BACKEND_BUILD" != "success" ] && [ "$BACKEND_BUILD" != "skipped" ]; then
-            FAILED=true
+          # Check build results only if changes were detected
+          # Accept: success, skipped, or empty (job didn't run)
+          if [ "$BACKEND_CHANGED" = "true" ]; then
+            if [ -n "$BACKEND_BUILD" ] && [ "$BACKEND_BUILD" != "success" ] && [ "$BACKEND_BUILD" != "skipped" ]; then
+              echo "::error::Backend build failed with status: $BACKEND_BUILD"
+              FAILED=true
+            fi
           fi
           
-          if [ "$WEB_CHANGED" = "true" ] && [ "$WEB_BUILD" != "success" ] && [ "$WEB_BUILD" != "skipped" ]; then
-            FAILED=true
+          if [ "$WEB_CHANGED" = "true" ]; then
+            if [ -n "$WEB_BUILD" ] && [ "$WEB_BUILD" != "success" ] && [ "$WEB_BUILD" != "skipped" ]; then
+              echo "::error::Web build failed with status: $WEB_BUILD"
+              FAILED=true
+            fi
           fi
           
           # Mobile build is removed from pipeline, don't check it
@@ -281,14 +290,27 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const status = '${{ needs.repository_validation.result }}' === 'success' &&
-                          '${{ needs.backend_build_test.result }}' === 'success' &&
-                          '${{ needs.web_build_test.result }}' === 'success' &&
-                          '${{ needs.docker_compose_validation.result }}' === 'success';
+            const backendChanged = '${{ needs.detect_changes.outputs.backend_changed }}' === 'true';
+            const webChanged = '${{ needs.detect_changes.outputs.frontend_changed }}' === 'true';
             
-            const body = status 
-              ? '✅ All quality checks passed! This PR is ready for review.'
-              : '❌ Some quality checks failed. Please review the workflow results.';
+            const repoValidation = '${{ needs.repository_validation.result }}';
+            const backendBuild = '${{ needs.backend_build_test.result }}';
+            const webBuild = '${{ needs.web_build_test.result }}';
+            const dockerValidation = '${{ needs.docker_compose_validation.result }}';
+            
+            // Check if all required checks passed
+            let failed = false;
+            
+            if (repoValidation !== 'success') failed = true;
+            if (dockerValidation !== 'success') failed = true;
+            
+            // Only check build results if changes were detected
+            if (backendChanged && backendBuild !== 'success') failed = true;
+            if (webChanged && webBuild !== 'success') failed = true;
+            
+            const body = failed
+              ? '❌ Some quality checks failed. Please review the workflow results.'
+              : '✅ All quality checks passed! This PR is ready for review.';
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
