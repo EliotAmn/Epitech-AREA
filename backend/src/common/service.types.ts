@@ -52,8 +52,7 @@ export abstract class ServiceReactionDefinition {
     params: Record<string, ParameterValue>,
   ): Promise<void>;
 
-  abstract reload_cache(sconf: ServiceConfig): Promise<Record<string, any>>;
-  abstract reload_cache(): Promise<Record<string, any>>;
+  abstract reload_cache(sconf?: ServiceConfig): Promise<Record<string, any>>;
 }
 
 // Constructor types for providing classes (subclasses) instead of instances.
