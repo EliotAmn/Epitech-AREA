@@ -11,6 +11,7 @@ import {ServiceImporterService} from '@/modules/service_importer/service_importe
 import {ActionRepository} from './action/action.repository';
 import {AreaRepository} from './area.repository';
 import {ReactionValider} from './reaction/reaction.valider';
+import {UserServiceService} from "@/modules/user_service/userservice.service";
 
 @Injectable()
 export class AreaService {
