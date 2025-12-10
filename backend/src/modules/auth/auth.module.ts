@@ -48,6 +48,9 @@ import { GoogleStrategy } from './strategies/google.strategy';
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).exclude('auth/(.*)').forRoutes('*');
+    consumer
+      .apply(AuthMiddleware)
+      .exclude('auth/(.*)', 'about.json')
+      .forRoutes('*');
   }
 }

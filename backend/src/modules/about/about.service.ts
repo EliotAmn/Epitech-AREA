@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import {
+  ParameterDefinition,
   ServiceActionConstructor,
   ServiceDefinition,
   ServiceReactionConstructor,
@@ -12,11 +13,13 @@ type ServiceClassOrInstance = (new () => ServiceDefinition) | ServiceDefinition;
 export interface ActionInfo {
   name: string;
   description: string;
+  output_params?: ParameterDefinition[];
 }
 
 export interface ReactionInfo {
   name: string;
   description: string;
+  input_params?: ParameterDefinition[];
 }
 
 export interface ServiceInfo {
@@ -24,7 +27,6 @@ export interface ServiceInfo {
   actions: ActionInfo[];
   reactions: ReactionInfo[];
 }
-
 export interface AboutResponse {
   client: {
     host: string;
@@ -104,6 +106,8 @@ export class AboutService {
         return {
           name: actionInstance.name || 'unknown_action',
           description: actionInstance.description || 'No description available',
+          output_params: actionInstance.output_params || [],
+          input_params: actionInstance.input_params || [],
         };
       } catch (error) {
         this.logger.error(`Failed to instantiate action:`, error);
@@ -125,6 +129,7 @@ export class AboutService {
           name: reactionInstance.name || 'unknown_reaction',
           description:
             reactionInstance.description || 'No description available',
+          input_params: reactionInstance.input_params || [],
         };
       } catch (error) {
         this.logger.error(`Failed to instantiate reaction:`, error);

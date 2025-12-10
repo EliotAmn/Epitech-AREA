@@ -1,21 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import Button from "../component/button";
-import { actions, services } from "../data/catalogData";
+import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
 
 export default function Explore() {
     const navigate = useNavigate();
-    const [filter, setFilter] = useState<"all" | "actions" | "services">("all");
+    const [filter, setFilter] = useState<"all" | "reactions" | "services">(
+        "all"
+    );
+    const [parsedReactions, setParsedReactions] = useState<CatalogItem[]>([]);
+    const [parsedServices, setParsedServices] = useState<CatalogItem[]>([]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const load = async () => {
+            const parsed = await fetchCatalogFromAbout();
+            if (!mounted) return;
+            setParsedReactions(parsed.reactions);
+            setParsedServices(parsed.services);
+        };
+
+        load();
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     const itemsToShow =
         filter === "all"
-            ? [...actions, ...services]
-            : filter === "actions"
-              ? actions
-              : services;
+            ? [...parsedReactions, ...parsedServices]
+            : filter === "reactions"
+              ? parsedReactions
+              : parsedServices;
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-start">
@@ -36,10 +57,10 @@ export default function Explore() {
                         All
                     </button>
                     <button
-                        className={`cursor-pointer text-2xl font-semibold text-center ${filter === "actions" ? "underline" : "text-black"}`}
-                        onClick={() => setFilter("actions")}
+                        className={`cursor-pointer text-2xl font-semibold text-center ${filter === "reactions" ? "underline" : "text-black"}`}
+                        onClick={() => setFilter("reactions")}
                     >
-                        Actions
+                        Reactions
                     </button>
                     <button
                         className={`cursor-pointer text-2xl font-semibold text-center ${filter === "services" ? "underline" : "text-black"}`}
