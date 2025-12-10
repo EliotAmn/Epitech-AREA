@@ -7,7 +7,10 @@ export function mapRecord<T, U>(
   );
 }
 
-export function buildUrlParameters(basepath: string, params: { [key: string]: string | number | boolean | undefined }): string {
+export function buildUrlParameters(
+  basepath: string,
+  params: { [key: string]: string | number | boolean | undefined },
+): string {
   const urlParams = new URLSearchParams();
   for (const key in params) {
     const value = params[key];

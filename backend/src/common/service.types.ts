@@ -16,7 +16,7 @@ export interface ParameterDefinition {
   label: string;
   description: string;
   required: boolean;
-  options?: {label: string, value: string}[]; // For SELECT type
+  options?: { label: string; value: string }[]; // For SELECT type
 }
 
 export interface ServiceConfig {

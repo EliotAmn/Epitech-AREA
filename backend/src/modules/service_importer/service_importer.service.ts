@@ -11,17 +11,16 @@ export class ServiceImporterService {
   ) {}
 
   getAllServices() {
-    return this.services.filter(service => {
-
-        // Don't load service if mandatory env vars are not set
-        if (service.mandatory_env_vars) {
-            for (const env_var of service.mandatory_env_vars) {
-                if (!process.env[env_var]) {
-                    return false;
-                }
-            }
+    return this.services.filter((service) => {
+      // Don't load service if mandatory env vars are not set
+      if (service.mandatory_env_vars) {
+        for (const env_var of service.mandatory_env_vars) {
+          if (!process.env[env_var]) {
+            return false;
+          }
         }
-    })
+      }
+    });
   }
 
   getServiceByName(name: string): ServiceDefinition | undefined {

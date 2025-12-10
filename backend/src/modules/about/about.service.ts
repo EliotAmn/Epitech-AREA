@@ -84,7 +84,7 @@ export class AboutService {
 
         return {
           name: service.name,
-            oauth_url: service.oauth_url,
+          oauth_url: service.oauth_url,
           actions,
           reactions,
         };
