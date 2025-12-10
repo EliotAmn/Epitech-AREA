@@ -44,11 +44,8 @@ services:
     build:
       context: ./mobile
       dockerfile: Dockerfile
-      target: builder
     volumes:
-      - ./mobile/build/app/outputs/flutter-apk:/app/build/app/outputs/flutter-apk
-    networks:
-      - area-network
+      - apk_volume:/apk
 
   client_web:
     build:
@@ -58,9 +55,13 @@ services:
       - "8081:8081"
     environment:
       - VITE_API_URL=http://server:8080
+    volumes:
+      - apk_volume:/usr/share/nginx/html/apk:ro
     depends_on:
-      - client_mobile
-      - server
+      client_mobile:
+        condition: service_completed_successfully
+      server:
+        condition: service_started
     restart: unless-stopped
     networks:
       - area-network
@@ -71,3 +72,4 @@ networks:
 
 volumes:
   postgres_data:
+  apk_volume:

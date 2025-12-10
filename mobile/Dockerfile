@@ -53,6 +53,5 @@ COPY . .
 # Build APK
 RUN flutter build apk --release
 
-# Output stage - just copy the APK
-FROM scratch AS output
-COPY --from=builder /app/build/app/outputs/flutter-apk/app-release.apk /app-release.apk
+# Copy APK to shared volume
+CMD ["sh", "-c", "cp /app/build/app/outputs/flutter-apk/app-release.apk /apk/client.apk && echo 'APK copied to shared volume' && exit 0"]
