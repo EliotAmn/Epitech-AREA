@@ -9,9 +9,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Build the application
-FROM base AS builder
-COPY package*.json ./
-RUN npm ci
+FROM deps AS builder
 COPY . .
 RUN npm run build
 
