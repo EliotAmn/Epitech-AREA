@@ -24,6 +24,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    env_file:
+      - ./backend/.env
+      - ./.env
     environment:
       - NODE_ENV=production
       - PORT=8080
@@ -44,6 +47,8 @@ services:
     build:
       context: ./mobile
       dockerfile: Dockerfile
+    env_file:
+      - ./mobile/.env
     volumes:
       - apk_volume:/apk
 
