@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import ProgressBar from "../component/ProgressBar";
-import { actions, reactions, services } from "../data/catalogData";
+import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
 import Summary from "./Summary";
 
@@ -39,6 +40,25 @@ export default function Create() {
         !!reaction,
     ];
 
+    const [parsedActions, setParsedActions] = useState<CatalogItem[]>([]);
+    const [parsedServices, setParsedServices] = useState<CatalogItem[]>([]);
+    const [parsedReactions, setParsedReactions] = useState<CatalogItem[]>([]);
+
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            const parsed = await fetchCatalogFromAbout();
+            if (!mounted) return;
+            setParsedActions(parsed.actions);
+            setParsedServices(parsed.services);
+            setParsedReactions(parsed.reactions);
+        };
+        load();
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
     return (
         <div className="text-center justify-center">
             <h1 className="text-7xl font-bold m-4">Create your own area</h1>
@@ -59,10 +79,11 @@ export default function Create() {
             <div className="flex flex-col items-center justify-center gap-6 mt-6 w-full">
                 {step === 1 && (
                     <CatalogPage
-                        items={services}
+                        items={parsedServices}
                         description="Choose service for your action"
                         onSelect={(item) => {
                             setActionService(item.platform ?? null);
+                            setAction(null);
                             setStep(2);
                         }}
                     />
@@ -71,7 +92,9 @@ export default function Create() {
                 {step === 2 &&
                     (actionService ? (
                         <CatalogPage
-                            items={actions}
+                            items={parsedActions.filter(
+                                (a) => a.platform === actionService
+                            )}
                             description={`Choose an action for ${actionService}`}
                             onSelect={(item) => {
                                 setAction(item.title ?? null);
@@ -82,10 +105,11 @@ export default function Create() {
 
                 {step === 3 && (
                     <CatalogPage
-                        items={services}
+                        items={parsedServices}
                         description="Choose service for your reaction"
                         onSelect={(item) => {
                             setReactionService(item.platform ?? null);
+                            setReaction(null);
                             setStep(4);
                         }}
                     />
@@ -95,7 +119,10 @@ export default function Create() {
                     <div className="w-full">
                         {!reaction ? (
                             <CatalogPage
-                                items={reactions}
+                                items={parsedReactions.filter(
+                                    (r) =>
+                                        r.platform === (reactionService ?? "")
+                                )}
                                 description={
                                     reactionService
                                         ? `Choose a reaction for ${reactionService}`
@@ -113,6 +140,25 @@ export default function Create() {
                                     action={action}
                                     reactionService={reactionService}
                                     reaction={reaction}
+                                    actionDefName={
+                                        (
+                                            parsedActions.find(
+                                                (a) =>
+                                                    a.title === action &&
+                                                    a.platform === actionService
+                                            ) as unknown as { defName?: string }
+                                        )?.defName
+                                    }
+                                    reactionDefName={
+                                        (
+                                            parsedReactions.find(
+                                                (r) =>
+                                                    r.title === reaction &&
+                                                    r.platform ===
+                                                        reactionService
+                                            ) as unknown as { defName?: string }
+                                        )?.defName
+                                    }
                                 />
                             </div>
                         )}

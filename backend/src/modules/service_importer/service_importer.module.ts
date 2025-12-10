@@ -63,28 +63,22 @@ export class ServiceImporterModule {
 
     const serviceProvider = {
       provide: SERVICE_DEFINITION,
-      useFactory: (): Array<new () => ServiceDefinition> => {
-        return discoveredServices;
+      // Provide actual ServiceDefinition instances (not constructors) so
+      // consumers of the token can access .actions/.reactions directly.
+      useFactory: (): ServiceDefinition[] => {
+        return discoveredServices.map((Svc) => new Svc());
       },
     };
 
-    console.log(
-      `[service] Discovered services: ${discoveredServices
-        .map((ServiceClass) => {
-          try {
-            const instance = new ServiceClass();
-            return instance.name;
-          } catch {
-            return 'unknown';
-          }
-        })
-        .join(', ')}`,
-    );
+    // Discovered services are provided via the SERVICE_DEFINITION provider.
 
     return {
       module: ServiceImporterModule,
-      providers: [ServiceImporterService, serviceProvider],
-      exports: [ServiceImporterService, serviceProvider],
+      // Ensure the service definitions provider is registered before the
+      // ServiceImporterService so the injected token is available when the
+      // service is instantiated.
+      providers: [serviceProvider, ServiceImporterService],
+      exports: [serviceProvider, ServiceImporterService],
     };
   }
 }

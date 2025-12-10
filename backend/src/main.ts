@@ -1,9 +1,10 @@
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import configuration from './common/configuration';
+import { AreaService } from './modules/area/area.service';
 import { DiscordClientManager } from './services/discord/discord.client';
 
 async function bootstrap() {
@@ -43,7 +44,21 @@ async function bootstrap() {
       logger.warn('Discord service will not be available');
     }
   } else {
-    logger.warn('DISCORD_BOT_TOKEN not found in environment variables. Discord service will not be available.');
+    logger.warn(
+      'DISCORD_BOT_TOKEN not found in environment variables. Discord service will not be available.',
+    );
+  }
+
+  // Initialize area action handlers and reaction caches for existing areas
+  try {
+    const areaService = app.get(AreaService);
+    if (areaService && typeof areaService.initializeAll === 'function') {
+      logger.log('Initializing existing areas...');
+      await areaService.initializeAll();
+      logger.log('Areas initialized');
+    }
+  } catch (err) {
+    logger.error('Failed to initialize areas at startup:', err);
   }
 
   await app.listen(process.env.PORT || 3000);

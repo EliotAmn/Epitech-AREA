@@ -2,10 +2,9 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import configuration from './common/configuration';
 import { AboutModule } from './modules/about/about.module';
+import { AreaModule } from './modules/area/area.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { ServiceImporterModule } from './modules/service_importer/service_importer.module';
@@ -21,6 +20,7 @@ import { UserModule } from './modules/user/user.module';
     PrismaModule,
     UserModule,
     AboutModule,
+    AreaModule,
     AuthModule,
     HttpModule.register({
       timeout: 5000,
@@ -28,7 +28,7 @@ import { UserModule } from './modules/user/user.module';
     }),
     ServiceImporterModule.register(),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

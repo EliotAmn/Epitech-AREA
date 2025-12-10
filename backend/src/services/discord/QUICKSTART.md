@@ -35,7 +35,7 @@ Enable Developer Mode in Discord:
 
 Then right-click on:
 - Channel → Copy Channel ID
-- Server → Copy Server ID  
+- Server → Copy Server ID
 - User → Copy User ID
 - Role → Copy Role ID
 
