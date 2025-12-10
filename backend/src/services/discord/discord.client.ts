@@ -41,8 +41,8 @@ export class DiscordClientManager {
     });
 
     this.client.once(Events.ClientReady, (readyClient) => {
-      console.log(`✅ Discord bot ready! Logged in as ${readyClient.user.tag}`);
-      console.log(`📊 Connected to ${readyClient.guilds.cache.size} server(s)`);
+      console.log(`Discord bot ready! Logged in as ${readyClient.user.tag}`);
+      console.log(`Connected to ${readyClient.guilds.cache.size} server(s)`);
       this.isReady = true;
     });
 
@@ -61,7 +61,7 @@ export class DiscordClientManager {
     // Handle member joins
     this.client.on(Events.GuildMemberAdd, (member) => {
       console.log(
-        `👋 Member joined: ${member.user.username} in ${member.guild.name}`,
+        `Member joined: ${member.user.username} in ${member.guild.name}`,
       );
       console.log(`   Active handlers: ${this.memberJoinHandlers.size}`);
 

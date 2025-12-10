@@ -1,5 +1,5 @@
 import type { CatalogItem } from "../data/catalogData";
-import { aboutService } from "./api/aboutService";
+import { aboutService, type AboutInfo } from "./api/aboutService";
 
 const colorForService = (name: string) => {
     const map: Record<string, string> = {
@@ -48,8 +48,13 @@ export async function fetchCatalogFromAbout(): Promise<{
     const reactions: CatalogItem[] = [];
 
     try {
-        const aboutInfo: any = await aboutService.getAbout();
-        const rawServices: any[] =
+        const aboutInfo: AboutInfo = await aboutService.getAbout();
+        const rawServices: {
+            name?: string;
+            title?: string;
+            actions?: { name?: string; title?: string }[];
+            reactions?: { name?: string; title?: string }[];
+        }[] =
             aboutInfo?.server?.services &&
             Array.isArray(aboutInfo.server.services)
                 ? aboutInfo.server.services

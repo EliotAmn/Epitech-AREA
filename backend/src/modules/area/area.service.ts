@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -195,6 +195,91 @@ export class AreaService {
     }
   }
 
+  private async initActionsForArea(area: any, userId: string) {
+    for (const a of area.actions || []) {
+      try {
+        const def_action = this.service_importer_service.getActionByName(
+          a.action_name,
+        );
+        if (!def_action) continue;
+        const service_name = def_action.service.name;
+        const user_service =
+          await this.userservice_service.fromUserIdAndServiceName(
+            userId,
+            service_name,
+          );
+        const service_config =
+          (user_service?.service_config as Prisma.JsonObject) || {};
+        const action_params = (a.params as Prisma.JsonObject) || {};
+        const sconf = {
+          config: { ...service_config, ...action_params },
+        } as any;
+        await def_action.action.reload_cache(sconf);
+
+        try {
+          const pollKey = `${area.id}:${a.id}`;
+          this.actionInstances.set(pollKey, def_action.action);
+          if (this.actionPollers.has(pollKey)) {
+            clearInterval(this.actionPollers.get(pollKey));
+            this.actionPollers.delete(pollKey);
+          }
+          const timer = setInterval(() => {
+            def_action.action
+              .poll(sconf)
+              .then(async (out: ActionTriggerOutput) => {
+                if (out && out.triggered) {
+                  await this.handle_action_trigger(a.id, out);
+                }
+              })
+              .catch((err: any) => {
+                console.error(
+                  `Error polling action ${a.action_name} for area ${area.id}:`,
+                  err,
+                );
+              });
+          }, this.ACTION_POLL_INTERVAL);
+          this.actionPollers.set(pollKey, timer);
+        } catch (err) {
+          console.error('Failed to start poller for action:', err);
+        }
+      } catch (e) {
+        console.error(
+          'Failed to initialize action cache for area during startup:',
+          e,
+        );
+      }
+    }
+  }
+
+  private async initReactionsForArea(area: any, userId: string) {
+    for (const r of area.reactions || []) {
+      try {
+        const def_reaction = this.service_importer_service.getReactionByName(
+          r.reaction_name,
+        );
+        if (!def_reaction) continue;
+        const service_name = def_reaction.service.name;
+        const user_service =
+          await this.userservice_service.fromUserIdAndServiceName(
+            userId,
+            service_name,
+          );
+        const service_config =
+          (user_service?.service_config as Prisma.JsonObject) || {};
+        const reaction_params = (r.params as Prisma.JsonObject) || {};
+        const sconf = {
+          config: { ...service_config, ...reaction_params },
+        } as any;
+        await def_reaction.reaction.reload_cache(sconf);
+      } catch (e) {
+        console.error(
+          'Failed to initialize reaction cache for area during startup:',
+          e,
+        );
+      }
+    }
+  }
+
   async create(
     userId: string,
     dto: {
@@ -245,87 +330,9 @@ export class AreaService {
     const areas = await this.area_repository.findAll();
     for (const area of areas) {
       const userId = area.user_id;
-      for (const a of area.actions || []) {
-        try {
-          const def_action = this.service_importer_service.getActionByName(
-            a.action_name,
-          );
-          if (!def_action) continue;
-          const service_name = def_action.service.name;
-          const user_service =
-            await this.userservice_service.fromUserIdAndServiceName(
-              userId,
-              service_name,
-            );
-          const service_config =
-            (user_service?.service_config as Prisma.JsonObject) || {};
-          const action_params = (a.params as Prisma.JsonObject) || {};
-          const sconf = {
-            config: { ...service_config, ...action_params },
-          } as any;
-          await def_action.action.reload_cache(sconf);
-
-          try {
-            const pollKey = `${area.id}:${a.id}`;
-            this.actionInstances.set(pollKey, def_action.action);
-            if (this.actionPollers.has(pollKey)) {
-              clearInterval(this.actionPollers.get(pollKey));
-              this.actionPollers.delete(pollKey);
-            }
-            const timer = setInterval(async () => {
-              try {
-                const out = await def_action.action.poll(sconf);
-                if (out && out.triggered) {
-                  console.log(
-                    `Action ${a.action_name} triggered for area ${area.id}, invoking reactions...`,
-                  );
-                  await this.handle_action_trigger(a.id, out);
-                }
-              } catch (err) {
-                console.error(
-                  `Error polling action ${a.action_name} for area ${area.id}:`,
-                  err,
-                );
-              }
-            }, this.ACTION_POLL_INTERVAL);
-            this.actionPollers.set(pollKey, timer);
-          } catch (err) {
-            console.error('Failed to start poller for action:', err);
-          }
-        } catch (e) {
-          console.error(
-            'Failed to initialize action cache for area during startup:',
-            e,
-          );
-        }
-      }
-
-      for (const r of area.reactions || []) {
-        try {
-          const def_reaction = this.service_importer_service.getReactionByName(
-            r.reaction_name,
-          );
-          if (!def_reaction) continue;
-          const service_name = def_reaction.service.name;
-          const user_service =
-            await this.userservice_service.fromUserIdAndServiceName(
-              userId,
-              service_name,
-            );
-          const service_config =
-            (user_service?.service_config as Prisma.JsonObject) || {};
-          const reaction_params = (r.params as Prisma.JsonObject) || {};
-          const sconf = {
-            config: { ...service_config, ...reaction_params },
-          } as any;
-          await def_reaction.reaction.reload_cache(sconf);
-        } catch (e) {
-          console.error(
-            'Failed to initialize reaction cache for area during startup:',
-            e,
-          );
-        }
-      }
+      // Initialize actions and reactions using shared helpers
+      await this.initActionsForArea(area, userId);
+      await this.initReactionsForArea(area, userId);
     }
   }
 
@@ -336,88 +343,9 @@ export class AreaService {
     const userId = area.user_id;
 
     this.stopAreaPollers(areaId);
-
-    for (const a of area.actions || []) {
-      try {
-        const def_action = this.service_importer_service.getActionByName(
-          a.action_name,
-        );
-        if (!def_action) continue;
-
-        const service_name = def_action.service.name;
-        const user_service =
-          await this.userservice_service.fromUserIdAndServiceName(
-            userId,
-            service_name,
-          );
-        const service_config =
-          (user_service?.service_config as Prisma.JsonObject) || {};
-        const action_params = (a.params as Prisma.JsonObject) || {};
-        const sconf = {
-          config: { ...service_config, ...action_params },
-        } as any;
-        await def_action.action.reload_cache(sconf);
-
-        try {
-          const pollKey = `${areaId}:${a.id}`;
-          this.actionInstances.set(pollKey, def_action.action);
-          if (this.actionPollers.has(pollKey)) {
-            clearInterval(this.actionPollers.get(pollKey));
-            this.actionPollers.delete(pollKey);
-          }
-          const timer = setInterval(() => {
-            def_action.action
-              .poll(sconf)
-              .then(async (out: ActionTriggerOutput) => {
-                if (out && out.triggered) {
-                  await this.handle_action_trigger(a.id, out);
-                }
-              })
-              .catch((err: any) => {
-                console.error(
-                  `Error polling action ${a.action_name} for area ${areaId}:`,
-                  err,
-                );
-              });
-          }, this.ACTION_POLL_INTERVAL);
-          this.actionPollers.set(pollKey, timer);
-        } catch (err) {
-          console.error('Failed to start poller for action (single):', err);
-        }
-      } catch (e) {
-        console.error(
-          'Failed to initialize action cache for area (single):',
-          e,
-        );
-      }
-    }
-
-    for (const r of area.reactions || []) {
-      try {
-        const def_reaction = this.service_importer_service.getReactionByName(
-          r.reaction_name,
-        );
-        if (!def_reaction) continue;
-        const service_name = def_reaction.service.name;
-        const user_service =
-          await this.userservice_service.fromUserIdAndServiceName(
-            userId,
-            service_name,
-          );
-        const service_config =
-          (user_service?.service_config as Prisma.JsonObject) || {};
-        const reaction_params = (r.params as Prisma.JsonObject) || {};
-        const sconf = {
-          config: { ...service_config, ...reaction_params },
-        } as any;
-        await def_reaction.reaction.reload_cache(sconf);
-      } catch (e) {
-        console.error(
-          'Failed to initialize reaction cache for area (single):',
-          e,
-        );
-      }
-    }
+    // Initialize actions and reactions using shared helpers
+    await this.initActionsForArea(area, userId);
+    await this.initReactionsForArea(area, userId);
   }
 
   async updateParams(

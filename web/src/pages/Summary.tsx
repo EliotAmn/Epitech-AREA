@@ -6,6 +6,15 @@ import { aboutService } from "@/services/api/aboutService";
 import { areaService } from "@/services/api/areaService";
 import Button from "../component/button";
 
+interface ParameterDefinition {
+    name: string;
+    type: "string" | "number" | "boolean" | "select";
+    label?: string;
+    description?: string;
+    required?: boolean;
+    options?: string[];
+}
+
 interface SummaryProps {
     actionService: string | null;
     action: string | null;
@@ -27,27 +36,45 @@ export default function Summary({
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [aboutInfo, setAboutInfo] = useState<any | null>(null);
-    const [actionParams, setActionParams] = useState<Record<string, any>>({});
+    const [actionParams, setActionParams] = useState<Record<string, unknown>>(
+        {}
+    );
     const [reactionParamsState, setReactionParamsState] = useState<
-        Record<string, any>
+        Record<string, unknown>
     >({});
-    const [actionInputs, setActionInputs] = useState<any[] | null>(null);
-    const [reactionInputs, setReactionInputs] = useState<any[] | null>(null);
+    const [actionInputs, setActionInputs] = useState<
+        ParameterDefinition[] | null
+    >(null);
+    const [reactionInputs, setReactionInputs] = useState<
+        ParameterDefinition[] | null
+    >(null);
 
     useEffect(() => {
         let mounted = true;
         const load = async () => {
             try {
-                const about = await aboutService.getAbout();
+                const about = (await aboutService.getAbout()) as {
+                    server?: {
+                        services?: Array<{
+                            name?: string;
+                            actions?: Array<{
+                                name?: string;
+                                input_params?: ParameterDefinition[];
+                            }>;
+                            reactions?: Array<{
+                                name?: string;
+                                input_params?: ParameterDefinition[];
+                            }>;
+                        }>;
+                    };
+                };
                 if (!mounted) return;
-                setAboutInfo(about);
 
                 // find action definition (actions expose output_params)
                 if (actionDefName) {
                     for (const svc of about?.server?.services || []) {
                         const act = (svc.actions || []).find(
-                            (a: any) => a.name === actionDefName
+                            (a) => a.name === actionDefName
                         );
                         if (act) {
                             setActionInputs(act.input_params || []);
@@ -59,7 +86,7 @@ export default function Summary({
                 if (reactionDefName) {
                     for (const svc of about?.server?.services || []) {
                         const react = (svc.reactions || []).find(
-                            (r: any) => r.name === reactionDefName
+                            (r) => r.name === reactionDefName
                         );
                         if (react) {
                             setReactionInputs(react.input_params || []);
@@ -67,7 +94,7 @@ export default function Summary({
                         }
                     }
                 }
-            } catch (e) {
+            } catch {
                 // ignore
             }
         };
@@ -122,7 +149,7 @@ export default function Summary({
                     <div>
                         <h3 className="font-semibold">Action parameters</h3>
                         <div className="space-y-2 mt-2">
-                            {actionInputs.map((p: any) => (
+                            {actionInputs.map((p: ParameterDefinition) => (
                                 <div key={p.name} className="flex flex-col">
                                     <label className="text-sm font-medium text-left">
                                         {p.label || p.name}
@@ -130,7 +157,11 @@ export default function Summary({
                                     {p.type === "string" /* STRING */ && (
                                         <input
                                             className="border p-2 rounded"
-                                            value={actionParams[p.name] ?? ""}
+                                            value={
+                                                (actionParams[
+                                                    p.name
+                                                ] as string) ?? ""
+                                            }
                                             onChange={(e) =>
                                                 setActionParams({
                                                     ...actionParams,
@@ -144,7 +175,11 @@ export default function Summary({
                                         <input
                                             type="number"
                                             className="border p-2 rounded"
-                                            value={actionParams[p.name] ?? ""}
+                                            value={
+                                                (actionParams[
+                                                    p.name
+                                                ] as number) ?? ""
+                                            }
                                             onChange={(e) =>
                                                 setActionParams({
                                                     ...actionParams,
@@ -158,7 +193,11 @@ export default function Summary({
                                     {p.type === "boolean" /* BOOLEAN */ && (
                                         <input
                                             type="checkbox"
-                                            checked={!!actionParams[p.name]}
+                                            checked={
+                                                !!(actionParams[
+                                                    p.name
+                                                ] as boolean)
+                                            }
                                             onChange={(e) =>
                                                 setActionParams({
                                                     ...actionParams,
@@ -170,7 +209,11 @@ export default function Summary({
                                     {p.type === "select" /* SELECT */ && (
                                         <select
                                             className="border p-2 rounded"
-                                            value={actionParams[p.name] ?? ""}
+                                            value={
+                                                (actionParams[
+                                                    p.name
+                                                ] as string) ?? ""
+                                            }
                                             onChange={(e) =>
                                                 setActionParams({
                                                     ...actionParams,
@@ -180,7 +223,7 @@ export default function Summary({
                                         >
                                             <option value="">Select</option>
                                             {(p.options || []).map(
-                                                (opt: any) => (
+                                                (opt: string) => (
                                                     <option
                                                         key={opt}
                                                         value={opt}
@@ -203,7 +246,7 @@ export default function Summary({
                             Reaction parameters
                         </h3>
                         <div className="space-y-2 mt-2">
-                            {reactionInputs.map((p: any) => (
+                            {reactionInputs.map((p: ParameterDefinition) => (
                                 <div key={p.name} className="flex flex-col">
                                     <label className="text-sm font-medium text-left">
                                         {p.label || p.name}
@@ -212,8 +255,9 @@ export default function Summary({
                                         <input
                                             className="border p-2 rounded"
                                             value={
-                                                reactionParamsState[p.name] ??
-                                                ""
+                                                (reactionParamsState[
+                                                    p.name
+                                                ] as string) ?? ""
                                             }
                                             onChange={(e) =>
                                                 setReactionParamsState({
@@ -229,8 +273,9 @@ export default function Summary({
                                             type="number"
                                             className="border p-2 rounded"
                                             value={
-                                                reactionParamsState[p.name] ??
-                                                ""
+                                                (reactionParamsState[
+                                                    p.name
+                                                ] as number) ?? ""
                                             }
                                             onChange={(e) =>
                                                 setReactionParamsState({
@@ -246,7 +291,9 @@ export default function Summary({
                                         <input
                                             type="checkbox"
                                             checked={
-                                                !!reactionParamsState[p.name]
+                                                !!(reactionParamsState[
+                                                    p.name
+                                                ] as boolean)
                                             }
                                             onChange={(e) =>
                                                 setReactionParamsState({
@@ -260,8 +307,9 @@ export default function Summary({
                                         <select
                                             className="border p-2 rounded"
                                             value={
-                                                reactionParamsState[p.name] ??
-                                                ""
+                                                (reactionParamsState[
+                                                    p.name
+                                                ] as string) ?? ""
                                             }
                                             onChange={(e) =>
                                                 setReactionParamsState({
@@ -272,7 +320,7 @@ export default function Summary({
                                         >
                                             <option value="">Select</option>
                                             {(p.options || []).map(
-                                                (opt: any) => (
+                                                (opt: string) => (
                                                     <option
                                                         key={opt}
                                                         value={opt}
