@@ -1,32 +1,109 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../component/input/input_decorations.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  late TextEditingController _emailController;
+  late TextEditingController _usernameController;
+  late TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _usernameController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void signUp(BuildContext context) {
+    String email = _emailController.text.trim();
+    String username = _usernameController.text.trim();
+    String password = _passwordController.text;
+
+    // Validation
+    if (email.isEmpty || username.isEmpty || password.isEmpty) {
+      _showError(context, 'All fields are required');
+      return;
+    }
+
+    if (!_isValidEmail(email)) {
+      _showError(context, 'Please enter a valid email');
+      return;
+    }
+
+    if (password.length < 6) {
+      _showError(context, 'Password must be at least 6 characters');
+      return;
+    }
+
+    http
+        .post(
+          Uri.parse('${dotenv.env['API_URL']}/auth/register'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': email,
+            'name': username,
+            'password': password,
+          }),
+        )
+        .then((response) {
+          if (response.statusCode == 201) {
+            debugPrint('Sign up successful');
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          } else {
+            debugPrint(
+              'Sign up failed with status code: ${response.statusCode} & body: ${response.body}',
+            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Sign up failed: ${response.statusCode}'),
+                ),
+              );
+            }
+          }
+        })
+        .catchError((error) {
+          debugPrint('Sign up failed with error: $error');
+        });
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    return emailRegex.hasMatch(email);
+  }
+
+  void _showError(BuildContext context, String message) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-        child: Icon(Icons.arrow_back,
-          color: Theme.of(context).colorScheme.onInverseSurface,
-        ),
-      ),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        scrolledUnderElevation: 0.0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        title:
-            Text('AREA',
-              style: Theme.of(context).textTheme.displayLarge,
-            ),
-      ),
+      appBar: AppBar(title: const Text('Sign Up')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -37,45 +114,78 @@ class SignUpPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Sign Up',
+                  Text(
+                    'Sign Up',
                     style: Theme.of(context).textTheme.displayLarge,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
                   TextField(
+                    controller: _emailController,
                     decoration: AppInputDecorations.primary(context, 'Email'),
                     textInputAction: TextInputAction.next,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
                   TextField(
-                    decoration: AppInputDecorations.primary(context, 'Username'),
+                    controller: _usernameController,
+                    decoration: AppInputDecorations.primary(
+                      context,
+                      'Username',
+                    ),
                     textInputAction: TextInputAction.next,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
                   TextField(
-                    decoration: AppInputDecorations.primary(context, 'Password'),
+                    controller: _passwordController,
+                    decoration: AppInputDecorations.primary(
+                      context,
+                      'Password',
+                    ),
                     obscureText: true,
                     textInputAction: TextInputAction.done,
                     autocorrect: false,
                     enableSuggestions: false,
                   ),
-                  SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
-                  TextButton(onPressed: () {
-                    // Handle sign up action
-                  },
+                  SizedBox(
+                    height:
+                        Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+                  ),
+                  TextButton(
+                    onPressed: () => signUp(context),
                     style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.inverseSurface,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 7,
+                      ),
                     ),
-                    child: Text('Sign Up', 
+                    child: Text(
+                      'Sign Up',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onInverseSurface,
                         fontWeight: FontWeight.bold,
-                    ))
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
           ],
         ),
       ),
