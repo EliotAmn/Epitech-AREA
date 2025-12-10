@@ -10,6 +10,7 @@ export class MessageContainsKeywordAction extends ServiceActionDefinition {
   name = 'message_contains_keyword';
   label = 'Message Contains Keyword';
   description = 'Triggers when a message contains a specific keyword';
+  poll_interval = 2;
   output_params: ParameterDefinition[] = [
     {
       name: 'message_content',

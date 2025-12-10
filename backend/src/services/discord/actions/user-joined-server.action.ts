@@ -12,6 +12,7 @@ import { DiscordClientManager } from '../discord.client';
 export class UserJoinedServerAction extends ServiceActionDefinition {
   name = 'user_joined_server';
   label = 'User Joined Server';
+  poll_interval = 2;
   description = 'Triggers when a user joins the Discord server';
   output_params: ParameterDefinition[] = [
     {

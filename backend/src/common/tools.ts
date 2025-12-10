@@ -6,3 +6,15 @@ export function mapRecord<T, U>(
     Object.entries(record).map(([key, value]) => [key, mapper(key, value)]),
   );
 }
+
+export function buildUrlParameters(basepath: string, params: { [key: string]: string | number | boolean | undefined }): string {
+  const urlParams = new URLSearchParams();
+  for (const key in params) {
+    const value = params[key];
+    if (value !== undefined) {
+      urlParams.append(key, String(value));
+    }
+  }
+  const paramString = urlParams.toString();
+  return paramString ? `?${paramString}` : '';
+}

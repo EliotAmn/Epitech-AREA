@@ -16,7 +16,7 @@ export interface ParameterDefinition {
   label: string;
   description: string;
   required: boolean;
-  options?: string[]; // For SELECT type
+  options?: {label: string, value: string}[]; // For SELECT type
 }
 
 export interface ServiceConfig {
@@ -32,6 +32,7 @@ export abstract class ServiceActionDefinition {
   name: string;
   label: string;
   description: string;
+  poll_interval: number; // in seconds, 0 means no polling
   output_params: ParameterDefinition[];
   input_params?: ParameterDefinition[];
 
@@ -65,6 +66,8 @@ export interface ServiceDefinition {
   name: string;
   label: string;
   description: string;
+  oauth_url?: string;
+  mandatory_env_vars?: string[];
   actions: Array<ServiceActionConstructor>;
   reactions: Array<ServiceReactionConstructor>;
 }
