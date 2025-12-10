@@ -152,6 +152,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Create dummy .env files for validation
+        run: |
+          echo "Creating dummy .env files for docker-compose validation..."
+          
+          # Root .env
+          cat > .env << 'EOF'
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          POSTGRES_USER=area_user
+          POSTGRES_PASSWORD=area_password
+          POSTGRES_DB=area_db
+          EOF
+          
+          # Backend .env
+          cat > backend/.env << 'EOF'
+          DATABASE_URL=postgresql://area_user:area_password@127.0.0.1:5432/area_db
+          JWT_SECRET=dummy_jwt_secret_for_ci
+          DISCORD_BOT_TOKEN=dummy_token
+          TEST_CHANNEL_ID=1234567890123456789
+          APP_URL=http://localhost:3000
+          FRONTEND_URL=http://localhost:5173
+          GOOGLE_CLIENT_ID=dummy-client-id
+          GOOGLE_CLIENT_SECRET=dummy-client-secret
+          EOF
+          
+          # Mobile .env (if needed)
+          touch mobile/.env
+          
+          echo "✅ Dummy .env files created"
+      
       - name: Validate docker-compose.yml
         run: |
           echo "Validating docker-compose.yml..."
