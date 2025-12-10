@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'pages/home_page.dart';
 import 'pages/counter_page.dart';
 import 'pages/login_page.dart';
+import 'pages/create_area/create_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'global/cache.dart' as cache;
@@ -52,7 +53,7 @@ class _MainNavigationState extends State<MainNavigation> {
     });
   }
 
-  final List<Widget> _pages = [const HomePage(), const CounterPage()];
+  final List<Widget> _pages = [const HomePage(), const CreatePage()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -80,7 +81,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.plus_one),
-                  label: 'Counter',
+                  label: 'Create',
                 ),
               ],
               currentIndex: _selectedIndex,
