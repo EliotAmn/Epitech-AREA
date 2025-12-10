@@ -29,7 +29,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          flutter-version: '3.38.4'
           channel: 'stable'
           cache: true
       
@@ -48,6 +48,7 @@ jobs:
         working-directory: ./mobile
         run: |
           echo "Running Dart analyzer..."
+          cp .env.example .env
           flutter analyze --no-fatal-infos --no-fatal-warnings || {
             echo "::error::Dart analyzer found issues"
             exit 1
@@ -96,7 +97,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          flutter-version: '3.38.4'
           channel: 'stable'
           cache: true
       
