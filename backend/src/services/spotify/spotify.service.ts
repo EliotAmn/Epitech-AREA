@@ -17,4 +17,6 @@ export default class SpotifyService implements ServiceDefinition {
     'Connect your Spotify account to automate music-related tasks and enhance your listening experience.';
   actions = [PlayingStateUpdated];
   reactions = [];
+
+
 }

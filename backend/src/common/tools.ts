@@ -19,5 +19,5 @@ export function buildUrlParameters(
     }
   }
   const paramString = urlParams.toString();
-  return paramString ? `?${paramString}` : '';
+  return paramString ? `${basepath}?${paramString}` : basepath;
 }
