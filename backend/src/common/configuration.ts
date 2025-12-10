@@ -4,4 +4,5 @@ export default () => ({
   allowedOrigins: process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
     : ['*'],
+  discordBotToken: process.env.DISCORD_BOT_TOKEN,
 });

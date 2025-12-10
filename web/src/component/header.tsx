@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { AuthService } from "@/services/api";
 import { ThemeContext, type Theme } from "../context/theme";
 import { MenuIcon } from "./icons/MenuIcon";
 import { UserIcon } from "./icons/UserIcon";
@@ -24,6 +25,29 @@ export default function Header({
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
     const toggleRef = useRef<HTMLButtonElement | null>(null);
+
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const profileMenuRef = useRef<HTMLDivElement>(null);
+
+    const themeClasses =
+        appliedTheme === "dark"
+            ? "bg-[#242424] text-white"
+            : "bg-white text-black";
+
+    const hoverTextClass =
+        appliedTheme === "dark" ? "hover:text-zinc-300" : "hover:text-zinc-600";
+
+    const itemHoverBg =
+        appliedTheme === "dark"
+            ? "hover:bg-zinc-700 focus:bg-zinc-700"
+            : "hover:bg-zinc-100 focus:bg-zinc-100";
+
+    const handleLogout = () => {
+        AuthService.logout();
+        setShowProfileMenu(false);
+        setMenuOpen(false);
+        navigate("/");
+    };
 
     useEffect(() => {
         function handleClick(e: MouseEvent) {
@@ -49,18 +73,24 @@ export default function Header({
         };
     }, [menuOpen]);
 
-    const themeClasses =
-        appliedTheme === "dark"
-            ? "bg-[#242424] text-white"
-            : "bg-white text-black";
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                profileMenuRef.current &&
+                !profileMenuRef.current.contains(event.target as Node)
+            ) {
+                setShowProfileMenu(false);
+            }
+        };
 
-    const hoverTextClass =
-        appliedTheme === "dark" ? "hover:text-zinc-300" : "hover:text-zinc-600";
+        if (showProfileMenu) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
 
-    const itemHoverBg =
-        appliedTheme === "dark"
-            ? "hover:bg-zinc-700 focus:bg-zinc-700"
-            : "hover:bg-zinc-100 focus:bg-zinc-100";
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showProfileMenu]);
 
     type NavItem = {
         key: string;
@@ -85,13 +115,6 @@ export default function Header({
             to: "/create",
             aria: "Create area",
             primary: true,
-        },
-        {
-            key: "profile",
-            label: "Profile",
-            to: "/profile",
-            aria: "Profile",
-            icon: <UserIcon className="h-6 w-6" />,
         },
     ];
 
@@ -119,7 +142,6 @@ export default function Header({
         };
 
         if (variant === "mobile") {
-            // mobile: stacked buttons
             return (
                 <button
                     key={item.key}
@@ -144,7 +166,6 @@ export default function Header({
             );
         }
 
-        // desktop: inline buttons
         return (
             <button
                 key={item.key}
@@ -180,6 +201,7 @@ export default function Header({
             >
                 AÉRA
             </button>
+
             <div className="flex items-center p-4 md:hidden relative">
                 <button
                     ref={toggleRef}
@@ -202,15 +224,104 @@ export default function Header({
                         {(isLoggedIn ? loggedInItems : loggedOutItems).map(
                             (item) => renderNavItem(item, "mobile")
                         )}
+                        {isLoggedIn && (
+                            <>
+                                <hr
+                                    className={`my-1 ${appliedTheme === "dark" ? "border-zinc-700" : "border-gray-200"}`}
+                                />
+                                <button
+                                    className={`text-left px-3 py-2 rounded ${itemHoverBg} ${hoverTextClass} focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        navigate("/profile");
+                                    }}
+                                    type="button"
+                                    aria-label="Profile"
+                                >
+                                    Profile
+                                </button>
+                                <button
+                                    className={`text-left px-3 py-2 rounded ${itemHoverBg} ${hoverTextClass} focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        navigate("/change-password");
+                                    }}
+                                    type="button"
+                                    aria-label="Change Password"
+                                >
+                                    Change Password
+                                </button>
+                                <button
+                                    className="text-left px-3 py-2 rounded text-red-600 hover:text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                    onClick={handleLogout}
+                                    type="button"
+                                    aria-label="Logout"
+                                >
+                                    Logout
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
+
             <nav
                 aria-label="Main navigation"
                 className="hidden md:flex items-center space-x-4 p-4"
             >
                 {(isLoggedIn ? loggedInItems : loggedOutItems).map((item) =>
                     renderNavItem(item, "desktop")
+                )}
+                {isLoggedIn && (
+                    <div className="relative" ref={profileMenuRef}>
+                        <button
+                            className={`hover:cursor-pointer ${hoverTextClass}`}
+                            onClick={() => setShowProfileMenu(!showProfileMenu)}
+                            type="button"
+                            aria-label="Profile menu"
+                        >
+                            <UserIcon className="h-12 w-12" />
+                        </button>
+
+                        {showProfileMenu && (
+                            <div
+                                className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg ${themeClasses} border ${appliedTheme === "dark" ? "border-zinc-700" : "border-gray-200"} z-50`}
+                            >
+                                <div className="py-1">
+                                    <button
+                                        className={`block w-full text-left px-4 py-2 text-sm ${hoverTextClass}`}
+                                        onClick={() => {
+                                            navigate("/profile");
+                                            setShowProfileMenu(false);
+                                        }}
+                                        type="button"
+                                    >
+                                        Profile
+                                    </button>
+                                    <button
+                                        className={`block w-full text-left px-4 py-2 text-sm ${hoverTextClass}`}
+                                        onClick={() => {
+                                            navigate("/change-password");
+                                            setShowProfileMenu(false);
+                                        }}
+                                        type="button"
+                                    >
+                                        Change Password
+                                    </button>
+                                    <hr
+                                        className={`my-1 ${appliedTheme === "dark" ? "border-zinc-700" : "border-gray-200"}`}
+                                    />
+                                    <button
+                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:text-red-700"
+                                        onClick={handleLogout}
+                                        type="button"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 )}
             </nav>
         </div>

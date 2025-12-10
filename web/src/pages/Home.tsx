@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -7,17 +7,35 @@ import Widget from "../component/widget";
 
 import "../styles/responsiveGrids.css";
 
+import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { ThemeContext } from "../context/theme";
-import { actions } from "../data/catalogData";
 
 function Home() {
     const navigate = useNavigate();
     const { setTheme, resetTheme } = useContext(ThemeContext);
+    const [reactions, setReactions] = useState<
+        { id: string; title: string; platform: string; color?: string }[]
+    >([]);
 
     useEffect(() => {
         setTheme("dark");
         return () => resetTheme();
     }, [setTheme, resetTheme]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const load = async () => {
+            const parsed = await fetchCatalogFromAbout();
+            if (mounted) setReactions(parsed.reactions);
+        };
+
+        load();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-start">
@@ -39,14 +57,14 @@ function Home() {
             </h2>
 
             <div className="responsiveGrid">
-                {actions.map((act) => (
+                {reactions.map((act) => (
                     <Widget
                         key={act.id}
                         title={act.title}
                         platform={act.platform}
                         color={act.color}
                         onClick={() =>
-                            navigate(`/widget/${act.id}`, {
+                            navigate(`/widget/${encodeURIComponent(act.id)}`, {
                                 state: { title: act.title, color: act.color },
                             })
                         }

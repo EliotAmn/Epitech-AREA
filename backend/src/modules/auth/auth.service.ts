@@ -42,7 +42,6 @@ export class AuthService {
 
     let createdUser: User | null = null;
     try {
-      // UserService will hash the password internally
       createdUser = await this.usersService.create(dto);
     } catch (e: unknown) {
       throw new InternalServerErrorException(
@@ -55,7 +54,6 @@ export class AuthService {
     };
     delete safeUser.password_hash;
 
-    // return JWT so user is authenticated immediately after register
     try {
       const token = this.jwtService.sign({
         sub: createdUser.id,

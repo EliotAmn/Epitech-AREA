@@ -12,7 +12,16 @@ export class AreaRepository {
   }
 
   findAll() {
-    return this.prisma.area.findMany();
+    return this.prisma.area.findMany({
+      include: { actions: true, reactions: true },
+    });
+  }
+
+  findByUserId(userId: string) {
+    return this.prisma.area.findMany({
+      where: { user_id: userId },
+      include: { actions: true, reactions: true },
+    });
   }
 
   findById(id: string) {
@@ -27,5 +36,9 @@ export class AreaRepository {
       where: { id },
       data,
     });
+  }
+
+  delete(id: string) {
+    return this.prisma.area.delete({ where: { id } });
   }
 }

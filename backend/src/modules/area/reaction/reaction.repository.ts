@@ -16,7 +16,10 @@ export class ReactionRepository {
   }
 
   findById(id: string) {
-    return this.prisma.areaReaction.findUnique({ where: { id } });
+    return this.prisma.areaReaction.findUnique({
+      where: { id },
+      include: { area: true },
+    });
   }
 
   update(id: string, data: Prisma.AreaReactionUpdateInput) {

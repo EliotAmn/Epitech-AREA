@@ -22,16 +22,13 @@ export class ServiceImporterModule {
     for (const dir of dirs) {
       if (!dir.isDirectory()) continue;
 
-      // Try to require the service file (try both .service and module filenames)
       const serviceFileBase = join(pluginPath, dir.name, `${dir.name}.service`);
       const moduleFile = join(pluginPath, dir.name, `${dir.name}.module`);
 
       try {
-        // Prefer requiring the service implementation file so Node/ts-node resolves .ts/.js
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const importedService = require(serviceFileBase) as ServiceModule;
 
-        // default export or named export with same name
         const svc =
           importedService.default ??
           (Object.keys(importedService)[0]
@@ -49,10 +46,8 @@ export class ServiceImporterModule {
         }
       } catch {
         try {
-          // Fallback: try to require the module file
           // eslint-disable-next-line @typescript-eslint/no-require-imports
           const _importedModule = require(moduleFile) as ServiceModule;
-          // Nothing else to do here; modules may register providers themselves
         } catch {
           console.warn(
             `[service] ${dir.name} ignored (no service or module file found)`,
@@ -63,28 +58,15 @@ export class ServiceImporterModule {
 
     const serviceProvider = {
       provide: SERVICE_DEFINITION,
-      useFactory: (): Array<new () => ServiceDefinition> => {
-        return discoveredServices;
+      useFactory: (): ServiceDefinition[] => {
+        return discoveredServices.map((Svc) => new Svc());
       },
     };
 
-    console.log(
-      `[service] Discovered services: ${discoveredServices
-        .map((ServiceClass) => {
-          try {
-            const instance = new ServiceClass();
-            return instance.name;
-          } catch {
-            return 'unknown';
-          }
-        })
-        .join(', ')}`,
-    );
-
     return {
       module: ServiceImporterModule,
-      providers: [ServiceImporterService, serviceProvider],
-      exports: [ServiceImporterService, serviceProvider],
+      providers: [serviceProvider, ServiceImporterService],
+      exports: [serviceProvider, ServiceImporterService],
     };
   }
 }
