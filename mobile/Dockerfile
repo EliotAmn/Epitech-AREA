@@ -18,10 +18,9 @@ RUN apt-get update && apt-get install -y \
 
 # Set up Flutter
 ENV FLUTTER_HOME=/opt/flutter
-ENV FLUTTER_VERSION=3.27.1
 ENV PATH="$FLUTTER_HOME/bin:$PATH"
 
-RUN git clone --depth 1 --branch $FLUTTER_VERSION https://github.com/flutter/flutter.git $FLUTTER_HOME && \
+RUN git clone --depth 1 --branch stable https://github.com/flutter/flutter.git $FLUTTER_HOME && \
     flutter precache && \
     flutter config --no-analytics && \
     flutter doctor -v

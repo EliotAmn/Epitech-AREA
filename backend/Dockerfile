@@ -46,4 +46,4 @@ USER nestjs
 EXPOSE 8080
 
 # Run migrations and start the server
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=src/prisma/schema.prisma && node dist/main"]
+CMD ["sh", "-c", "npx prisma generate --schema=src/prisma/schema.prisma && npx prisma migrate deploy --schema=src/prisma/schema.prisma && node dist/main"]
