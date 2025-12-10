@@ -56,7 +56,9 @@ export class UserJoinedServerAction extends ServiceActionDefinition {
 
   private triggeredOutput: ActionTriggerOutput | null = null;
 
-  reload_cache(sconf: ServiceConfig): Promise<Record<string, any>> {
+  reload_cache(
+    sconf: ServiceConfig,
+  ): Promise<{ guild_id: string; handler_id: string }> {
     const guildId = sconf.config.guild_id;
 
     if (!guildId) {
@@ -92,10 +94,10 @@ export class UserJoinedServerAction extends ServiceActionDefinition {
       };
     });
 
-    return {
+    return Promise.resolve({
       guild_id: guildId,
       handler_id: handlerId,
-    };
+    });
   }
 
   poll(_sconf: ServiceConfig): Promise<ActionTriggerOutput> {
