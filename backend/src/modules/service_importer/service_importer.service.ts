@@ -20,6 +20,7 @@ export class ServiceImporterService {
           }
         }
       }
+      return true;
     });
   }
 
