@@ -2,7 +2,9 @@ import * as crypto from 'crypto';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
+import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { OauthLinkRepository } from './oauth-link.repository';
 
@@ -10,6 +12,8 @@ interface OauthProfile {
   id: string | number;
   email?: string;
   displayName?: string;
+  accessToken?: string;
+  refreshToken?: string;
   [key: string]: any;
 }
 
@@ -25,6 +29,7 @@ export class OauthService {
     private readonly oauthLinkRepo: OauthLinkRepository,
     private readonly usersService: UserService,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   private isOauthProfile(obj: unknown): obj is OauthProfile {
@@ -88,6 +93,41 @@ export class OauthService {
 
     const safeUser: Partial<User & Record<string, any>> = { ...user };
     delete safeUser.password_hash;
+
+    try {
+      const maybeAccess = profile.accessToken;
+      const maybeRefresh = profile.refreshToken;
+      if (provider === 'google' && (maybeAccess || maybeRefresh)) {
+        const existing = await this.prisma.userService.findFirst({
+          where: { user_id: user.id, service_name: 'gmail' },
+        });
+
+        const newConfig = {
+          ...((existing?.service_config as Record<string, any> | undefined) ||
+            {}),
+          ...(maybeAccess ? { google_access_token: maybeAccess } : {}),
+          ...(maybeRefresh ? { google_refresh_token: maybeRefresh } : {}),
+        };
+        console.log('Persisting google tokens to user_service:', newConfig);
+        if (existing) {
+          await this.prisma.userService.update({
+            where: { id: existing.id },
+            data: { service_config: newConfig as Prisma.JsonObject },
+          });
+        } else {
+          await this.prisma.userService.create({
+            data: {
+              user_id: user.id,
+              service_name: 'gmail',
+              service_config: newConfig as Prisma.JsonObject,
+            },
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to persist google tokens to user_service:', e);
+    }
+
     return { user: safeUser, access_token: token };
   }
 
