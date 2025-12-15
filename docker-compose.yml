@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:17
+    env_file:
+      - ./.env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-area_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-area_password}
@@ -27,6 +29,8 @@ services:
     env_file:
       - ./backend/.env
       - ./.env
+      # NOTE: The file './backend/.env' must exist before running docker compose.  
+
     environment:
       - NODE_ENV=production
       - PORT=8080
@@ -49,6 +53,9 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./mobile/.env
+    # NOTE: The file './mobile/.env' must exist before running docker compose.  
+    # You may need to create it or copy from a template (e.g., './mobile/.env.example').  
+
     volumes:
       - apk_volume:/apk
 
@@ -62,9 +69,10 @@ services:
       - "8081:8081"
     volumes:
       - apk_volume:/usr/share/nginx/html/apk:ro
+    
     depends_on:
       client_mobile:
-        condition: service_completed_successfully
+        condition: service_started
       server:
         condition: service_started
     restart: unless-stopped
