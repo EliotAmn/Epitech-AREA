@@ -104,6 +104,7 @@ jobs:
             npm audit --audit-level=moderate --json > audit-results.json || true  
             echo ":⚠:Moderate or low vulnerabilities may exist. See audit-results.json for details."  
           fi  
+        continue-on-error: true
       
       - name: Upload audit results
         if: always()

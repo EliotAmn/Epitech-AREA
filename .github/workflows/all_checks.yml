@@ -217,8 +217,8 @@ jobs:
     needs: 
       - repository_validation
       - detect_changes
-      - backend_build_test
-      - web_build_test
+      - backend_code_quality  
+      - web_code_quality  
       - docker_compose_validation
     if: always()
     
