@@ -10,6 +10,7 @@ import {
 // build raw RFC2822 message and send to Gmail API via fetch
 export class SendEmailReaction extends ServiceReactionDefinition {
   name = 'send_email';
+  label = 'Send Email';
   description =
     'Sends an email via the connected Google account (requires google_access_token in service config)';
   input_params: ParameterDefinition[] = [
@@ -74,16 +75,24 @@ export class SendEmailReaction extends ServiceReactionDefinition {
         ? params.body_type.value
         : 'text/plain';
 
+    if (bodyType !== 'text/plain' && bodyType !== 'text/html') {
+      throw new Error('Invalid body_type. Must be text/plain or text/html');
+    }
+
     if (!to || !subject || !body) {
       throw new Error('Missing required parameters: to, subject or body');
     }
 
-    // Build raw email
+    // Sanitize headers to prevent injection
+    const cleanTo = to.replace(/[\r\n]+/g, '');
+    const cleanSubject = subject.replace(/[\r\n]+/g, '');
+    const cleanBodyType = bodyType.replace(/[\r\n]+/g, '');
+
     const headers = [
-      `To: ${to}`,
-      `Subject: ${subject}`,
+      `To: ${cleanTo}`,
+      `Subject: ${cleanSubject}`,
       `MIME-Version: 1.0`,
-      `Content-Type: ${bodyType}; charset="UTF-8"`,
+      `Content-Type: ${cleanBodyType}; charset="UTF-8"`,
     ];
     const raw = headers.join('\r\n') + '\r\n\r\n' + body;
 
@@ -96,24 +105,17 @@ export class SendEmailReaction extends ServiceReactionDefinition {
 
     const url = 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send';
 
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ raw: base64 }),
-      });
-      console.log('Gmail API response status:', res.status);
-      if (!res.ok) {
-        const text = await res.text();
-        console.error('Gmail API error:', res.status, text);
-        throw new Error(`Gmail API error: ${res.status} ${text}`);
-      }
-    } catch (err) {
-      console.error('Failed to send email via Gmail API', err);
-      throw err;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ raw: base64 }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Gmail API error: ${res.status} ${text}`);
     }
   }
 
