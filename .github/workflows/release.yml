@@ -133,16 +133,24 @@ jobs:
     strategy:
       matrix:
         service: [backend, web]
+        include:
+          - service: backend
+            changed: ${{ needs.detect_changes.outputs.backend_changed }}
+          - service: web
+            changed: ${{ needs.detect_changes.outputs.frontend_changed }}
       fail-fast: false
     
     steps:
       - name: Checkout code
+        if: ${{ matrix.changed == 'true' }}
         uses: actions/checkout@v4
       
       - name: Set up Docker Buildx
+        if: ${{ matrix.changed == 'true' }}
         uses: docker/setup-buildx-action@v3
       
       - name: Login to GitHub Container Registry
+        if: ${{ matrix.changed == 'true' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -150,6 +158,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Extract metadata
+        if: ${{ matrix.changed == 'true' }}
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -164,6 +173,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       
       - name: Build and push Docker image
+        if: ${{ matrix.changed == 'true' }}
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.service }}
@@ -174,6 +184,7 @@ jobs:
           cache-to: type=gha,mode=max
       
       - name: Report build status
+        if: ${{ matrix.changed == 'true' }}
         run: |
           echo "## 🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -233,13 +244,14 @@ jobs:
     name: "Create GitHub Release"
     runs-on: ubuntu-latest
     needs: [build_mobile_apk, build_web_artifacts, build_docker_images]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: always() && startsWith(github.ref, 'refs/tags/v')
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Download APK
+        if: ${{ needs.build_mobile_apk.result == 'success' }}
         uses: actions/download-artifact@v4
         with:
           name: mobile-apk-release
@@ -297,11 +309,11 @@ jobs:
           
           \`\`\`bash
           # Create .env file with configuration
-          cat > .env << EOF2
+          cat > .env << ENVFILE
           POSTGRES_USER=postgres
           POSTGRES_PASSWORD=your_password
           POSTGRES_DB=area
-          EOF2
+          ENVFILE
           
           # Start all services
           docker compose up -d
@@ -317,11 +329,11 @@ jobs:
           **Backend:**
           \`\`\`bash
           # Create env file for secure credential management
-          cat > backend.env << EOF2
+          cat > backend.env << BACKENDENV
           NODE_ENV=production
           PORT=8080
           DATABASE_URL=postgresql://user:pass@host/db
-          EOF2
+          BACKENDENV
           
           docker run -d \\
             --name server \\
@@ -384,7 +396,7 @@ jobs:
     name: "Test Docker Compose Stack"
     runs-on: ubuntu-latest
     needs: [build_docker_images, detect_changes]
-    if: ${{ needs.build_docker_images.result == 'success' && !inputs.skip_docker && github.event_name == 'workflow_dispatch' }}
+    if: ${{ (needs.build_docker_images.result == 'success' || needs.build_docker_images.result == 'skipped') && !inputs.skip_docker && github.event_name == 'workflow_dispatch' }}
     
     steps:
       - name: Checkout code
