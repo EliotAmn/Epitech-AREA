@@ -88,11 +88,16 @@ jobs:
       - name: Security audit
         working-directory: ./web
         run: |
-          echo "Running npm audit..."
-          npm audit --audit-level=moderate || {
-            echo "::warning::Security vulnerabilities found"
-            npm audit --audit-level=moderate --json > audit-results.json || true
-          }
+          echo "Running npm audit for high/critical vulnerabilities..."  
+          if ! npm audit --audit-level=high; then  
+            echo "::error::High or critical security vulnerabilities found. Failing build."  
+            npm audit --audit-level=moderate --json > audit-results.json || true  
+            exit 1  
+          else  
+            echo "No high/critical vulnerabilities found. Checking for moderate vulnerabilities..."  
+            npm audit --audit-level=moderate --json > audit-results.json || true  
+            echo ":⚠:Moderate or low vulnerabilities may exist. See audit-results.json for details."  
+          fi  
         continue-on-error: true
       
       - name: Upload audit results
