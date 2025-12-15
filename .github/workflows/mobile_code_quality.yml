@@ -47,7 +47,11 @@ jobs:
         if: ${{ inputs.enable_analysis }}
         working-directory: ./mobile
         run: |
-          echo "Running Dart analyzer..."
+          echo "Running Dart analyzer..."  
+          if [ ! -f .env.example ]; then  
+            echo "::error::.env.example file not found in ./mobile directory"  
+            exit 1  
+          fi  
           cp .env.example .env
           flutter analyze --no-fatal-infos --no-fatal-warnings || {
             echo "::error::Dart analyzer found issues"
