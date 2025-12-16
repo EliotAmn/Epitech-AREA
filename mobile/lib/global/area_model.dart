@@ -24,12 +24,50 @@ class Area {
   };
 
   factory Area.fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String? ?? '';
+    String leftService = '';
+    String rightService = '';
+    if (name.contains('→')) {
+      final parts = name.split('→');
+      if (parts.isNotEmpty) {
+        final left = parts.first.trim();
+        leftService = left.contains(':') ? left.split(':').first.trim() : '';
+      }
+      if (parts.length > 1) {
+        final right = parts.last.trim();
+        rightService = right.contains(':') ? right.split(':').first.trim() : '';
+      }
+    }
+
+    final actions = (json['actions'] as List?) ?? const [];
+    final firstAction = actions.isNotEmpty
+        ? (actions.first as Map<String, dynamic>)
+        : const {};
+    final reactions = (json['reactions'] as List?) ?? const [];
+    final firstReaction = reactions.isNotEmpty
+        ? (reactions.first as Map<String, dynamic>)
+        : const {};
+
+    final action = AreaAction(
+      serviceName: leftService,
+      actionName: (firstAction['action_name'] as String?) ?? '',
+      actionDescription: '',
+      inputValues: (firstAction['params'] as Map<String, dynamic>?) ?? {},
+    );
+
+    final reaction = AreaReaction(
+      serviceName: rightService,
+      reactionName: (firstReaction['reaction_name'] as String?) ?? '',
+      reactionDescription: '',
+      inputValues: (firstReaction['params'] as Map<String, dynamic>?) ?? {},
+    );
+
     return Area(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      action: AreaAction.fromJson(json['action'] as Map<String, dynamic>),
-      reaction: AreaReaction.fromJson(json['reaction'] as Map<String, dynamic>),
-      isActive: json['isActive'] ?? true,
+      id: (json['id'] as String?) ?? '',
+      name: name,
+      action: action,
+      reaction: reaction,
+      isActive: (json['isActive'] as bool?) ?? true,
     );
   }
 }

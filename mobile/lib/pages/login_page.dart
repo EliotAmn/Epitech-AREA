@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
 import 'package:http/http.dart' as http;
@@ -168,6 +169,44 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           debugPrint('Login failed with error: $error');
         });
   }
+  
+  void _loginWithGoogle(BuildContext modalContext) {
+    final googleOAuthUrl = '${dotenv.env['API_URL']}/auth/google';
+    final controleur = WebViewController()
+      ..setUserAgent('Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36')
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(googleOAuthUrl));
+      controleur.setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (String url) async {
+            if (url.contains('auth/google/redirect')) {
+              final uri = Uri.parse(url);
+              final token = uri.queryParameters['token'];
+              if (token != null && token.isNotEmpty) {
+                debugPrint('Google login successful');
+                await cache.AuthStore().saveToken(token);
+                if (modalContext.mounted) {
+                  Navigator.of(modalContext).pop();
+                  widget.onLoginSuccess();
+                }
+              }
+            }
+          },
+        ),
+      );
+
+    Navigator.of(modalContext).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Google Login'),
+            centerTitle: true,
+          ),
+          body: WebViewWidget(controller: controleur),
+        ),
+      ),
+    );
+  }
 
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
@@ -236,6 +275,22 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           ),
           SizedBox(
             height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+          ),
+          TextButton(
+            onPressed: () {
+              _loginWithGoogle(context);
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
+            ),
+            child: Text(
+              'Sign in with Google',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {

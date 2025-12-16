@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/logout_page.dart';
 import 'pages/home_page.dart';
-import 'pages/counter_page.dart';
 import 'pages/login_page.dart';
 import 'pages/create_area/create_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'global/cache.dart' as cache;
+
 
 Future<void> main() async {
   try {
@@ -53,19 +54,25 @@ class _MainNavigationState extends State<MainNavigation> {
     });
   }
 
-  final List<Widget> _pages = [const HomePage(), const CreatePage()];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  List<Widget> _getPages() {
+    return [
+      const HomePage(),
+      const CreatePage(),
+      LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+    ];
+  }
+
   Widget getCurrentPage() {
     if (!_isLogined) {
       return LoginPage(onLoginSuccess: _onLoginSuccess);
     }
-    return _pages[_selectedIndex];
+    return _getPages()[_selectedIndex];
   }
 
   @override
@@ -83,6 +90,10 @@ class _MainNavigationState extends State<MainNavigation> {
                   icon: Icon(Icons.plus_one),
                   label: 'Create',
                 ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.logout),
+                  label: 'Logout',
+                ),
               ],
               currentIndex: _selectedIndex,
               onTap: _onItemTapped,
@@ -94,6 +105,13 @@ class _MainNavigationState extends State<MainNavigation> {
   void _onLoginSuccess() {
     setState(() {
       _isLogined = true;
+    });
+  }
+
+  void _onLogoutSuccess() {
+    setState(() {
+      _isLogined = false;
+      _selectedIndex = 0;
     });
   }
 }
