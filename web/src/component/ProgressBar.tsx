@@ -1,3 +1,5 @@
+import { ChevronLeft } from "lucide-react";
+
 interface ProgressBarProps {
     steps: number;
     current: number;
@@ -62,6 +64,20 @@ export default function ProgressBar({
                     );
                 })}
             </div>
+            {current > 1 ? (
+                <div className="mt-2 flex justify-between text-sm font-semibold text-black">
+                    <button
+                        type="button"
+                        onClick={() => onStepClick?.(Math.max(1, current - 1))}
+                        className="text-left flex items-center border-b border-current"
+                    >
+                        <ChevronLeft className="mr-1 font-semibold" size={16} />
+                        back
+                    </button>
+                </div>
+            ) : (
+                <div className="mt-2 h-6" />
+            )}
         </div>
     );
 }
