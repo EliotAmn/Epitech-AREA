@@ -97,18 +97,30 @@ export class OauthService {
     try {
       const maybeAccess = profile.accessToken;
       const maybeRefresh = profile.refreshToken;
+      const profileData = profile as Record<string, unknown>;
+      const expiresIn = (profileData.expires_in || profileData.expiresIn) as
+        | number
+        | undefined;
+
       if (provider === 'google' && (maybeAccess || maybeRefresh)) {
         const existing = await this.prisma.userService.findFirst({
           where: { user_id: user.id, service_name: 'gmail' },
         });
+
+        const now = Date.now();
+        // Calculate absolute expiration time if expiresIn is provided
+        const expiryDate = expiresIn
+          ? now + Number(expiresIn) * 1000
+          : undefined;
 
         const newConfig = {
           ...((existing?.service_config as Record<string, any> | undefined) ||
             {}),
           ...(maybeAccess ? { google_access_token: maybeAccess } : {}),
           ...(maybeRefresh ? { google_refresh_token: maybeRefresh } : {}),
+          ...(expiryDate ? { google_token_expires_at: expiryDate } : {}),
         };
-        console.log('Persisting google tokens to user_service:', newConfig);
+
         if (existing) {
           await this.prisma.userService.update({
             where: { id: existing.id },

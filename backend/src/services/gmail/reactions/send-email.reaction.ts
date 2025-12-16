@@ -47,18 +47,10 @@ export class SendEmailReaction extends ServiceReactionDefinition {
     sconf: ServiceConfig,
     params: Record<string, ParameterValue>,
   ): Promise<void> {
-    const token =
-      sconf &&
-      'config' in sconf &&
-      typeof sconf.config === 'object' &&
-      sconf.config !== null &&
-      'google_access_token' in sconf.config &&
-      typeof (sconf.config as Record<string, unknown>).google_access_token ===
-        'string'
-        ? ((sconf.config as Record<string, unknown>)
-            .google_access_token as string)
-        : null;
-    if (!token) {
+    const token = (sconf?.config as Record<string, unknown>)
+      ?.google_access_token as string | undefined;
+
+    if (typeof token !== 'string' || !token) {
       throw new Error(
         'Missing Google access token in service config (google_access_token). Ensure the user connected with Google and token is stored for this service.',
       );
