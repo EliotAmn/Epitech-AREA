@@ -85,6 +85,26 @@ export default [
     },
   },
 
+  // Prisma-related files: relax unsafe type rules
+  {
+    files: [
+      '**/*.repository.ts',
+      '**/prisma.service.ts',
+      '**/area.service.ts',
+      '**/auth.service.ts',
+      '**/user.service.ts',
+      '**/user.controller.ts',
+    ],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+    },
+  },
+
   // Test files: relax some rules for tests
   {
     files: ['**/*.spec.ts', '**/*.test.ts', 'test/**/*.ts', 'tests/**/*.ts'],

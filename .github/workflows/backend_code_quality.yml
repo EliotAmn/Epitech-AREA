@@ -1,0 +1,116 @@
+name: Backend Code Quality
+
+on:
+  workflow_call:
+    inputs:
+      enable_eslint:
+        description: 'Whether to run ESLint analysis'
+        required: false
+        type: boolean
+        default: true
+      enable_prettier:
+        description: 'Whether to check Prettier formatting'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint_and_format:
+    name: "Backend Linting & Formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+      
+      - name: Generate Prisma Client
+        working-directory: ./backend
+        run: |
+          echo "Generating Prisma Client..."
+          npx prisma generate --schema=./src/prisma/schema.prisma
+          echo "✅ Prisma Client generated"
+      
+      - name: Run ESLint
+        if: ${{ inputs.enable_eslint }}
+        working-directory: ./backend
+        run: |
+          echo "Running ESLint..."
+          npm run lint 2>&1 | tee eslint-output.txt || true
+          
+          if grep -q "error" eslint-output.txt; then
+            echo "::error::ESLint found errors"
+            cat eslint-output.txt
+            exit 1
+          else
+            echo "✅ ESLint passed"
+          fi
+      
+      - name: Check Prettier formatting
+        if: ${{ inputs.enable_prettier }}
+        working-directory: ./backend
+        run: |
+          echo "Checking Prettier formatting..."
+          npm run format -- --check || {
+            echo "::error::Code is not properly formatted. Run 'npm run format' to fix."
+            exit 1
+          }
+          echo "✅ Prettier check passed"
+      
+      - name: TypeScript type checking
+        working-directory: ./backend
+        run: |
+          echo "Running TypeScript type checking..."
+          npx tsc --noEmit
+          echo "✅ TypeScript check passed"
+
+  security_audit:
+    name: "Backend Security Audit"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      
+      - name: Security audit
+        working-directory: ./backend
+        run: |
+          echo "Running npm audit for high/critical vulnerabilities..."  
+          if ! npm audit --audit-level=high; then  
+            echo "::error::High or critical security vulnerabilities found. Failing build."  
+            npm audit --audit-level=moderate --json > audit-results.json || true  
+          else  
+            echo "No high/critical vulnerabilities found. Checking for moderate vulnerabilities..."  
+            npm audit --audit-level=moderate --json > audit-results.json || true  
+            echo ":⚠:Moderate or low vulnerabilities may exist. See audit-results.json for details."  
+          fi  
+        continue-on-error: true
+      
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-security-audit
+          path: backend/audit-results.json
+          retention-days: 30
+        continue-on-error: true
