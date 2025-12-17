@@ -34,7 +34,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID,
       clientSecret,
       callbackURL,
-      scope: ['email', 'profile'],
+      scope: ['email', 'profile', 'https://www.googleapis.com/auth/gmail.send'],
     };
 
     super(options);
@@ -64,6 +64,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       id: profile.id,
       email: profile.emails?.[0]?.value,
       displayName: profile.displayName,
+      accessToken,
+      refreshToken,
       raw: profile,
     };
   }
