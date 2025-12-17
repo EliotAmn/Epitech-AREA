@@ -5,7 +5,7 @@ interface ButtonProps {
     onClick?: () => void;
     disabled?: boolean;
     icon?: string | React.ReactNode;
-    mode?: "white" | "black";
+    mode?: "white" | "black" | "grey";
     className?: string;
 }
 
@@ -24,6 +24,8 @@ export default function Button({
         switch (mode) {
             case "white":
                 return "bg-white text-black border-gray-300 hover:scale-105 focus:bg-gray-100";
+            case "grey":
+                return "bg-gray-500 text-white border-transparent hover:scale-105 focus:bg-gray-600";
             case "black":
             default:
                 return "bg-black text-white border-transparent hover:scale-105 focus:bg-gray-800";

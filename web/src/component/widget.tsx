@@ -1,11 +1,6 @@
 import { useState } from "react";
 
-interface WidgetProps {
-    title: string;
-    platform: string;
-    color?: string;
-    onClick?: () => void;
-}
+import { getPlatformIcon } from "@/config/platforms";
 
 function lightenColor(color: string, percent: number): string {
     if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
@@ -34,6 +29,13 @@ function lightenColor(color: string, percent: number): string {
     return newColor;
 }
 
+interface WidgetProps {
+    title: string;
+    platform: string;
+    color?: string;
+    onClick?: () => void;
+}
+
 export default function Widget({
     title,
     color = "#ffffff",
@@ -41,6 +43,7 @@ export default function Widget({
     onClick,
 }: WidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
+    const iconSrc = getPlatformIcon(platform);
 
     return (
         <div
@@ -52,10 +55,21 @@ export default function Widget({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <h2 className="text-3xl text-left text-[#ffffff] font-semibold mb-2">
+            {platform && iconSrc && (
+                <div className="flex-1 w-full flex items-center justify-center">
+                    <img
+                        src={iconSrc}
+                        alt={`${platform} icon`}
+                        className="w-32 h-32 object-contain"
+                    />
+                </div>
+            )}
+            <h2 className="w-full text-3xl text-center text-[#ffffff] font-semibold mb-2">
                 {title}
             </h2>
-            <p className="text-sm sm:text-md text-[#ffffff]">{platform}</p>
+            <p className="w-full text-center text-sm sm:text-md text-[#ffffff]">
+                {platform}
+            </p>
         </div>
     );
 }

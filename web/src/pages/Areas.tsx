@@ -1,63 +1,69 @@
 import { useEffect, useState } from "react";
 
-import type { CatalogItem } from "@/data/catalogData";
+import { useNavigate } from "react-router-dom";
+
+import { getPlatformColor } from "@/config/platforms";
+import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { areaService } from "@/services/api/areaService";
+import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
 
 type AreaDto = {
     id: string;
     name: string;
     user_id?: string;
-    actions?: Array<{ action_name: string }>;
-    reactions?: Array<{ reaction_name: string }>;
+    actions?: Array<{ action_name: string; params?: Record<string, unknown> }>;
+    reactions?: Array<{
+        reaction_name: string;
+        params?: Record<string, unknown>;
+    }>;
 };
+
 export default function Areas() {
+    const navigate = useNavigate();
     const [items, setItems] = useState<CatalogItem[]>([]);
+    const [rawAreas, setRawAreas] = useState<AreaDto[]>([]);
     const [loading, setLoading] = useState(true);
+
     const loadAreas = async () => {
         setLoading(true);
         try {
-            const areas = (await areaService.getMyAreas()) as Array<AreaDto>;
+            const [areas, catalog] = await Promise.all([
+                areaService.getMyAreas() as Promise<AreaDto[]>,
+                fetchCatalogFromAbout(),
+            ]);
             const list = areas || [];
-            const palette = [
-                "#3b82f6",
-                "#36C5F0",
-                "#000000",
-                "#0061FF",
-                "#0079BF",
-                "#EA4335",
-                "#FF6A00",
-                "#0F9D58",
-                "#8A2BE2",
-                "#7289DA",
-            ];
-
-            const stringToColor = (s: string | undefined) => {
-                if (!s) return palette[0];
-                let h = 0;
-                for (let i = 0; i < s.length; i++) {
-                    h = (h << 5) - h + s.charCodeAt(i);
-                    h |= 0;
-                }
-                return palette[Math.abs(h) % palette.length];
-            };
+            setRawAreas(list);
 
             const mapped: CatalogItem[] = list.map((a) => {
-                const platformName =
-                    a.reactions && a.reactions.length
-                        ? a.reactions[0].reaction_name
-                        : a.actions && a.actions.length
-                          ? a.actions[0].action_name
-                          : "Area";
+                let color = "#808080";
+                let platform = "Unknown";
+
+                if (a.actions && a.actions.length > 0) {
+                    const actionName = a.actions[0].action_name;
+                    const found = catalog.actions.find(
+                        (act) =>
+                            act.title === actionName ||
+                            (act as CatalogItem & { defName?: string })
+                                .defName === actionName
+                    );
+
+                    if (found) {
+                        platform = found.platform;
+                        color = getPlatformColor(platform);
+                    }
+                }
+
                 return {
                     id: a.id,
                     title: a.name,
-                    platform: platformName,
-                    color: stringToColor(platformName),
+                    platform,
+                    color,
                 };
             });
             setItems(mapped);
-        } catch {
+        } catch (err) {
+            console.error(err);
             setItems([]);
         } finally {
             setLoading(false);
@@ -72,31 +78,29 @@ export default function Areas() {
         };
     }, []);
 
-    const handleSelect = async (item: CatalogItem) => {
-        const ok = window.confirm(`Delete area "${item.title}"?`);
-        if (!ok) return;
-        try {
-            setLoading(true);
-            await areaService.deleteArea(item.id);
-            await loadAreas();
-        } catch (err) {
-            // keep simple: console and reload
-            // In a full app we'd show a toast
-            console.error("Failed to delete area", err);
-            await loadAreas();
-        } finally {
-            setLoading(false);
+    const handleSelect = (item: CatalogItem) => {
+        const area = rawAreas.find((a) => a.id === item.id);
+        if (area) {
+            navigate(`/area/${item.id}`, { state: { area, item } });
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Loading...</div>;
+    if (loading && items.length === 0) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                Loading...
+            </div>
+        );
+    }
 
     return (
-        <CatalogPage
-            description="My Areas"
-            items={items}
-            onSelect={(item) => handleSelect(item)}
-            noResultsButton={true}
-        />
+        <div className="h-full w-full overflow-y-auto">
+            <CatalogPage
+                description="My Areas"
+                items={items}
+                onSelect={(item) => handleSelect(item)}
+                noResultsButton={true}
+            />
+        </div>
     );
 }

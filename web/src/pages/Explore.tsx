@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import Button from "../component/button";
 import type { CatalogItem } from "../data/catalogData";
@@ -21,8 +22,15 @@ export default function Explore() {
         const load = async () => {
             const parsed = await fetchCatalogFromAbout();
             if (!mounted) return;
-            setParsedReactions(parsed.reactions);
-            setParsedServices(parsed.services);
+
+            const applyColors = (items: CatalogItem[]) =>
+                items.map((item) => ({
+                    ...item,
+                    color: getPlatformColor(item.platform),
+                }));
+
+            setParsedReactions(applyColors(parsed.reactions));
+            setParsedServices(applyColors(parsed.services));
         };
 
         load();
@@ -39,16 +47,18 @@ export default function Explore() {
               : parsedServices;
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-start">
-            <h1 className="text-5xl text-black font-bold m-5">Explore</h1>
-            <div className="mb-6">
+        <div className="h-screen flex flex-col items-center justify-start overflow-hidden">
+            <h1 className="text-5xl text-black font-bold m-5 shrink-0">
+                Explore
+            </h1>
+            <div className="mb-6 shrink-0">
                 <Button
                     label="Create my own area"
                     mode="white"
                     onClick={() => navigate("/create")}
                 />
             </div>
-            <div className="w-3/4 mx-auto pt-4">
+            <div className="w-3/4 mx-auto pt-4 shrink-0">
                 <div className="flex items-center justify-center gap-20 mb-4">
                     <button
                         className={`cursor-pointer text-2xl font-semibold text-center ${filter === "all" ? "underline" : "text-black"}`}
@@ -71,7 +81,9 @@ export default function Explore() {
                 </div>
             </div>
 
-            <CatalogPage items={itemsToShow} />
+            <div className="flex-1 w-full min-h-0">
+                <CatalogPage items={itemsToShow} />
+            </div>
         </div>
     );
 }

@@ -5,9 +5,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Header from "./component/header";
 import { ProtectedRoute, PublicOnlyRoute } from "./component/ProtectedRoute";
 import ThemeProvider from "./context/ThemeContext";
+import AreaDetail from "./pages/AreaDetail";
 import Areas from "./pages/Areas";
 import ChangePassword from "./pages/ChangePassword";
 import Create from "./pages/Create";
+import EditArea from "./pages/EditArea";
 import Explore from "./pages/Explore";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -70,6 +72,22 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Areas />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/area/:id"
+                        element={
+                            <ProtectedRoute>
+                                <AreaDetail />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/my-areas/edit"
+                        element={
+                            <ProtectedRoute>
+                                <EditArea />
                             </ProtectedRoute>
                         }
                     />
