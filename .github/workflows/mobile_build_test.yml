@@ -1,0 +1,162 @@
+name: Mobile Build & Test
+
+on:
+  workflow_call:
+    inputs:
+      enable_tests:
+        description: 'Whether to run unit tests'
+        required: false
+        type: boolean
+        default: true
+      build_apk:
+        description: 'Whether to build APK'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: "Flutter Tests"
+    runs-on: ubuntu-latest
+    if: ${{ inputs.enable_tests }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: flutter pub get
+      
+      - name: Check for tests
+        id: check_tests
+        working-directory: ./mobile
+        run: |
+          if [ -d "test" ] && [ "$(find test -name '*_test.dart' | wc -l)" -gt 0 ]; then
+            echo "tests_exist=true" >> $GITHUB_OUTPUT
+            echo "✅ Test files found"
+          else
+            echo "tests_exist=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  No test files found"
+          fi
+      
+      - name: Run Flutter tests
+        if: steps.check_tests.outputs.tests_exist == 'true'
+        working-directory: ./mobile
+        run: |
+          echo "Running Flutter tests..."
+          flutter test --coverage
+          echo "✅ Tests passed"
+      
+      - name: Generate coverage report
+        if: steps.check_tests.outputs.tests_exist == 'true'
+        working-directory: ./mobile
+        run: |
+          if [ -f "coverage/lcov.info" ]; then
+            echo "## 📊 Test Coverage" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Coverage report generated" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Upload coverage report
+        if: steps.check_tests.outputs.tests_exist == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-coverage
+          path: mobile/coverage
+          retention-days: 30
+        continue-on-error: true
+
+  build_android:
+    name: "Build Android APK"
+    runs-on: ubuntu-latest
+    if: ${{ inputs.build_apk }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: flutter pub get
+      
+      - name: Build APK
+        working-directory: ./mobile
+        run: |
+          echo "Building Android APK..."
+          flutter build apk --release
+          echo "✅ APK built successfully"
+      
+      - name: Check APK
+        working-directory: ./mobile
+        run: |
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          if [ -f "$APK_PATH" ]; then
+            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+            echo "✅ APK generated: $APK_SIZE"
+            echo "## 📦 APK Build Success" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Size**: $APK_SIZE" >> $GITHUB_STEP_SUMMARY
+            echo "- **Path**: \`$APK_PATH\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "::error::APK not found"
+            exit 1
+          fi
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+  docker_build:
+    name: "Mobile Docker Build"
+    runs-on: ubuntu-latest
+    if: ${{ inputs.build_apk }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        working-directory: ./mobile
+        run: |
+          echo "Building Docker image for Flutter..."
+          docker build --target builder -t area-mobile:test .
+          echo "✅ Docker image built successfully"
+        timeout-minutes: 30
+      
+      - name: Extract APK from Docker
+        run: |
+          echo "Extracting APK from Docker image..."
+          docker create --name temp-container area-mobile:test
+          docker cp temp-container:/app/build/app/outputs/flutter-apk/app-release.apk ./app-release.apk || echo "APK extraction skipped"
+          docker rm temp-container
+        continue-on-error: true

@@ -22,9 +22,11 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   // CORS
+  const allowedOrigins = configuration().allowedOrigins;
   app.enableCors({
-    origin: configuration().allowedOrigins,
+    origin: allowedOrigins.includes('*') ? true : allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
