@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { apiClient } from "@/services/api/apiClient";
 
@@ -8,9 +8,16 @@ export default function OAuthServiceProxy() {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(true);
+    const hasProcessed = useRef(false);
 
     useEffect(() => {
         const handleOAuthCallback = async () => {
+            // Prevent duplicate calls (React StrictMode runs effects twice)
+            if (hasProcessed.current) {
+                return;
+            }
+            hasProcessed.current = true;
+
             if (!service_name) {
                 setError("Service name is missing");
                 setIsProcessing(false);
@@ -31,9 +38,10 @@ export default function OAuthServiceProxy() {
                 );
 
                 // Success - redirect to home page
+                setIsProcessing(false);
                 setTimeout(() => {
                     navigate("/");
-                }, 1000);
+                }, 1500);
             } catch (err) {
                 console.error("OAuth callback failed:", err);
                 setError(
