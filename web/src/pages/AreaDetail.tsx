@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getPlatformIcon } from "@/config/platforms";
 import { areaService } from "@/services/api/areaService";
 import Button from "../component/button";
+import GlassCardLayout from "@/component/glassCard";
 
 export default function AreaDetail() {
     const location = useLocation();
@@ -33,13 +34,6 @@ export default function AreaDetail() {
         }
     };
 
-    const actionName = area.actions?.[0]?.action_name || "Unknown";
-    const reactionName = area.reactions?.[0]?.reaction_name || "Unknown";
-    const platformIcon = getPlatformIcon(item.platform);
-
-    const actionParams = area.actions?.[0]?.params || {};
-    const reactionParams = area.reactions?.[0]?.params || {};
-
     const renderParams = (params: Record<string, unknown>) => {
         if (Object.keys(params).length === 0) {
             return (
@@ -64,73 +58,87 @@ export default function AreaDetail() {
         );
     };
 
+    const actionName = area.actions?.[0]?.action_name || "Unknown";
+    const reactionName = area.reactions?.[0]?.reaction_name || "Unknown";
+    const platformIcon = getPlatformIcon(item.platform);
+
+    const actionParams = area.actions?.[0]?.params || {};
+    const reactionParams = area.reactions?.[0]?.params || {};
+
     return (
-        <div
-            className="p-8 w-full h-full overflow-hidden flex flex-col items-center relative"
-            style={{ backgroundColor: item.color }}
-        >
-            <button
-                onClick={() => navigate("/my-areas")}
-                className="absolute top-8 left-8 text-white text-xl font-bold hover:opacity-80"
-            >
-                ← Back
-            </button>
+        <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-slate-50">
+            <GlassCardLayout color={item.color} onBack={() => navigate(-1)}>
+                <div className="flex flex-col items-center">
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-4">
+                        Resume Area
+                    </span>
 
-            <h2 className="text-5xl text-white font-bold mb-8 mt-8 text-center shrink-0">
-                {area.name}
-            </h2>
+                    <h2 className="text-4xl text-slate-900 font-extrabold mb-10 text-center leading-tight">
+                            {item.title}
+                    </h2>
 
-            <div className="flex-1 flex flex-col items-center w-full max-w-3xl overflow-y-auto min-h-0 no-scrollbar">
-                <div className="rounded-lg p-8 w-full mb-8 shrink-0 border border-white shadow-lg">
-                    <div className="flex items-center justify-center mb-6">
+                    <div className="relative mb-12">
+                        <div
+                            className="absolute inset-0 blur-2xl opacity-30 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                        />
                         {platformIcon && (
                             <img
                                 src={platformIcon}
-                                alt="icon"
-                                className="w-24 h-24 object-contain"
+                                alt={item.platform}
+                                className="relative w-32 h-32 object-contain transition-transform hover:scale-110 duration-300"
                             />
                         )}
                     </div>
-
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-1">
+                </div>
+                <div className="w-full flex flex-col items-center">
+                    <div className="w-full max-w-full space-y-6">
+                        <div className="relative pl-5 border-l-2 text-left w-full" style={{ borderColor: item.color }}>
+                            <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
                                 Action
                             </h3>
-                            <p className="text-2xl font-semibold text-white">
+                            <p className="text-xl md:text-2xl font-bold text-slate-800 wrap-break-words leading-tight">
                                 {actionName}
                             </p>
-                            {renderParams(actionParams)}
+                            <div className="overflow-x-hidden">
+                                {renderParams(actionParams)}
+                            </div>
                         </div>
 
-                        <div className="pt-6">
-                            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-1">
+                        <div className="relative pl-5 border-l-2 text-left w-full" style={{ borderColor: item.color }}>
+                            <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
                                 Reaction
                             </h3>
-                            <p className="text-2xl font-semibold text-white">
+                            <p className="text-xl md:text-2xl font-bold text-slate-800 wrap-break-words leading-tight">
                                 {reactionName}
                             </p>
-                            {renderParams(reactionParams)}
+                            <div className="overflow-x-hidden">
+                                {renderParams(reactionParams)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full flex flex-wrap gap-4 justify-center mt-10">
+                        <div className="flex-1 min-w-[140px]">
+                            <Button
+                                label="Edit Area"
+                                onClick={() => navigate("/my-areas/edit", { state: { area } })}
+                                mode="black"
+                                height="small"
+                            />
+                        </div>
+                        <div className="flex-1 min-w-[140px]">
+                            <Button
+                                label={loading ? "Deleting..." : "Delete Area"}
+                                onClick={handleDelete}
+                                disabled={loading}
+                                mode="black"
+                                height="small"
+                            />
                         </div>
                     </div>
                 </div>
-
-                <div className="mt-auto mb-8 flex gap-4">
-                    <Button
-                        label="Edit Area"
-                        onClick={() =>
-                            navigate("/my-areas/edit", { state: { area } })
-                        }
-                        mode="white"
-                    />
-                    <Button
-                        label={loading ? "Deleting..." : "Delete Area"}
-                        onClick={handleDelete}
-                        disabled={loading}
-                        mode="white"
-                    />
-                </div>
-            </div>
+            </GlassCardLayout>
         </div>
     );
 }

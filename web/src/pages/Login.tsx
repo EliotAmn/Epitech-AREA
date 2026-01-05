@@ -66,7 +66,7 @@ export default function Login() {
     return (
         <div className="min-h-screen flex justify-center">
             <div className="w-full max-w-md p-6">
-                <h1 className="text-2xl text-[#000000] font-bold mb-6 text-center">
+                <h1 className="text-4xl text-[#000000] font-bold mb-6 text-center">
                     Login
                 </h1>
 
@@ -88,6 +88,12 @@ export default function Login() {
                         onChange={setPassword}
                         showToggle={true}
                     />
+                                        <button
+                        className="text-sm text-gray-600 underline cursor-pointer"
+                        onClick={() => navigate("/signup")}
+                    >
+                        Don't have an account? Sign up
+                    </button>
                     <Button
                         label={loading ? "Loading..." : "Login"}
                         onClick={handleLogin}

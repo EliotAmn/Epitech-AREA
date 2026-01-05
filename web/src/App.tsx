@@ -46,76 +46,94 @@ function App() {
     return (
         <ThemeProvider>
             <BrowserRouter>
-                <Header isLoggedIn={isLoggedIn} />
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/explore" element={<Explore />} />
-                    <Route path="/widget/:id" element={<WidgetDetail />} />
-                    <Route
-                        path="/signup"
-                        element={
-                            <PublicOnlyRoute>
-                                <SignUp />
-                            </PublicOnlyRoute>
-                        }
-                    />
-                    <Route
-                        path="/login"
-                        element={
-                            <PublicOnlyRoute>
-                                <Login />
-                            </PublicOnlyRoute>
-                        }
-                    />
-                    <Route
-                        path="/my-areas"
-                        element={
-                            <ProtectedRoute>
-                                <Areas />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/area/:id"
-                        element={
-                            <ProtectedRoute>
-                                <AreaDetail />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/my-areas/edit"
-                        element={
-                            <ProtectedRoute>
-                                <EditArea />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/create"
-                        element={
-                            <ProtectedRoute>
-                                <Create />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProtectedRoute>
-                                <Profile />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/change-password"
-                        element={
-                            <ProtectedRoute>
-                                <ChangePassword />
-                            </ProtectedRoute>
-                        }
-                    />
-                </Routes>
+                <div className="flex flex-col h-screen overflow-hidden">
+                    <Header isLoggedIn={isLoggedIn} />
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/explore" element={<Explore />} />
+                        <Route path="/widget/:id" element={<WidgetDetail />} />
+                        <Route
+                            path="/signup"
+                            element={
+                                <PublicOnlyRoute>
+                                    <SignUp />
+                                </PublicOnlyRoute>
+                            }
+                        />
+                        <Route
+                            path="/login"
+                            element={
+                                <PublicOnlyRoute>
+                                    <Login />
+                                </PublicOnlyRoute>
+                            }
+                        />
+                        <Route
+                            path="/my-areas"
+                            element={
+                                <ProtectedRoute>
+                                    <Areas />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/area/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <AreaDetail />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/my-areas/edit"
+                            element={
+                                <ProtectedRoute>
+                                    <EditArea />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/create"
+                            element={
+                                <ProtectedRoute>
+                                    <Create />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/profile"
+                            element={
+                                <ProtectedRoute>
+                                    <Profile />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/change-password"
+                            element={
+                                <ProtectedRoute>
+                                    <ChangePassword />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/reaction/:name"
+                            element={
+                                <ProtectedRoute>
+                                    <WidgetDetail />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/service/:name"
+                            element={
+                                <ProtectedRoute>
+                                    <WidgetDetail />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Routes>
+                </div>
             </BrowserRouter>
         </ThemeProvider>
     );

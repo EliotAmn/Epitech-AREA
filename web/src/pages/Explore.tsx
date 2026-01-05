@@ -54,7 +54,7 @@ export default function Explore() {
             <div className="mb-6 shrink-0">
                 <Button
                     label="Create my own area"
-                    mode="white"
+                    mode="blue"
                     onClick={() => navigate("/create")}
                 />
             </div>
@@ -82,7 +82,14 @@ export default function Explore() {
             </div>
 
             <div className="flex-1 w-full min-h-0">
-                <CatalogPage items={itemsToShow} />
+                <CatalogPage
+                    items={itemsToShow}
+                    onSelect={(item) =>
+                        navigate(item.path ?? `/widget/${item.id}`,
+                            { state: { title: item.title, color: item.color, platform: item.platform } }
+                        )
+                    }
+                />
             </div>
         </div>
     );
