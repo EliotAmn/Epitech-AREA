@@ -1,0 +1,351 @@
+name: All Checks - AREA Project
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'dev'
+      - '*/cicd/*'
+      - 'feat/**'
+  pull_request:
+    branches-ignore:
+      - 'ga-ignore-*'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests execution'
+        required: false
+        type: boolean
+        default: false
+      skip_mobile_build:
+        description: 'Skip mobile APK build'
+        required: false
+        type: boolean
+        default: false
+      strict_validation:
+        description: 'Enable strict repository validation'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  actions: read
+  packages: read
+  security-events: write
+  pages: write
+  id-token: write
+
+jobs:
+  # Detect which files changed
+  detect_changes:
+    name: "Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.set-outputs.outputs.frontend_changed }}
+      backend_changed: ${{ steps.set-outputs.outputs.backend_changed }}
+      mobile_changed: ${{ steps.set-outputs.outputs.mobile_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            web/**
+            backend/**
+            mobile/**
+          # For PRs, compare against the base branch; for pushes, compare against previous commit
+          base_sha: ${{ github.event.pull_request.base.sha || github.event.before }}
+
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          FRONT=false
+          BACK=false
+          MOBILE=false
+          
+          echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+          
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "web/"; then FRONT=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "backend/"; then BACK=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "mobile/"; then MOBILE=true; fi
+          
+          echo "Frontend changed: $FRONT"
+          echo "Backend changed: $BACK"
+          echo "Mobile changed: $MOBILE"
+          
+          echo "frontend_changed=$FRONT" >> $GITHUB_OUTPUT
+          echo "backend_changed=$BACK" >> $GITHUB_OUTPUT
+          echo "mobile_changed=$MOBILE" >> $GITHUB_OUTPUT
+
+  # Repository validation (runs first, fast feedback)
+  repository_validation:
+    name: "Repository Validation"
+    needs: [detect_changes]
+    uses: ./.github/workflows/repository_validation.yml
+    with:
+      strict_mode: ${{ inputs.strict_validation || false }}
+
+  # Backend workflows
+  backend_code_quality:
+    name: "Backend Code Quality"
+    needs: [repository_validation, detect_changes]
+    if: ${{ needs.detect_changes.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/backend_code_quality.yml
+    with:
+      enable_eslint: true
+      enable_prettier: true
+
+  backend_build_test:
+    name: "Backend Build & Test"
+    needs: [backend_code_quality, detect_changes]
+    if: ${{ needs.detect_changes.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/backend_build_test.yml
+    with:
+      enable_tests: ${{ !inputs.skip_tests }}
+      enable_coverage: true
+
+  # Web frontend workflows
+  web_code_quality:
+    name: "Web Frontend Code Quality"
+    needs: [repository_validation, detect_changes]
+    if: ${{ needs.detect_changes.outputs.frontend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/web_code_quality.yml
+    with:
+      enable_eslint: true
+      enable_prettier: true
+
+  web_build_test:
+    name: "Web Frontend Build & Test"
+    needs: [web_code_quality, detect_changes]
+    if: ${{ needs.detect_changes.outputs.frontend_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/web_build_test.yml
+    with:
+      enable_tests: ${{ !inputs.skip_tests }}
+
+  # Mobile workflows
+  mobile_code_quality:
+    name: "Mobile Code Quality"
+    needs: [repository_validation, detect_changes]
+    if: ${{ needs.detect_changes.outputs.mobile_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/mobile_code_quality.yml
+    with:
+      enable_analysis: true
+      enable_format_check: true
+
+  # Docker compose validation
+  docker_compose_validation:
+    name: "Docker Compose Validation"
+    runs-on: ubuntu-latest
+    needs: [repository_validation]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Create dummy .env files for validation
+        run: |
+          echo "Creating dummy .env files for docker-compose validation..."
+          
+          # Root .env
+          cat > .env << 'EOF'
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          POSTGRES_USER=area_user
+          POSTGRES_PASSWORD=area_password
+          POSTGRES_DB=area_db
+          EOF
+          
+          # Backend .env
+          cat > backend/.env << 'EOF'
+          DATABASE_URL=postgresql://area_user:area_password@127.0.0.1:5432/area_db
+          JWT_SECRET=dummy_jwt_secret_for_ci
+          DISCORD_BOT_TOKEN=dummy_token
+          TEST_CHANNEL_ID=1234567890123456789
+          APP_URL=http://localhost:3000
+          FRONTEND_URL=http://localhost:5173
+          GOOGLE_CLIENT_ID=dummy-client-id
+          GOOGLE_CLIENT_SECRET=dummy-client-secret
+          EOF
+          
+          # Mobile .env (if needed)
+          touch mobile/.env
+          
+          echo "✅ Dummy .env files created"
+      
+      - name: Validate docker-compose.yml
+        run: |
+          echo "Validating docker-compose.yml..."
+          docker compose config > /dev/null
+          echo "✅ docker-compose.yml is valid"
+      
+      - name: Check docker-compose services
+        run: |
+          echo "Checking required services..."
+          
+          REQUIRED_SERVICES=("postgres" "server" "client_web" "client_mobile")
+          
+          for SERVICE in "${REQUIRED_SERVICES[@]}"; do
+            if docker compose config --services | grep -q "^${SERVICE}$"; then
+              echo "✅ Service '$SERVICE' found"
+            else
+              echo "::error::Required service '$SERVICE' not found in docker-compose.yml"
+              exit 1
+            fi
+          done
+          
+          echo "## ✅ Docker Compose Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All required services are configured:" >> $GITHUB_STEP_SUMMARY
+          for SERVICE in "${REQUIRED_SERVICES[@]}"; do
+            echo "- \`$SERVICE\`" >> $GITHUB_STEP_SUMMARY
+          done
+
+  # Quality gate decision
+  quality_gate:
+    name: "Quality Gate Decision"
+    runs-on: ubuntu-latest
+    needs: 
+      - repository_validation
+      - detect_changes
+      - backend_code_quality  
+      - web_code_quality  
+      - docker_compose_validation
+    if: always()
+    
+    steps:
+      - name: Evaluate quality gate results
+        run: |
+          echo "## 🎯 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Determine which jobs ran based on changes
+          BACKEND_CHANGED="${{ needs.detect_changes.outputs.backend_changed }}"
+          WEB_CHANGED="${{ needs.detect_changes.outputs.frontend_changed }}"
+          MOBILE_CHANGED="${{ needs.detect_changes.outputs.mobile_changed }}"
+          
+          # Check results
+          REPOSITORY_VALIDATION="${{ needs.repository_validation.result }}"
+          BACKEND_BUILD="${{ needs.backend_build_test.result }}"
+          WEB_BUILD="${{ needs.web_build_test.result }}"
+          DOCKER_VALIDATION="${{ needs.docker_compose_validation.result }}"
+          
+          echo "### Changes Detected:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: **$BACKEND_CHANGED**" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend (Web): **$WEB_CHANGED**" >> $GITHUB_STEP_SUMMARY
+          echo "- Mobile: **$MOBILE_CHANGED**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Results:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository Validation: **$REPOSITORY_VALIDATION**" >> $GITHUB_STEP_SUMMARY
+          
+          # Only check build results if they ran
+          if [ "$BACKEND_CHANGED" = "true" ]; then
+            echo "- Backend Build & Test: **$BACKEND_BUILD**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Backend Build & Test: **skipped** (no changes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "$WEB_CHANGED" = "true" ]; then
+            echo "- Web Build & Test: **$WEB_BUILD**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Web Build & Test: **skipped** (no changes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "$MOBILE_CHANGED" = "true" ]; then
+            echo "- Mobile Build & Test: **skipped** (removed from pipeline)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Mobile Build & Test: **skipped** (no changes)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "- Docker Compose: **$DOCKER_VALIDATION**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Determine overall status
+          FAILED=false
+          
+          # Repository validation always runs
+          if [ "$REPOSITORY_VALIDATION" != "success" ]; then
+            echo "::error::Repository validation failed with status: $REPOSITORY_VALIDATION"
+            FAILED=true
+          fi
+          
+          # Docker validation always runs
+          if [ "$DOCKER_VALIDATION" != "success" ]; then
+            echo "::error::Docker validation failed with status: $DOCKER_VALIDATION"
+            FAILED=true
+          fi
+          
+          # Check build results only if changes were detected
+          # Accept: success, skipped, or empty (job didn't run)
+          if [ "$BACKEND_CHANGED" = "true" ]; then
+            if [ -n "$BACKEND_BUILD" ] && [ "$BACKEND_BUILD" != "success" ] && [ "$BACKEND_BUILD" != "skipped" ]; then
+              echo "::error::Backend build failed with status: $BACKEND_BUILD"
+              FAILED=true
+            fi
+          fi
+          
+          if [ "$WEB_CHANGED" = "true" ]; then
+            if [ -n "$WEB_BUILD" ] && [ "$WEB_BUILD" != "success" ] && [ "$WEB_BUILD" != "skipped" ]; then
+              echo "::error::Web build failed with status: $WEB_BUILD"
+              FAILED=true
+            fi
+          fi
+          
+          # Mobile build is removed from pipeline, don't check it
+          
+          if [ "$FAILED" = true ]; then
+            echo "### ❌ Quality Gate: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "One or more required checks did not pass. Please review the failed jobs above." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "### ✅ Quality Gate: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All required checks passed successfully! 🎉" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const backendChanged = '${{ needs.detect_changes.outputs.backend_changed }}' === 'true';
+            const webChanged = '${{ needs.detect_changes.outputs.frontend_changed }}' === 'true';
+            
+            const repoValidation = '${{ needs.repository_validation.result }}';
+            const backendBuild = '${{ needs.backend_build_test.result }}';
+            const webBuild = '${{ needs.web_build_test.result }}';
+            const dockerValidation = '${{ needs.docker_compose_validation.result }}';
+            
+            // Check if all required checks passed
+            let failed = false;
+            
+            if (repoValidation !== 'success') failed = true;
+            if (dockerValidation !== 'success') failed = true;
+            
+            // Only check build results if changes were detected
+            if (backendChanged && backendBuild !== 'success') failed = true;
+            if (webChanged && webBuild !== 'success') failed = true;
+            
+            const body = failed
+              ? '❌ Some quality checks failed. Please review the workflow results.'
+              : '✅ All quality checks passed! This PR is ready for review.';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+        continue-on-error: true

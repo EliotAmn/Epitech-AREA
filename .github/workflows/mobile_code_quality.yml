@@ -1,0 +1,124 @@
+name: Mobile Code Quality
+
+on:
+  workflow_call:
+    inputs:
+      enable_analysis:
+        description: 'Whether to run Dart analysis'
+        required: false
+        type: boolean
+        default: true
+      enable_format_check:
+        description: 'Whether to check Dart formatting'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  analysis:
+    name: "Flutter Analysis & Formatting"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          channel: 'stable'
+          cache: true
+      
+      - name: Flutter version
+        run: flutter --version
+      
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: |
+          echo "Installing Flutter dependencies..."
+          flutter pub get
+          echo "✅ Dependencies installed"
+      
+      - name: Run Dart analyzer
+        if: ${{ inputs.enable_analysis }}
+        working-directory: ./mobile
+        run: |
+          echo "Running Dart analyzer..."  
+          if [ ! -f .env.example ]; then  
+            echo "::error::.env.example file not found in ./mobile directory"  
+            exit 1  
+          fi  
+          cp .env.example .env
+          flutter analyze --no-fatal-infos --no-fatal-warnings || {
+            echo "::error::Dart analyzer found issues"
+            exit 1
+          }
+          echo "✅ Dart analyzer passed"
+      
+      - name: Check Dart formatting
+        if: ${{ inputs.enable_format_check }}
+        working-directory: ./mobile
+        run: |
+          echo "Checking Dart formatting..."
+          dart format --set-exit-if-changed . || {
+            echo "::error::Code is not properly formatted. Run 'dart format .' to fix."
+            exit 1
+          }
+          echo "✅ Formatting check passed"
+      
+      - name: Check for potential issues
+        working-directory: ./mobile
+        run: |
+          echo "Checking for potential issues..."
+          
+          # Check for TODOs
+          TODO_COUNT=$(grep -r "TODO" lib/ 2>/dev/null | wc -l || echo "0")
+          if [ "$TODO_COUNT" -gt 0 ]; then
+            echo "⚠️  Found $TODO_COUNT TODO comments"
+            echo "## ⚠️  Code Comments" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Found **$TODO_COUNT** TODO comments in the codebase" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for print statements (should use proper logging)
+          PRINT_COUNT=$(grep -r "print(" lib/ 2>/dev/null | grep -v "// print(" | wc -l || echo "0")
+          if [ "$PRINT_COUNT" -gt 0 ]; then
+            echo "::warning::Found $PRINT_COUNT print() statements. Consider using proper logging."
+          fi
+
+  lint_check:
+    name: "Flutter Lint Check"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: flutter pub get
+      
+      - name: Verify pubspec.yaml
+        working-directory: ./mobile
+        run: |
+          echo "Verifying pubspec.yaml..."
+          flutter pub get --dry-run
+          echo "✅ pubspec.yaml is valid"
+      
+      - name: Check for outdated packages
+        working-directory: ./mobile
+        run: |
+          echo "Checking for outdated packages..."
+          flutter pub outdated || true
+        continue-on-error: true

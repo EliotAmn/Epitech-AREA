@@ -1,0 +1,454 @@
+name: Release Build & Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - "*/cicd/*"
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release'
+        required: true
+        type: choice
+        options:
+          - development
+          - production
+        default: development
+      skip_docker:
+        description: 'Skip Docker image builds'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  # Detect which files changed
+  detect_changes:
+    name: "Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.set-outputs.outputs.frontend_changed }}
+      backend_changed: ${{ steps.set-outputs.outputs.backend_changed }}
+      mobile_changed: ${{ steps.set-outputs.outputs.mobile_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            web/**
+            backend/**
+            mobile/**
+
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          FRONT=false
+          BACK=false
+          MOBILE=false
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "web/"; then FRONT=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "backend/"; then BACK=true; fi
+          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "mobile/"; then MOBILE=true; fi
+          echo "frontend_changed=$FRONT" >> $GITHUB_OUTPUT
+          echo "backend_changed=$BACK" >> $GITHUB_OUTPUT
+          echo "mobile_changed=$MOBILE" >> $GITHUB_OUTPUT
+
+  # Mobile APK Build
+  build_mobile_apk:
+    needs: [detect_changes]
+    if: ${{ needs.detect_changes.outputs.mobile_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+    name: "Build Mobile APK"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: flutter pub get
+      
+      - name: Build APK
+        working-directory: ./mobile
+        run: |
+          echo "Building Android APK..."
+          flutter build apk --release
+          
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          if [ -f "$APK_PATH" ]; then
+            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+            echo "✅ APK built: $APK_SIZE"
+          else
+            echo "::error::APK build failed"
+            exit 1
+          fi
+      
+      - name: Rename APK with version
+        working-directory: ./mobile
+        run: |
+          VERSION=$(grep "version:" pubspec.yaml | head -1 | awk '{print $2}')
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/area-mobile-${VERSION}.apk
+          echo "APK_VERSION=${VERSION}" >> $GITHUB_ENV
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-apk-release
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-release.apk
+            mobile/build/app/outputs/flutter-apk/area-mobile-*.apk
+          retention-days: 90
+
+  # Docker Images Build
+  build_docker_images:
+    name: "Build Docker Images"
+    needs: [detect_changes]
+    runs-on: ubuntu-latest
+    if: ${{ (needs.detect_changes.outputs.backend_changed == 'true' || needs.detect_changes.outputs.frontend_changed == 'true') && !inputs.skip_docker }}
+    strategy:
+      matrix:
+        service: [backend, web]
+        include:
+          - service: backend
+            changed: ${{ needs.detect_changes.outputs.backend_changed }}
+          - service: web
+            changed: ${{ needs.detect_changes.outputs.frontend_changed }}
+      fail-fast: false
+    
+    steps:
+      - name: Checkout code
+        if: ${{ matrix.changed == 'true' }}
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        if: ${{ matrix.changed == 'true' }}
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to GitHub Container Registry
+        if: ${{ matrix.changed == 'true' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        if: ${{ matrix.changed == 'true' }}
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push Docker image
+        if: ${{ matrix.changed == 'true' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Report build status
+        if: ${{ matrix.changed == 'true' }}
+        run: |
+          echo "## 🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service**: ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
+  # Web Build Artifacts
+  build_web_artifacts:
+    name: "Build Web Artifacts"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./web
+        run: npm ci
+      
+      - name: Build production bundle
+        working-directory: ./web
+        run: |
+          echo "Building production bundle..."
+          npm run build
+          
+          if [ -d "dist" ]; then
+            BUNDLE_SIZE=$(du -sh dist | cut -f1)
+            echo "✅ Build complete: $BUNDLE_SIZE"
+            echo "BUNDLE_SIZE=$BUNDLE_SIZE" >> $GITHUB_ENV
+          else
+            echo "::error::Build failed"
+            exit 1
+          fi
+      
+      - name: Create web archive
+        working-directory: ./web
+        run: |
+          tar -czf web-dist.tar.gz dist/
+          echo "✅ Archive created"
+      
+      - name: Upload web artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist-release
+          path: web/web-dist.tar.gz
+          retention-days: 90
+
+  # Create GitHub Release
+  create_release:
+    name: "Create GitHub Release"
+    runs-on: ubuntu-latest
+    needs: [build_mobile_apk, build_web_artifacts]
+    if: startsWith(github.ref, 'refs/tags/v') && needs.build_mobile_apk.result == 'success' && needs.build_web_artifacts.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: mobile-apk-release
+          path: ./release-assets
+      
+      - name: Download web artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist-release
+          path: ./release-assets
+      
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          REGISTRY_URL="ghcr.io/${{ github.repository }}"
+          
+          cat > release_notes.md << EOF
+          # AREA Project Release $VERSION
+          
+          ## 📦 Assets
+          
+          ### Mobile Application
+          - **APK**: \`area-mobile-*.apk\` - Android application package
+          
+          ### Web Application
+          - **Web Bundle**: \`web-dist.tar.gz\` - Production web bundle
+          
+          ### Docker Images
+          All Docker images are available on GitHub Container Registry (GHCR).
+          
+          \`\`\`bash
+          # Pull the images
+          docker pull $REGISTRY_URL/backend:$VERSION
+          docker pull $REGISTRY_URL/web:$VERSION
+          docker pull $REGISTRY_URL/backend:latest
+          docker pull $REGISTRY_URL/web:latest
+          \`\`\`
+          
+          ## 🚀 Deployment
+          
+          ### Mobile
+          1. Download the APK file
+          2. Install on Android device (enable "Install from unknown sources")
+          3. Grant necessary permissions when prompted
+          
+          ### Web
+          1. Download and extract \`web-dist.tar.gz\`
+          2. Serve the \`dist\` folder with any web server:
+             - \`npm install -g http-server && http-server dist\`
+             - Or use your preferred web server (nginx, Apache, etc.)
+          
+          ### Docker - Full Stack
+          Use \`docker-compose.yml\` with the built images:
+          
+          \`\`\`bash
+          # Create .env file with configuration
+          cat > .env << ENVFILE
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=your_password
+          POSTGRES_DB=area
+          ENVFILE
+          
+          # Start all services
+          docker compose up -d
+          \`\`\`
+          
+          **Services:**
+          - Backend (NestJS): http://localhost:8080
+          - Web Frontend: http://localhost:8081
+          - PostgreSQL: localhost:5432
+          
+          ### Manual Image Deployment
+          
+          **Backend:**
+          \`\`\`bash
+          # Create env file for secure credential management
+          cat > backend.env << BACKENDENV
+          NODE_ENV=production
+          PORT=8080
+          DATABASE_URL=postgresql://user:pass@host/db
+          BACKENDENV
+          
+          docker run -d \\
+            --name server \\
+            -p 8080:8080 \\
+            --env-file backend.env \\
+            $REGISTRY_URL/backend:$VERSION
+          \`\`\`
+          
+          **Web:**
+          \`\`\`bash
+          docker run -d \\
+            --name client_web \\
+            -p 8081:8081 \\
+            -e VITE_API_URL=http://localhost:8080 \\
+            $REGISTRY_URL/web:$VERSION
+          \`\`\`
+          
+          ## 📝 Changes
+          
+          See the [commit history](https://github.com/${{ github.repository }}/commits/$VERSION) for detailed changes in this release.
+          
+          ## 🔗 Container Registry
+          
+          All Docker images are hosted on GitHub Container Registry:
+          - **Registry**: \`ghcr.io\`
+          - **Owner**: \`${{ github.repository_owner }}\`
+          - **Repository**: \`${{ github.repository }}\`
+          
+          To pull images, ensure you're logged in:
+          \`\`\`bash
+          docker login ghcr.io
+          \`\`\`
+          EOF
+          
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          files: |
+            ./release-assets/*.apk
+            ./release-assets/*.tar.gz
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') || contains(github.ref, '-alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Release summary
+        run: |
+          echo "## 🎉 Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${GITHUB_REF#refs/tags/}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release URL**: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${GITHUB_REF#refs/tags/}" >> $GITHUB_STEP_SUMMARY
+
+  # Docker Compose Test
+  test_docker_compose:
+    name: "Test Docker Compose Stack"
+    runs-on: ubuntu-latest
+    needs: [build_docker_images, detect_changes]
+    if: ${{ (needs.build_docker_images.result == 'success' || needs.build_docker_images.result == 'skipped') && !inputs.skip_docker && github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=test_user
+          POSTGRES_PASSWORD=test_password
+          POSTGRES_DB=test_db
+          EOF
+      
+      - name: Pull and start services
+        run: |
+          echo "Starting Docker Compose stack..."
+          docker compose up -d
+          sleep 30
+      
+      - name: Check service health
+        run: |
+          echo "Checking service health..."
+          
+          # Check if containers are running
+          docker compose ps
+          
+          # Check postgres
+          if docker compose exec -T postgres pg_isready -U test_user; then
+            echo "✅ PostgreSQL is healthy"
+          else
+            echo "::error::PostgreSQL is not healthy"
+            docker compose logs postgres
+            exit 1
+          fi
+          
+          # Check backend
+          if curl -f http://localhost:8080/health 2>/dev/null; then
+            echo "✅ Backend is healthy"
+          else
+            echo "::warning::Backend health check failed (may not have /health endpoint yet)"
+            docker compose logs server
+          fi
+          
+          # Check web
+          if curl -f http://localhost:8081/ 2>/dev/null; then
+            echo "✅ Web is healthy"
+          else
+            echo "::warning::Web health check failed"
+            docker compose logs client_web
+          fi
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose down -v
+          docker compose rm -f
