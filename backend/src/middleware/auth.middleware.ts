@@ -29,8 +29,6 @@ export class AuthMiddleware implements NestMiddleware {
     next: NextFunction,
   ) {
     const header = req.get('authorization');
-    const urlToken = req.query.jwt_auth as string | undefined;
-
     let token: string | null = null;
 
     // Try to get token from Authorization header first
@@ -39,11 +37,6 @@ export class AuthMiddleware implements NestMiddleware {
       if (match) {
         token = match[1];
       }
-    }
-
-    // Fall back to URL parameter if header token not found
-    if (!token && urlToken) {
-      token = urlToken;
     }
 
     if (!token) {
