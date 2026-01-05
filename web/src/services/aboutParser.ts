@@ -49,16 +49,15 @@ export async function fetchCatalogFromAbout(): Promise<{
 
     try {
         const aboutInfo: AboutInfo = await aboutService.getAbout();
+        const server = (
+            aboutInfo as unknown as { server?: { services?: unknown } }
+        )?.server;
         const rawServices: {
             name?: string;
             title?: string;
             actions?: { name?: string; title?: string }[];
             reactions?: { name?: string; title?: string }[];
-        }[] =
-            aboutInfo?.server?.services &&
-            Array.isArray(aboutInfo.server.services)
-                ? aboutInfo.server.services
-                : [];
+        }[] = server && Array.isArray(server.services) ? server.services : [];
 
         for (const svc of rawServices) {
             const svcName: string = svc?.name || svc?.title || "Unknown";
