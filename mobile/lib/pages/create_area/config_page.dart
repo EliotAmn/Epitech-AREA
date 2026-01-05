@@ -158,7 +158,7 @@ class _ConfigPageState extends State<ConfigPage> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,

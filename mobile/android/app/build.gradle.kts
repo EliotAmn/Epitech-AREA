@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mobile"
+    namespace = "com.example.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,13 +21,16 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.mobile"
+        applicationId = "com.example.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Provide the app auth redirect scheme placeholder required by some plugins
+        // Match the redirect scheme configured in .env (GOOGLE_REDIRECT_URI)
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.example.app"
     }
 
     buildTypes {

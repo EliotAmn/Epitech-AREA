@@ -170,7 +170,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
     }
 
     try {
-      final AuthorizationTokenResponse? result =
+      final AuthorizationTokenResponse result =
           await _appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
           _googleClientId,
@@ -308,7 +308,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
         MaterialPageRoute(
           builder: (context) => OAuthWebViewPage(
             initialUrl: url,
-            redirectUri: '${url}/redirect',
+            redirectUri: '$url/redirect',
           ),
         ),
       );
