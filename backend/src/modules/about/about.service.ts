@@ -24,6 +24,7 @@ export interface ReactionInfo {
 
 export interface ServiceInfo {
   name: string;
+  oauth_url?: string;
   actions: ActionInfo[];
   reactions: ReactionInfo[];
 }
@@ -83,6 +84,7 @@ export class AboutService {
 
         return {
           name: service.name,
+          oauth_url: service.oauth_url,
           actions,
           reactions,
         };

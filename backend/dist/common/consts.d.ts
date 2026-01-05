@@ -1,0 +1,1 @@
+export declare const SERVICE_DEFINITION = "SERVICE_DEFINITION";

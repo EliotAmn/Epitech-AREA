@@ -10,6 +10,7 @@ import { DiscordClientManager } from '../discord.client';
 export class NewMessageInChannelAction extends ServiceActionDefinition {
   name = 'new_message_in_channel';
   label = 'New Message in Channel';
+  poll_interval = 2;
   description = 'Triggers when a new message is posted in a specific channel';
   output_params: ParameterDefinition[] = [
     {
@@ -64,7 +65,7 @@ export class NewMessageInChannelAction extends ServiceActionDefinition {
 
   async reload_cache(sconf: ServiceConfig): Promise<Record<string, any>> {
     const channelId = sconf?.config?.channel_id
-      ? String(sconf.config.channel_id)
+      ? String(sconf.config.channel_id as string)
       : undefined;
 
     if (!channelId) {
