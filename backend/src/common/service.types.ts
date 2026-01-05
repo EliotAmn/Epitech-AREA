@@ -34,7 +34,7 @@ export abstract class ServiceActionDefinition {
   name: string;
   label: string;
   description: string;
-  poll_interval: number; // in seconds, 0 means no polling
+  poll_interval: number = 0; // in seconds, 0 means no polling
   output_params: ParameterDefinition[];
   input_params?: ParameterDefinition[];
 
