@@ -7,7 +7,6 @@ import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'global/cache.dart' as cache;
 
-
 Future<void> main() async {
   try {
     await dotenv.load(fileName: ".env");

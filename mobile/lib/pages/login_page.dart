@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
 import 'package:http/http.dart' as http;
 import '../global/cache.dart' as cache;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -14,6 +17,52 @@ class LoginPage extends StatefulWidget {
 
   @override
   State<LoginPage> createState() => _LoginPageState();
+}
+
+class OAuthWebViewPage extends StatefulWidget {
+  final String initialUrl;
+  final String redirectUri;
+
+  const OAuthWebViewPage({required this.initialUrl, required this.redirectUri, super.key});
+
+  @override
+  State<OAuthWebViewPage> createState() => _OAuthWebViewPageState();
+}
+
+class _OAuthWebViewPageState extends State<OAuthWebViewPage> {
+  late final WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(NavigationDelegate(
+        onNavigationRequest: (NavigationRequest request) {
+          final url = request.url;
+          try {
+            final uri = Uri.parse(url);
+            if (url.startsWith(widget.redirectUri) || uri.queryParameters.containsKey('grant_code') || uri.queryParameters.containsKey('code')) {
+              final code = uri.queryParameters['grant_code'] ?? uri.queryParameters['code'];
+              if (mounted) Navigator.of(context).pop(code);
+              return NavigationDecision.prevent;
+            }
+          } catch (_) {
+            // ignore parse errors
+          }
+          return NavigationDecision.navigate;
+        },
+      ))
+      ..loadRequest(Uri.parse(widget.initialUrl));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sign in')),
+      body: WebViewWidget(controller: _controller),
+    );
+  }
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -93,6 +142,9 @@ class _LoginModalContent extends StatefulWidget {
 class _LoginModalContentState extends State<_LoginModalContent> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  final FlutterAppAuth _appAuth = const FlutterAppAuth();
+  late final String _googleClientId = (dotenv.env['GOOGLE_CLIENT_ID'] ?? '').trim();
+  late final String _googleRedirectUri = (dotenv.env['GOOGLE_REDIRECT_URI'] ?? '').trim();
   String _errorMessage = '';
 
   @override
@@ -107,6 +159,55 @@ class _LoginModalContentState extends State<_LoginModalContent> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loginWithGoogle(BuildContext modalContext) async {
+    if (_googleClientId.isEmpty || _googleRedirectUri.isEmpty) {
+      setState(() {
+        _errorMessage = 'Google OAuth is not configured (missing env vars).';
+      });
+      return;
+    }
+
+    try {
+      final AuthorizationTokenResponse? result =
+          await _appAuth.authorizeAndExchangeCode(
+        AuthorizationTokenRequest(
+          _googleClientId,
+          _googleRedirectUri,
+          discoveryUrl:
+               'https://accounts.google.com/.well-known/openid-configuration',
+          scopes: ['openid', 'profile', 'email'],
+        ),
+      );
+
+      if (result == null) {
+        setState(() {
+          _errorMessage = 'Google sign-in was cancelled.';
+        });
+        return;
+      }
+
+      if (!mounted) return;
+      final token = result.accessToken ?? result.idToken;
+      if (token != null) {
+        cache.AuthStore().saveToken(token);
+        if (modalContext.mounted) {
+          Navigator.of(modalContext).pop();
+          widget.onLoginSuccess();
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Google sign-in did not return a token.';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Google sign-in failed: $e';
+      });
+      debugPrint('Google sign-in failed: $e');
+    }
   }
 
   void _login(BuildContext modalContext) {
@@ -170,42 +271,84 @@ class _LoginModalContentState extends State<_LoginModalContent> {
         });
   }
   
-  void _loginWithGoogle(BuildContext modalContext) {
-    final googleOAuthUrl = '${dotenv.env['API_URL']}/auth/google';
-    final controleur = WebViewController()
-      ..setUserAgent('Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36')
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(googleOAuthUrl));
-      controleur.setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) async {
-            if (url.contains('auth/google/redirect')) {
-              final uri = Uri.parse(url);
-              final token = uri.queryParameters['token'];
-              if (token != null && token.isNotEmpty) {
-                debugPrint('Google login successful');
-                await cache.AuthStore().saveToken(token);
-                if (modalContext.mounted) {
-                  Navigator.of(modalContext).pop();
-                  widget.onLoginSuccess();
-                }
-              }
-            }
-          },
+  Future<void> _loginWithProvider(BuildContext modalContext, String provider) async {
+    setState(() {
+      _errorMessage = '';
+    });
+
+    // For Google, use flutter_appauth which opens the system browser.
+    if (provider.toLowerCase() == 'google') {
+      await _loginWithGoogle(modalContext);
+      return;
+    }
+
+    try {
+      final resp = await http.post(
+        Uri.parse('${dotenv.env['API_URL']}/auth/oauth/$provider/authorize'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (resp.statusCode != 200 && resp.statusCode != 201) {
+        setState(() {
+          _errorMessage = 'Failed to get authorize URL: ${resp.statusCode}';
+        });
+        return;
+      }
+
+      final data = jsonDecode(resp.body) as Map<String, dynamic>;
+      final url = data['url'] as String?;
+      if (url == null) {
+        setState(() {
+          _errorMessage = 'No authorize URL returned from server';
+        });
+        return;
+      }
+
+      final code = await Navigator.of(modalContext).push<String>(
+        MaterialPageRoute(
+          builder: (context) => OAuthWebViewPage(
+            initialUrl: url,
+            redirectUri: '${url}/redirect',
+          ),
         ),
       );
 
-    Navigator.of(modalContext).push(
-      MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Google Login'),
-            centerTitle: true,
-          ),
-          body: WebViewWidget(controller: controleur),
-        ),
-      ),
-    );
+      if (code == null) {
+        setState(() {
+          _errorMessage = 'Authentication cancelled';
+        });
+        return;
+      }
+
+      final tokenResp = await http.get(Uri.parse('${dotenv.env['API_URL']}/auth/oauth/consume?code=$code'));
+      if (tokenResp.statusCode != 200 && tokenResp.statusCode != 201) {
+        setState(() {
+          _errorMessage = 'Token exchange failed: ${tokenResp.statusCode}';
+        });
+        return;
+      }
+
+      final tokenData = jsonDecode(tokenResp.body) as Map<String, dynamic>;
+      final token = tokenData['access_token'] ?? tokenData['token'];
+      if (token == null) {
+        setState(() {
+          _errorMessage = 'No token returned from server';
+        });
+        return;
+      }
+
+      cache.AuthStore().saveToken(token as String);
+      if (modalContext.mounted) {
+        Navigator.of(modalContext).pop();
+        widget.onLoginSuccess();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'OAuth error: $e';
+      });
+      debugPrint('OAuth error: $e');
+    }
   }
 
   bool _isValidEmail(String email) {
@@ -278,7 +421,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           ),
           TextButton(
             onPressed: () {
-              _loginWithGoogle(context);
+              _loginWithProvider(context, 'google');
             },
             style: TextButton.styleFrom(
               backgroundColor: Colors.transparent,
