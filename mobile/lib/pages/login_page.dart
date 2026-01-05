@@ -176,7 +176,6 @@ class _LoginModalContentState extends State<_LoginModalContent> {
   }
 
   Future<void> _loginWithOauth(BuildContext modalContext, String provider) async {
-    String redirectUrl = '';
     if (dotenv.env['API_URL'] == null) {
       setState(() {
         _errorMessage = 'API_URL is not configured';
@@ -184,31 +183,51 @@ class _LoginModalContentState extends State<_LoginModalContent> {
       return;
     }
 
-    http.get( Uri.parse("${dotenv.env['API_URL']}/about.json")).then((response) {
+    try {
+      final response = await http.get(Uri.parse("${dotenv.env['API_URL']}/about.json"));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        redirectUrl = data['server']['services'][provider]['oauth_url'] ?? '';
+        final _services = (data['server']['services'] as List)
+            .map((e) => e as Map<String, dynamic>)
+            .toList();
+        final service = _services.firstWhere(
+          (svc) => (svc['name'] as String?) == provider,
+        );
+        final redirectUrl = service['oauth_url'] as String? ?? '';
+
+        if (!mounted) return;
+        
+        if (redirectUrl.isEmpty) {
+          setState(() {
+            _errorMessage = 'Failed to get OAuth URL for $provider';
+          });
+          return;
+        }
+        
+        try {
+          await launchUrl(Uri.parse(redirectUrl), mode: LaunchMode.externalApplication);
+        } catch (e) {
+          if (!mounted) return;
+          setState(() {
+            _errorMessage = 'Oauth sign-in failed: $e';
+          });
+          debugPrint('Oauth sign-in failed: $e');
+        }
       } else {
         debugPrint('Failed to fetch about.json: ${response.statusCode}');
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Failed to fetch OAuth URL for $provider';
+          });
+        }
       }
-    }).catchError((error) {
+    } catch (error) {
       debugPrint('Error fetching about.json: $error');
-    });
-
-    if (mounted && redirectUrl.isEmpty) {
-      setState(() {
-        _errorMessage = 'Failed to get OAuth URL for $provider';
-      });
-      return;
-    }
-    try {
-      launchUrl(Uri.parse(redirectUrl), mode: LaunchMode.externalApplication);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = 'Oauth sign-in failed: $e';
-      });
-      debugPrint('Oauth sign-in failed: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Network error: $error';
+        });
+      }
     }
   }
 
