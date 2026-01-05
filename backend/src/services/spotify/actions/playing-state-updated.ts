@@ -61,14 +61,14 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
   }
 
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
-    const apitoken = sconf.config.apitoken as string | undefined;
-    if (!apitoken) return Promise.resolve({ triggered: false, parameters: {} });
+    const accessToken = sconf.config.access_token as string | undefined;
+    if (!accessToken) return Promise.resolve({ triggered: false, parameters: {} });
 
     return new Promise((resolve) => {
       axios
         .get<SpotifyPlayerResponse>('https://api.spotify.com/v1/me/player', {
           headers: {
-            Authorization: `Bearer ${apitoken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         })
         .then((resp) => {
