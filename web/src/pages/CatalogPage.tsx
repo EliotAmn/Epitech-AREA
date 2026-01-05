@@ -62,7 +62,15 @@ export default function CatalogPage({
                             title={item.title}
                             platform={item.platform}
                             color={item.color}
-                            onClick={() => onSelect?.(item)}
+                            onClick={() => {
+                                // If the item has an oauth_url, initiate OAuth flow
+                                if (item.oauth_url) {
+                                    window.location.href = item.oauth_url;
+                                } else {
+                                    // Otherwise, use the normal onSelect handler
+                                    onSelect?.(item);
+                                }
+                            }}
                         />
                     ))
                 )}

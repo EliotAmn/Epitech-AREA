@@ -55,6 +55,7 @@ export async function fetchCatalogFromAbout(): Promise<{
         const rawServices: {
             name?: string;
             title?: string;
+            oauth_url?: string;
             actions?: { name?: string; title?: string }[];
             reactions?: { name?: string; title?: string }[];
         }[] = server && Array.isArray(server.services) ? server.services : [];
@@ -71,6 +72,8 @@ export async function fetchCatalogFromAbout(): Promise<{
                 platform: svcName,
                 color: svcColor,
                 path: `/service/${encodeURIComponent(svcSlug)}`,
+                oauth_url: svc?.oauth_url,
+                serviceName: svcName,
             });
 
             if (Array.isArray(svc.actions)) {
