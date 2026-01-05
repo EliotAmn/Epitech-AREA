@@ -65,7 +65,7 @@ export class NewMessageInChannelAction extends ServiceActionDefinition {
 
   async reload_cache(sconf: ServiceConfig): Promise<Record<string, any>> {
     const channelId = sconf?.config?.channel_id
-      ? String(sconf.config.channel_id)
+      ? String(sconf.config.channel_id as string)
       : undefined;
 
     if (!channelId) {

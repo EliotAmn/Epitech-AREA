@@ -70,9 +70,11 @@ export class MessageContainsKeywordAction extends ServiceActionDefinition {
   private triggeredOutput: ActionTriggerOutput | null = null;
 
   reload_cache(sconf: ServiceConfig): Promise<Record<string, unknown>> {
-    const keyword = sconf?.config?.keyword ? String(sconf.config.keyword) : '';
+    const keyword = sconf?.config?.keyword
+      ? String(sconf.config.keyword as string)
+      : '';
     const channelId = sconf?.config?.channel_id
-      ? String(sconf.config.channel_id)
+      ? String(sconf.config.channel_id as string)
       : undefined;
 
     if (!keyword) {
