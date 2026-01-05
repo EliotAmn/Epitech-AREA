@@ -22,12 +22,14 @@ export interface ParameterDefinition {
 }
 
 export interface ServiceConfig {
-  config: Record<string, any>;
+  config: Record<string, unknown>;
+  cache?: Record<string, unknown>;
 }
 
 export interface ActionTriggerOutput {
   triggered: boolean;
   parameters: Record<string, ParameterValue>;
+  cache?: Record<string, unknown>;
 }
 
 export abstract class ServiceActionDefinition {

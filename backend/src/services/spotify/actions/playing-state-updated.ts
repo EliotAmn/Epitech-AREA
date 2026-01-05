@@ -30,6 +30,7 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
   name = 'spotify.playing_state_updated';
   label = 'On playing state updated';
   description = 'When the playing state is updated (play/pause)';
+  poll_interval = 10;
   output_params: ParameterDefinition[] = [
     {
       name: 'song_name',
@@ -54,16 +55,20 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
     },
   ];
 
-  private lastPlayingState: 'play' | 'pause' | null = null;
-
   reload_cache(): Promise<Record<string, unknown>> {
-    return Promise.resolve({});
+    return Promise.resolve({ lastPlayingState: null });
   }
 
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
     if (!accessToken)
       return Promise.resolve({ triggered: false, parameters: {} });
+
+    // Get per-user state from cache
+    const lastPlayingState = sconf.cache?.lastPlayingState as
+      | 'play'
+      | 'pause'
+      | null;
 
     return new Promise((resolve) => {
       axios
@@ -83,13 +88,11 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
           const triggerState: string = (sconf.config.state as string) || 'both';
 
           let triggered = false;
-          if (this.lastPlayingState !== currentState) {
+          if (lastPlayingState !== currentState) {
             if (triggerState === 'both' || triggerState === currentState) {
               triggered = true;
             }
           }
-
-          this.lastPlayingState = currentState;
 
           if (triggered) {
             resolve({
@@ -97,9 +100,16 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
               parameters: {
                 song_name: { type: ParameterType.STRING, value: songName },
               },
+              // Return updated cache to be persisted
+              cache: { lastPlayingState: currentState },
             });
           } else {
-            resolve({ triggered: false, parameters: {} });
+            resolve({
+              triggered: false,
+              parameters: {},
+              // Return updated cache to be persisted
+              cache: { lastPlayingState: currentState },
+            });
           }
         })
         .catch((err) => {
