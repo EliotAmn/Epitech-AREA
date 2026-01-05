@@ -13,6 +13,6 @@ export default defineConfig({
         },
     },
     server: {
-        allowedHosts: ["areafront.eliotamanieu.fr"],
+        allowedHosts: [".eliotamanieu.fr", "localhost", ".ngrok.io"],
     }
 });
