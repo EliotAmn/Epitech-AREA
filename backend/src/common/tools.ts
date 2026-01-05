@@ -21,3 +21,7 @@ export function buildUrlParameters(
   const paramString = urlParams.toString();
   return paramString ? `${basepath}?${paramString}` : basepath;
 }
+export function buildServiceRedirectUrl(service_name: string) {
+    const frontendUrl = process.env.FRONTEND_URL || process.env.APP_URL;
+    return `${frontendUrl}/oauth-service-proxy/${service_name}`;
+}

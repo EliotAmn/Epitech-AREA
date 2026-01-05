@@ -11,6 +11,7 @@ import Create from "./pages/Create";
 import Explore from "./pages/Explore";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import OAuthServiceProxy from "./pages/OAuthServiceProxy";
 import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
 import WidgetDetail from "./pages/WidgetDetail";
@@ -49,6 +50,14 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/widget/:id" element={<WidgetDetail />} />
+                    <Route
+                        path="/oauth-service-proxy/:service_name"
+                        element={
+                            <ProtectedRoute>
+                                <OAuthServiceProxy />
+                            </ProtectedRoute>
+                        }
+                    />
                     <Route
                         path="/signup"
                         element={

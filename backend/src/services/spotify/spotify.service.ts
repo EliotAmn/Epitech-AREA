@@ -1,5 +1,5 @@
 import {ServiceDefinition} from '@/common/service.types';
-import {buildUrlParameters} from '@/common/tools';
+import {buildServiceRedirectUrl, buildUrlParameters} from '@/common/tools';
 import {PlayingStateUpdated} from '@/services/spotify/actions/playing-state-updated';
 import {UserService} from "@prisma/client";
 import axios from "axios";
@@ -14,13 +14,19 @@ async function oauth_callback(
         throw new BadRequestException('Authorization code is missing');
 
     // Call spotify with the authorization code and userId to exchange for tokens
-    const res = await axios.post('https://accounts.spotify.com/api/token', {
-        code: authorizationCode,
-        redirect_uri: `${process.env.APP_URL}/api/services/spotify/oauth/callback`,
-        grant_type: 'authorization_code',
-        client_id: process.env.SPOTIFY_CLIENT_ID,
-        client_secret: process.env.SPOTIFY_CLIENT_SECRET,
+    const formData = new URLSearchParams();
+    formData.append('code', authorizationCode);
+    formData.append('redirect_uri', buildServiceRedirectUrl('spotify'));
+    formData.append('grant_type', 'authorization_code');
+    formData.append('client_id', process.env.SPOTIFY_CLIENT_ID!);
+    formData.append('client_secret', process.env.SPOTIFY_CLIENT_SECRET!);
+
+    const res = await axios.post('https://accounts.spotify.com/api/token', formData, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
     });
+
     if (res.status !== 200)
         throw new UnauthorizedException("Failed to exchange authorization code for tokens");
     const tokens = res.data;
@@ -28,8 +34,13 @@ async function oauth_callback(
     const accessToken = tokens.access_token as string;
     const refreshToken = tokens.refresh_token as string;
 
-    this.userserviceService.setConfigProperty(userService, 'access_token', accessToken);
-    this.userserviceService.setConfigProperty(userService, 'refresh_token', refreshToken);
+    // Note: We can't use 'this' here in a standalone function
+    // The userService config will be updated by the controller after this returns
+    userService.service_config = {
+        ...((userService.service_config as object) || {}),
+        access_token: accessToken,
+        refresh_token: refreshToken,
+    };
 
     return true;
 }
@@ -41,7 +52,7 @@ export default class SpotifyService implements ServiceDefinition {
     oauth_url = buildUrlParameters('https://accounts.spotify.com/authorize', {
         client_id: process.env.SPOTIFY_CLIENT_ID!,
         response_type: 'code',
-        redirect_uri: `${process.env.APP_URL}/api/services/spotify/oauth/callback`,
+        redirect_uri: buildServiceRedirectUrl("spotify"),
         scope:
             'user-read-playback-state user-modify-playback-state user-read-currently-playing',
     });
