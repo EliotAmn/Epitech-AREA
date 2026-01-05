@@ -62,7 +62,8 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
 
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
-    if (!accessToken) return Promise.resolve({ triggered: false, parameters: {} });
+    if (!accessToken)
+      return Promise.resolve({ triggered: false, parameters: {} });
 
     return new Promise((resolve) => {
       axios

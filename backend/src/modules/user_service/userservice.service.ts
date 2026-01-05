@@ -33,4 +33,11 @@ export class UserServiceService {
       data: { service_config: config },
     });
   }
+
+  updateConfig(id: string, config: unknown) {
+    return this.userServiceRepository.update({
+      where: { id },
+      data: { service_config: config },
+    });
+  }
 }

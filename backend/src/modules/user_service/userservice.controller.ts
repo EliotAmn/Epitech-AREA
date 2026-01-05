@@ -52,6 +52,12 @@ export class UserServiceController {
 
     await service_def.oauth_callback(userservice_instance, queryObj);
 
+    // Save the updated userservice instance to persist the tokens
+    await this.service.updateConfig(
+      userservice_instance.id,
+      userservice_instance.service_config,
+    );
+
     return { success: true };
   }
 }

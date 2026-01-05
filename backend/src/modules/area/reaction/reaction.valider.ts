@@ -36,7 +36,7 @@ export class ReactionValider {
             break;
           case ParameterType.SELECT:
             if (
-              typeof value !== 'object' ||
+              typeof value !== 'string' ||
               !param.options ||
               !param.options.some((option) => option.value === value)
             )
