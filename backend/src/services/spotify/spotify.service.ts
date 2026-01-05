@@ -15,14 +15,6 @@ async function oauth_callback(
 
     const redirectUri = buildServiceRedirectUrl('spotify');
 
-    // Debug logging
-    console.log('=== SPOTIFY OAUTH DEBUG ===');
-    console.log('Authorization Code:', authorizationCode);
-    console.log('Redirect URI being sent:', redirectUri);
-    console.log('Client ID:', process.env.SPOTIFY_CLIENT_ID);
-    console.log('All params received:', params);
-    console.log('========================');
-
     // Call spotify with the authorization code and userId to exchange for tokens
     const formData = new URLSearchParams();
     formData.append('code', authorizationCode);
