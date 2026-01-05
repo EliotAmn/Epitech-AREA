@@ -51,5 +51,7 @@ export class UserServiceController {
     }
 
     await service_def.oauth_callback(userservice_instance, queryObj);
+
+    return { success: true };
   }
 }

@@ -30,7 +30,7 @@ export class UserServiceService {
     config[key] = value;
     return this.userServiceRepository.update({
       where: { id: userService.id },
-      data: { config },
+      data: { service_config: config },
     });
   }
 }
