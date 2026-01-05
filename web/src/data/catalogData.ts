@@ -4,6 +4,9 @@ export interface CatalogItem {
     platform: string;
     color?: string;
     path?: string;
+    oauth_url?: string;
+    serviceName?: string;
+    defName?: string;
 }
 
 export const actions: CatalogItem[] = [

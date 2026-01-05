@@ -29,7 +29,7 @@ export class AuthMiddleware implements NestMiddleware {
     next: NextFunction,
   ) {
     const header = req.get('authorization');
-    const urlToken = req.query.areajwttoken as string | undefined;
+    const urlToken = req.query.jwt_auth as string | undefined;
 
     let token: string | null = null;
 
