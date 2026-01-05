@@ -1,4 +1,4 @@
-import {UserService} from "@prisma/client";
+import { UserService } from '@prisma/client';
 
 export enum ParameterType {
   STRING = 'string',
@@ -69,7 +69,10 @@ export interface ServiceDefinition {
   label: string;
   description: string;
   oauth_url?: string;
-  oauth_callback?: (userService: UserService, params: { [key: string]: string }) => Promise<boolean>;
+  oauth_callback?: (
+    userService: UserService,
+    params: { [key: string]: string },
+  ) => Promise<boolean>;
   mandatory_env_vars?: string[];
   actions: Array<ServiceActionConstructor>;
   reactions: Array<ServiceReactionConstructor>;

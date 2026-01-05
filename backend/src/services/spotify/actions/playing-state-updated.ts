@@ -7,6 +7,25 @@ import type {
   ServiceConfig,
 } from '@/common/service.types';
 
+interface SpotifyTrack {
+  name: string;
+  id: string;
+  artists: Array<{ name: string }>;
+  album: { name: string };
+}
+
+interface SpotifyPlayerResponse {
+  is_playing: boolean;
+  item: SpotifyTrack | null;
+  progress_ms: number;
+  device: {
+    id: string;
+    name: string;
+    type: string;
+    volume_percent: number;
+  };
+}
+
 export class PlayingStateUpdated extends ServiceActionDefinition {
   name = 'spotify.playing_state_updated';
   label = 'On playing state updated';
@@ -47,7 +66,7 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
 
     return new Promise((resolve) => {
       axios
-        .get('https://api.spotify.com/v1/me/player', {
+        .get<SpotifyPlayerResponse>('https://api.spotify.com/v1/me/player', {
           headers: {
             Authorization: `Bearer ${apitoken}`,
           },
@@ -60,7 +79,7 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
           const isPlaying: boolean = data.is_playing;
           const songName: string = data.item.name;
           const currentState: 'play' | 'pause' = isPlaying ? 'play' : 'pause';
-          const triggerState: string = sconf.config.state || 'both';
+          const triggerState: string = (sconf.config.state as string) || 'both';
 
           let triggered = false;
           if (this.lastPlayingState !== currentState) {

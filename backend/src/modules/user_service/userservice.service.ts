@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { UserService } from '@prisma/client';
 
 import { UserServiceRepository } from './userservice.repository';
-import {UserService} from "@prisma/client";
 
 @Injectable()
 export class UserServiceService {
@@ -15,18 +15,17 @@ export class UserServiceService {
   }
 
   createOrFind(userId: string, serviceName: string) {
-    return this.userServiceRepository.fromUserIdAndServiceName(
-      userId,
-      serviceName,
-    ).then((existing) => {
-      if (existing) {
-        return existing;
-      }
-      return this.userServiceRepository.create(userId, serviceName);
-    });
+    return this.userServiceRepository
+      .fromUserIdAndServiceName(userId, serviceName)
+      .then((existing) => {
+        if (existing) {
+          return existing;
+        }
+        return this.userServiceRepository.create(userId, serviceName);
+      });
   }
 
-  setConfigProperty(userService: UserService, key: string, value: any) {
+  setConfigProperty(userService: UserService, key: string, value: string) {
     const config = userService.service_config || {};
     config[key] = value;
     return this.userServiceRepository.update({
