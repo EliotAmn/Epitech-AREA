@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
@@ -23,7 +21,7 @@ export class AreaService {
   private actionPollers: Map<string, ReturnType<typeof setInterval>> =
     new Map();
   private actionInstances: Map<string, ServiceActionDefinition> = new Map();
-  private readonly ACTION_POLL_INTERVAL = 1000;
+
   constructor(
     private readonly action_repository: ActionRepository,
     private readonly area_repository: AreaRepository,
@@ -223,6 +221,10 @@ export class AreaService {
             clearInterval(this.actionPollers.get(pollKey));
             this.actionPollers.delete(pollKey);
           }
+
+          // Set up polling if applicable
+          if (def_action.action.poll_interval <= 0) continue;
+
           const timer = setInterval(() => {
             def_action.action
               .poll(sconf)
@@ -237,7 +239,7 @@ export class AreaService {
                   err,
                 );
               });
-          }, this.ACTION_POLL_INTERVAL);
+          }, def_action.action.poll_interval * 1000);
           this.actionPollers.set(pollKey, timer);
         } catch (err) {
           console.error('Failed to start poller for action:', err);
