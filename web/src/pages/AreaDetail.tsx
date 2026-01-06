@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import GlassCardLayout from "@/component/glassCard";
 import Toast from "@/component/Toast";
 import { getPlatformIcon } from "@/config/platforms";
+import type { CatalogItem } from "@/data/catalogData";
 import { areaService } from "@/services/api/areaService";
 import Button from "../component/button";
 
@@ -80,8 +81,10 @@ export default function AreaDetail() {
     console.log("item", item);
     const actionPlatform =
         (item && item.platform) || area.actions?.[0]?.platform;
+
+    type CatalogItemWithReaction = CatalogItem & { reactionPlatform?: string };
     const reactionPlatform =
-        (item && (item as any).reactionPlatform) ||
+        (item && (item as CatalogItemWithReaction).reactionPlatform) ||
         area.reactions?.[0]?.platform;
 
     const actionIcon = getPlatformIcon(actionPlatform);
@@ -185,8 +188,6 @@ export default function AreaDetail() {
                     </div>
                 </div>
             </GlassCardLayout>
-
-            {/* confirmation toast */}
             <Toast
                 visible={showConfirm}
                 title={`Supprimer l'area "${area.name}" ?`}

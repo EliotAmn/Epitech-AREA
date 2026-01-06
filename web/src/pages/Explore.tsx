@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
-import Button from "../component/button";
 import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
 

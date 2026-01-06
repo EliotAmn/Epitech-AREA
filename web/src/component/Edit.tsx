@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
+import GlassCardLayout from "@/component/glassCard";
 import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { aboutService } from "@/services/api/aboutService";
@@ -8,7 +11,6 @@ import type { CatalogItem } from "../data/catalogData";
 import Button from "./button";
 import type { ParameterDefinition } from "./ConfigWidget";
 import Input from "./input";
-import GlassCardLayout from "@/component/glassCard";
 
 type ServiceActionReaction = {
     name: string;
@@ -93,8 +95,18 @@ export default function Edit({ area }: EditProps) {
             await areaService.deleteArea(area.id);
             const payload = {
                 name: area.name,
-                actions: [{ action_name: area.actions[0].action_name, params: actionParams }],
-                reactions: [{ reaction_name: area.reactions[0].reaction_name, params: reactionParams }],
+                actions: [
+                    {
+                        action_name: area.actions[0].action_name,
+                        params: actionParams,
+                    },
+                ],
+                reactions: [
+                    {
+                        reaction_name: area.reactions[0].reaction_name,
+                        params: reactionParams,
+                    },
+                ],
             };
             await areaService.createArea(payload);
             navigate("/my-areas");
@@ -112,7 +124,11 @@ export default function Edit({ area }: EditProps) {
         onChange: (val: Record<string, unknown>) => void
     ) => {
         if (!params || params.length === 0) {
-            return <p className="text-slate-400 italic text-sm mt-2">No configuration needed</p>;
+            return (
+                <p className="text-slate-400 italic text-sm mt-2">
+                    No configuration needed
+                </p>
+            );
         }
 
         const handleChange = (name: string, value: unknown) => {
@@ -128,7 +144,6 @@ export default function Edit({ area }: EditProps) {
                         </label>
                         {p.type === "string" && (
                             <Input
-                                mode="black"
                                 value={(values[p.name] as string) ?? ""}
                                 onChange={(val) => handleChange(p.name, val)}
                                 placeholder={p.description || ""}
@@ -136,9 +151,12 @@ export default function Edit({ area }: EditProps) {
                         )}
                         {p.type === "number" && (
                             <Input
-                                mode="black"
-                                value={(values[p.name] as number)?.toString() ?? ""}
-                                onChange={(val) => handleChange(p.name, Number(val))}
+                                value={
+                                    (values[p.name] as number)?.toString() ?? ""
+                                }
+                                onChange={(val) =>
+                                    handleChange(p.name, Number(val))
+                                }
                                 placeholder={p.description || ""}
                             />
                         )}
@@ -148,7 +166,9 @@ export default function Edit({ area }: EditProps) {
                                     type="checkbox"
                                     className="w-5 h-5 rounded border-slate-300 text-black focus:ring-slate-400"
                                     checked={!!(values[p.name] as boolean)}
-                                    onChange={(e) => handleChange(p.name, e.target.checked)}
+                                    onChange={(e) =>
+                                        handleChange(p.name, e.target.checked)
+                                    }
                                 />
                             </div>
                         )}
@@ -156,11 +176,15 @@ export default function Edit({ area }: EditProps) {
                             <select
                                 className="p-3 rounded-xl bg-slate-100 border-none text-black w-full outline-none focus:ring-2 focus:ring-slate-200"
                                 value={(values[p.name] as string) ?? ""}
-                                onChange={(e) => handleChange(p.name, e.target.value)}
+                                onChange={(e) =>
+                                    handleChange(p.name, e.target.value)
+                                }
                             >
                                 <option value="">Select</option>
                                 {(p.options || []).map((opt) => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                    <option key={opt} value={opt}>
+                                        {opt}
+                                    </option>
                                 ))}
                             </select>
                         )}
@@ -170,13 +194,24 @@ export default function Edit({ area }: EditProps) {
         );
     };
 
-    if (!area || !catalog) return <div className="w-full h-full flex items-center justify-center font-bold">Loading...</div>;
+    if (!area || !catalog)
+        return (
+            <div className="w-full h-full flex items-center justify-center font-bold">
+                Loading...
+            </div>
+        );
 
     const actionName = area.actions?.[0]?.action_name || "";
     const reactionName = area.reactions?.[0]?.reaction_name || "";
 
-    const actionItem = catalog.actions.find(a => a.title === actionName || (a as any).defName === actionName);
-    const brandColor = actionItem ? getPlatformColor(actionItem.platform) : "#5865F2";
+    type CatalogItemWithDef = CatalogItem & { defName?: string };
+    const actionItem = catalog.actions.find(
+        (a: CatalogItemWithDef) =>
+            a.title === actionName || a.defName === actionName
+    );
+    const brandColor = actionItem
+        ? getPlatformColor(actionItem.platform)
+        : "#5865F2";
 
     const formatName = (name: string) => {
         const withSpaces = name.replace(/_/g, " ");
@@ -195,11 +230,16 @@ export default function Edit({ area }: EditProps) {
                     <h1 className="text-3xl font-black text-slate-900 leading-tight">
                         Edit Area
                     </h1>
-                    <p className="text-slate-500 text-sm mt-2">Adjust your automation parameters</p>
+                    <p className="text-slate-500 text-sm mt-2">
+                        Adjust your automation parameters
+                    </p>
                 </div>
 
                 <div className="space-y-10">
-                    <div className="relative pl-6 border-l-4" style={{ borderColor: brandColor }}>
+                    <div
+                        className="relative pl-6 border-l-4"
+                        style={{ borderColor: brandColor }}
+                    >
                         <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">
                             Trigger
                         </span>
@@ -213,7 +253,10 @@ export default function Edit({ area }: EditProps) {
                         )}
                     </div>
 
-                    <div className="relative pl-6 border-l-4" style={{ borderColor: brandColor }}>
+                    <div
+                        className="relative pl-6 border-l-4"
+                        style={{ borderColor: brandColor }}
+                    >
                         <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">
                             Reaction
                         </span>
