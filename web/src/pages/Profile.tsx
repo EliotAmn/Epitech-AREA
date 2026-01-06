@@ -71,7 +71,7 @@ export default function Profile() {
 
                 <div className="w-full h-1 bg-zinc-300 rounded-full my-4" />
 
-                <div className="flex flex-col gap-4 justify-center items-center">
+                <div className="flex flex-col gap-4 justify-center">
                     <div className="w-full">
                         <p className="text-xl sm:text-2xl text-black font-semibold mb-2">
                             Email

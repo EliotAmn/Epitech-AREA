@@ -38,6 +38,7 @@ export default function Areas() {
             const mapped: CatalogItem[] = list.map((a) => {
                 let color = "#808080";
                 let platform = "Unknown";
+                let reactionPlatform: string | undefined = undefined;
 
                 if (a.actions && a.actions.length > 0) {
                     const actionName = a.actions[0].action_name;
@@ -54,11 +55,25 @@ export default function Areas() {
                     }
                 }
 
+                if (a.reactions && a.reactions.length > 0) {
+                    const reactionName = a.reactions[0].reaction_name;
+                    const foundR = catalog.reactions.find(
+                        (r) =>
+                            r.title === reactionName ||
+                            (r as CatalogItem & { defName?: string })
+                                .defName === reactionName
+                    );
+                    if (foundR) {
+                        reactionPlatform = foundR.platform;
+                    }
+                }
+
                 return {
                     id: a.id,
                     title: a.name,
                     platform,
                     color,
+                    reactionPlatform,
                 };
             });
             setItems(mapped);

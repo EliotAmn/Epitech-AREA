@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
-
-import { getPlatformColor, getPlatformIcon } from "@/config/platforms";
+import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { aboutService } from "@/services/api/aboutService";
 import { areaService } from "@/services/api/areaService";
@@ -10,6 +8,7 @@ import type { CatalogItem } from "../data/catalogData";
 import Button from "./button";
 import type { ParameterDefinition } from "./ConfigWidget";
 import Input from "./input";
+import GlassCardLayout from "@/component/glassCard";
 
 type ServiceActionReaction = {
     name: string;
@@ -92,27 +91,15 @@ export default function Edit({ area }: EditProps) {
         setLoading(true);
         try {
             await areaService.deleteArea(area.id);
-
             const payload = {
                 name: area.name,
-                actions: [
-                    {
-                        action_name: area.actions[0].action_name,
-                        params: actionParams,
-                    },
-                ],
-                reactions: [
-                    {
-                        reaction_name: area.reactions[0].reaction_name,
-                        params: reactionParams,
-                    },
-                ],
+                actions: [{ action_name: area.actions[0].action_name, params: actionParams }],
+                reactions: [{ reaction_name: area.reactions[0].reaction_name, params: reactionParams }],
             };
-
             await areaService.createArea(payload);
             navigate("/my-areas");
         } catch (err) {
-            console.error("Failed to update area", err);
+            console.error(err);
             alert("Failed to update area");
         } finally {
             setLoading(false);
@@ -125,11 +112,7 @@ export default function Edit({ area }: EditProps) {
         onChange: (val: Record<string, unknown>) => void
     ) => {
         if (!params || params.length === 0) {
-            return (
-                <div className="text-white/80 italic">
-                    No configuration needed
-                </div>
-            );
+            return <p className="text-slate-400 italic text-sm mt-2">No configuration needed</p>;
         }
 
         const handleChange = (name: string, value: unknown) => {
@@ -137,15 +120,15 @@ export default function Edit({ area }: EditProps) {
         };
 
         return (
-            <div className="space-y-4 text-left text-white w-full max-w-md mx-auto">
+            <div className="space-y-4 w-full">
                 {params.map((p) => (
                     <div key={p.name} className="flex flex-col">
-                        <label className="text-sm font-bold mb-1">
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1">
                             {p.label || p.name}
                         </label>
                         {p.type === "string" && (
                             <Input
-                                mode="white"
+                                mode="black"
                                 value={(values[p.name] as string) ?? ""}
                                 onChange={(val) => handleChange(p.name, val)}
                                 placeholder={p.description || ""}
@@ -153,41 +136,31 @@ export default function Edit({ area }: EditProps) {
                         )}
                         {p.type === "number" && (
                             <Input
-                                mode="white"
-                                value={
-                                    (values[p.name] as number)?.toString() ?? ""
-                                }
-                                onChange={(val) =>
-                                    handleChange(p.name, Number(val))
-                                }
+                                mode="black"
+                                value={(values[p.name] as number)?.toString() ?? ""}
+                                onChange={(val) => handleChange(p.name, Number(val))}
                                 placeholder={p.description || ""}
                             />
                         )}
                         {p.type === "boolean" && (
-                            <div className="flex items-center">
+                            <div className="flex items-center p-2">
                                 <input
                                     type="checkbox"
-                                    className="w-6 h-6 rounded text-black border-none focus:ring-2 focus:ring-white/50"
+                                    className="w-5 h-5 rounded border-slate-300 text-black focus:ring-slate-400"
                                     checked={!!(values[p.name] as boolean)}
-                                    onChange={(e) =>
-                                        handleChange(p.name, e.target.checked)
-                                    }
+                                    onChange={(e) => handleChange(p.name, e.target.checked)}
                                 />
                             </div>
                         )}
                         {p.type === "select" && (
                             <select
-                                className="p-3 rounded-lg text-black w-full border-none outline-none focus:ring-2 focus:ring-white/50"
+                                className="p-3 rounded-xl bg-slate-100 border-none text-black w-full outline-none focus:ring-2 focus:ring-slate-200"
                                 value={(values[p.name] as string) ?? ""}
-                                onChange={(e) =>
-                                    handleChange(p.name, e.target.value)
-                                }
+                                onChange={(e) => handleChange(p.name, e.target.value)}
                             >
                                 <option value="">Select</option>
                                 {(p.options || []).map((opt) => (
-                                    <option key={opt} value={opt}>
-                                        {opt}
-                                    </option>
+                                    <option key={opt} value={opt}>{opt}</option>
                                 ))}
                             </select>
                         )}
@@ -197,33 +170,13 @@ export default function Edit({ area }: EditProps) {
         );
     };
 
-    if (!area || !catalog) return <div>Loading...</div>;
+    if (!area || !catalog) return <div className="w-full h-full flex items-center justify-center font-bold">Loading...</div>;
 
     const actionName = area.actions?.[0]?.action_name || "";
     const reactionName = area.reactions?.[0]?.reaction_name || "";
 
-    const actionItem = catalog.actions.find(
-        (a) =>
-            a.title === actionName ||
-            (a as CatalogItem & { defName?: string }).defName === actionName
-    );
-    const reactionItem = catalog.reactions.find(
-        (r) =>
-            r.title === reactionName ||
-            (r as CatalogItem & { defName?: string }).defName === reactionName
-    );
-
-    const actionColor = actionItem
-        ? getPlatformColor(actionItem.platform)
-        : "#808080";
-    const reactionColor = reactionItem
-        ? getPlatformColor(reactionItem.platform)
-        : "#808080";
-
-    const actionIcon = actionItem ? getPlatformIcon(actionItem.platform) : null;
-    const reactionIcon = reactionItem
-        ? getPlatformIcon(reactionItem.platform)
-        : null;
+    const actionItem = catalog.actions.find(a => a.title === actionName || (a as any).defName === actionName);
+    const brandColor = actionItem ? getPlatformColor(actionItem.platform) : "#5865F2";
 
     const formatName = (name: string) => {
         const withSpaces = name.replace(/_/g, " ");
@@ -231,67 +184,66 @@ export default function Edit({ area }: EditProps) {
     };
 
     return (
-        <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col">
-            <div
-                style={{ backgroundColor: actionColor }}
-                className="p-8 flex flex-col items-center gap-6"
-            >
-                <div className="flex items-center gap-4">
-                    {actionIcon && (
-                        <img
-                            src={actionIcon}
-                            alt="icon"
-                            className="w-12 h-12 object-contain"
-                        />
-                    )}
-                    <h2 className="text-3xl font-bold text-white">
-                        {formatName(actionName)}
-                    </h2>
+        <GlassCardLayout
+            color={brandColor}
+            onBack={() => navigate(-1)}
+            backLabel="Cancel"
+            footer={false}
+        >
+            <div className="flex flex-col w-full max-w-md mx-auto">
+                <div className="text-center mb-10">
+                    <h1 className="text-3xl font-black text-slate-900 leading-tight">
+                        Edit Area
+                    </h1>
+                    <p className="text-slate-500 text-sm mt-2">Adjust your automation parameters</p>
                 </div>
-                {renderInputs(
-                    getParamsDefinition(actionName, "action"),
-                    actionParams,
-                    setActionParams
-                )}
-            </div>
 
-            <div
-                style={{ backgroundColor: reactionColor }}
-                className="p-8 flex flex-col items-center gap-6"
-            >
-                <div className="flex items-center gap-4">
-                    {reactionIcon && (
-                        <img
-                            src={reactionIcon}
-                            alt="icon"
-                            className="w-12 h-12 object-contain"
-                        />
-                    )}
-                    <h2 className="text-3xl font-bold text-white">
-                        {formatName(reactionName)}
-                    </h2>
+                <div className="space-y-10">
+                    <div className="relative pl-6 border-l-4" style={{ borderColor: brandColor }}>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">
+                            Trigger
+                        </span>
+                        <h3 className="text-xl font-bold text-slate-800 mb-4">
+                            {formatName(actionName)}
+                        </h3>
+                        {renderInputs(
+                            getParamsDefinition(actionName, "action"),
+                            actionParams,
+                            setActionParams
+                        )}
+                    </div>
+
+                    <div className="relative pl-6 border-l-4" style={{ borderColor: brandColor }}>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">
+                            Reaction
+                        </span>
+                        <h3 className="text-xl font-bold text-slate-800 mb-4">
+                            {formatName(reactionName)}
+                        </h3>
+                        {renderInputs(
+                            getParamsDefinition(reactionName, "reaction"),
+                            reactionParams,
+                            setReactionParams
+                        )}
+                    </div>
                 </div>
-                {renderInputs(
-                    getParamsDefinition(reactionName, "reaction"),
-                    reactionParams,
-                    setReactionParams
-                )}
-            </div>
 
-            {/* Footer / Save */}
-            <div className="bg-white p-6 flex justify-center gap-4">
-                <Button
-                    label="Cancel"
-                    onClick={() => navigate(-1)}
-                    mode="white"
-                    className="border-gray-300"
-                />
-                <Button
-                    label={loading ? "Saving..." : "Save Changes"}
-                    onClick={handleSave}
-                    disabled={loading}
-                />
+                <div className="mt-12 flex flex-col items-center gap-3">
+                    <Button
+                        label={loading ? "Saving..." : "Save Changes"}
+                        onClick={handleSave}
+                        disabled={loading}
+                        mode="black"
+                        className="w-full py-4"
+                    />
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="text-slate-400 text-xs font-bold uppercase hover:text-slate-600 transition-colors py-2 text-center"
+                    >
+                        Discard
+                    </button>
+                </div>
             </div>
-        </div>
+        </GlassCardLayout>
     );
 }

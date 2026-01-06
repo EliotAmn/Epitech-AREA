@@ -13,7 +13,7 @@ export default function EditArea() {
     }
 
     return (
-        <div className="h-[calc(100vh-80px)] w-full flex items-center justify-center bg-white p-4 overflow-y-auto">
+        <div>
             <Edit area={area} />
         </div>
     );

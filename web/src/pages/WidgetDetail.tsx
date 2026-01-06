@@ -34,14 +34,7 @@ export default function WidgetDetail() {
                 }}
             />
 
-            <button
-                onClick={() => navigate("/explore")}
-                className="absolute top-8 left-8 z-20 text-slate-600 text-sm font-medium flex items-center gap-2 hover:text-black transition-colors"
-            >
-                <span className="text-xl">←</span> Back to explore
-            </button>
-
-            <GlassCardLayout color={color}>
+            <GlassCardLayout color={color} onBack={() => navigate(-1)}>
                 <div className="flex flex-col items-center">
                     <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-4">
                         Connect {platform}

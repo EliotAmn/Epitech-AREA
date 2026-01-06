@@ -1,17 +1,20 @@
 import { useState } from "react";
 
+import { ArrowRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import GlassCardLayout from "@/component/glassCard";
+import Toast from "@/component/Toast";
 import { getPlatformIcon } from "@/config/platforms";
 import { areaService } from "@/services/api/areaService";
 import Button from "../component/button";
-import GlassCardLayout from "@/component/glassCard";
 
 export default function AreaDetail() {
     const location = useLocation();
     const navigate = useNavigate();
     const { area, item } = location.state || {};
     const [loading, setLoading] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     if (!area || !item) {
         return (
@@ -22,8 +25,12 @@ export default function AreaDetail() {
         );
     }
 
-    const handleDelete = async () => {
-        if (!window.confirm(`Delete area "${area.name}"?`)) return;
+    const handleDelete = () => {
+        // open confirmation toast
+        setShowConfirm(true);
+    };
+
+    const confirmDelete = async () => {
         setLoading(true);
         try {
             await areaService.deleteArea(area.id);
@@ -31,7 +38,13 @@ export default function AreaDetail() {
         } catch (err) {
             console.error(err);
             setLoading(false);
+        } finally {
+            setShowConfirm(false);
         }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
     };
 
     const renderParams = (params: Record<string, unknown>) => {
@@ -46,8 +59,11 @@ export default function AreaDetail() {
             <div className="mt-2 rounded p-3">
                 <ul className="space-y-1">
                     {Object.entries(params).map(([key, value]) => (
-                        <li key={key} className="text-sm text-white break-all">
-                            <span className="font-semibold text-white">
+                        <li
+                            key={key}
+                            className="text-sm text-gray-700 break-all"
+                        >
+                            <span className="font-semibold text-gray-900">
                                 {key.replace(/_/g, " ")}:
                             </span>{" "}
                             {String(value)}
@@ -60,7 +76,17 @@ export default function AreaDetail() {
 
     const actionName = area.actions?.[0]?.action_name || "Unknown";
     const reactionName = area.reactions?.[0]?.reaction_name || "Unknown";
-    const platformIcon = getPlatformIcon(item.platform);
+    console.log("area.actions", area.actions);
+    console.log("item", item);
+    const actionPlatform =
+        (item && item.platform) || area.actions?.[0]?.platform;
+    const reactionPlatform =
+        (item && (item as any).reactionPlatform) ||
+        area.reactions?.[0]?.platform;
+
+    const actionIcon = getPlatformIcon(actionPlatform);
+    const reactionIcon = getPlatformIcon(reactionPlatform);
+    const samePlatform = actionPlatform === reactionPlatform;
 
     const actionParams = area.actions?.[0]?.params || {};
     const reactionParams = area.reactions?.[0]?.params || {};
@@ -74,26 +100,39 @@ export default function AreaDetail() {
                     </span>
 
                     <h2 className="text-4xl text-slate-900 font-extrabold mb-10 text-center leading-tight">
-                            {item.title}
+                        {item.title}
                     </h2>
 
                     <div className="relative mb-12">
-                        <div
-                            className="absolute inset-0 blur-2xl opacity-30 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                        />
-                        {platformIcon && (
+                        <div className="flex items-center justify-center gap-4 mb-4">
                             <img
-                                src={platformIcon}
-                                alt={item.platform}
-                                className="relative w-32 h-32 object-contain transition-transform hover:scale-110 duration-300"
+                                src={actionIcon}
+                                alt={`${actionIcon} icon`}
+                                className={
+                                    samePlatform
+                                        ? "w-32 h-32 object-contain"
+                                        : "w-16 h-16 object-contain"
+                                }
                             />
-                        )}
+                            {!samePlatform && (
+                                <>
+                                    <ArrowRight className="w-6 h-6 text-gray-500" />
+                                    <img
+                                        src={reactionIcon}
+                                        alt={`${reactionIcon} icon`}
+                                        className="w-16 h-16 object-contain"
+                                    />
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="w-full flex flex-col items-center">
                     <div className="w-full max-w-full space-y-6">
-                        <div className="relative pl-5 border-l-2 text-left w-full" style={{ borderColor: item.color }}>
+                        <div
+                            className="relative pl-5 border-l-2 text-left w-full"
+                            style={{ borderColor: item.color }}
+                        >
                             <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
                                 Action
                             </h3>
@@ -105,7 +144,10 @@ export default function AreaDetail() {
                             </div>
                         </div>
 
-                        <div className="relative pl-5 border-l-2 text-left w-full" style={{ borderColor: item.color }}>
+                        <div
+                            className="relative pl-5 border-l-2 text-left w-full"
+                            style={{ borderColor: item.color }}
+                        >
                             <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
                                 Reaction
                             </h3>
@@ -122,7 +164,11 @@ export default function AreaDetail() {
                         <div className="flex-1 min-w-[140px]">
                             <Button
                                 label="Edit Area"
-                                onClick={() => navigate("/my-areas/edit", { state: { area } })}
+                                onClick={() =>
+                                    navigate("/my-areas/edit", {
+                                        state: { area },
+                                    })
+                                }
                                 mode="black"
                                 height="small"
                             />
@@ -139,6 +185,18 @@ export default function AreaDetail() {
                     </div>
                 </div>
             </GlassCardLayout>
+
+            {/* confirmation toast */}
+            <Toast
+                visible={showConfirm}
+                title={`Supprimer l'area "${area.name}" ?`}
+                subtitle="Cette action est irréversible."
+                loading={loading}
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+                confirmLabel={loading ? "Suppression..." : "Confirmer"}
+                cancelLabel="Annuler"
+            />
         </div>
     );
 }

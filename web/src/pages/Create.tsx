@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { getPlatformColor } from "@/config/platforms";
+import Button from "@/component/button";
+import GlassCardLayout from "@/component/glassCard";
+import { getPlatformColor, getPlatformIcon } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { aboutService } from "@/services/api/aboutService";
 import ConfigWidget from "../component/ConfigWidget";
@@ -30,6 +32,61 @@ type AboutData = {
         current_time: number;
         services: ServiceDefinition[];
     };
+};
+
+const ConnectCard = ({
+    item,
+    onConnect,
+    onBack,
+    onDiscard,
+}: {
+    item: CatalogItem;
+    onConnect: () => void;
+    onBack?: () => void;
+    onDiscard?: () => void;
+}) => {
+    const icon = getPlatformIcon(item.platform);
+    return (
+        <div className="w-full flex-1 flex flex-col">
+            <GlassCardLayout color={item.color} onBack={onBack} footer={false}>
+                <div className="flex flex-col w-full max-w-md mx-auto items-center">
+                    <div className="text-center mb-10">
+                        <h1 className="text-3xl font-black text-slate-900 leading-tight">
+                            Connect your {item.platform} account
+                        </h1>
+                    </div>
+                    <div className="relative mb-8">
+                        <div
+                            className="absolute inset-0 blur-2xl opacity-30 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                        />
+                        {icon && (
+                            <img
+                                src={icon}
+                                alt={item.platform}
+                                className="relative w-32 h-32 object-contain transition-transform hover:scale-110 duration-300"
+                            />
+                        )}
+                    </div>
+
+                    <div className="mt-8 flex flex-col items-center gap-3">
+                        <Button
+                            label="Connect"
+                            onClick={onConnect}
+                            mode="black"
+                            className="w-full py-4"
+                        />
+                        <button
+                            onClick={() => onDiscard && onDiscard()}
+                            className="text-slate-400 text-xs font-bold uppercase hover:text-slate-600 transition-colors py-2 text-center"
+                        >
+                            Discard
+                        </button>
+                    </div>
+                </div>
+            </GlassCardLayout>
+        </div>
+    );
 };
 
 export default function Create() {
@@ -133,13 +190,29 @@ export default function Create() {
     const handleCloseWidget = () => {
         setSelectedItem(null);
     };
+    const navigate = useNavigate();
+
+    // compute selected colors for action/reaction to pass to Summary
+    const actionColor =
+        parsedActions.find(
+            (a) => a.title === action && a.platform === actionService
+        )?.color ||
+        parsedServices.find((s) => s.platform === actionService)?.color ||
+        "#000000";
+
+    const reactionColor =
+        parsedReactions.find(
+            (r) => r.title === reaction && r.platform === reactionService
+        )?.color ||
+        parsedServices.find((s) => s.platform === reactionService)?.color ||
+        "#282322";
 
     return (
         <div
             key={location.key}
-            className="h-[calc(100vh-80px)] flex flex-col overflow-hidden text-center"
+            className="h-[calc(100vh-80px)] flex flex-col overflow-y-auto text-center"
         >
-            <h1 className="text-7xl font-bold m-4 shrink-0">
+            <h1 className="text-5xl font-bold m-2 shrink-0">
                 Create your own area
             </h1>
 
@@ -158,29 +231,27 @@ export default function Create() {
                 />
             </div>
 
-            <div className="flex-1 w-full mt-6 overflow-hidden flex flex-col min-h-0">
+            <div className="flex-1 w-full mt-2 flex flex-col">
                 {/* STEP 1: Service Action */}
                 {step === 1 && !selectedItem && (
                     <CatalogPage
                         items={parsedServices}
                         description="Choose service for your action"
                         onSelect={handleSelect}
+                        noButton={true}
                     />
                 )}
                 {step === 1 && selectedItem && (
-                    <div className="w-full flex-1 overflow-hidden flex flex-col min-h-0">
-                        <ConfigWidget
-                            state="connect"
-                            color={selectedItem.color}
-                            platform={selectedItem.platform}
-                            onConnect={() => {
-                                setActionService(selectedItem.platform);
-                                setStep(2);
-                                setSelectedItem(null);
-                            }}
-                            onClose={handleCloseWidget}
-                        />
-                    </div>
+                    <ConnectCard
+                        item={selectedItem}
+                        onBack={handleCloseWidget}
+                        onConnect={() => {
+                            setActionService(selectedItem.platform);
+                            setStep(2);
+                            setSelectedItem(null);
+                        }}
+                        onDiscard={() => navigate(-1)}
+                    />
                 )}
 
                 {/* STEP 2: Action */}
@@ -191,10 +262,11 @@ export default function Create() {
                         )}
                         description={`Choose an action for ${actionService}`}
                         onSelect={handleSelect}
+                        noButton={true}
                     />
                 )}
                 {step === 2 && selectedItem && (
-                    <div className="w-full flex-1 overflow-hidden flex flex-col min-h-0">
+                    <div>
                         <ConfigWidget
                             state="config"
                             color={selectedItem.color}
@@ -225,22 +297,20 @@ export default function Create() {
                                 handleSelect(item);
                             }
                         }}
+                        noButton={true}
                     />
                 )}
                 {step === 3 && selectedItem && (
-                    <div className="w-full flex-1 overflow-hidden flex flex-col min-h-0">
-                        <ConfigWidget
-                            state="connect"
-                            color={selectedItem.color}
-                            platform={selectedItem.platform}
-                            onConnect={() => {
-                                setReactionService(selectedItem.platform);
-                                setStep(4);
-                                setSelectedItem(null);
-                            }}
-                            onClose={handleCloseWidget}
-                        />
-                    </div>
+                    <ConnectCard
+                        item={selectedItem}
+                        onBack={handleCloseWidget}
+                        onConnect={() => {
+                            setReactionService(selectedItem.platform);
+                            setStep(4);
+                            setSelectedItem(null);
+                        }}
+                        onDiscard={() => navigate(-1)}
+                    />
                 )}
 
                 {/* STEP 4: Reaction */}
@@ -255,10 +325,11 @@ export default function Create() {
                                 : "Choose a reaction"
                         }
                         onSelect={handleSelect}
+                        noButton={true}
                     />
                 )}
                 {step === 4 && selectedItem && (
-                    <div className="w-full flex-1 overflow-hidden flex flex-col min-h-0">
+                    <div className="w-full flex-1 flex flex-col">
                         <ConfigWidget
                             state="config"
                             color={selectedItem.color}
@@ -277,7 +348,7 @@ export default function Create() {
 
                 {/* SUMMARY */}
                 {step === 4 && reaction && !selectedItem && (
-                    <div className="w-full flex-1 overflow-hidden flex flex-col min-h-0">
+                    <div className="w-full flex-1 flex flex-col">
                         <Summary
                             actionService={actionService}
                             action={action}
@@ -311,6 +382,7 @@ export default function Create() {
                                 setReaction(null);
                                 setReactionParams({});
                             }}
+                            colors={[actionColor, reactionColor]}
                         />
                     </div>
                 )}

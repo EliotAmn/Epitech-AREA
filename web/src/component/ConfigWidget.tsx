@@ -1,14 +1,9 @@
 import { useNavigate } from "react-router-dom";
 
-import DiscordIcon from "../assets/discord_icon.webp";
-import GmailIcon from "../assets/gmail_icon.webp";
+import GlassCardLayout from "@/component/glassCard";
+import { getPlatformIcon } from "@/config/platforms";
 import Button from "./button";
 import Input from "./input";
-
-const icons: Record<string, string> = {
-    discord: DiscordIcon,
-    gmail: GmailIcon,
-};
 
 export interface ParameterDefinition {
     name: string;
@@ -60,150 +55,142 @@ export default function ConfigWidget({
         state === "connect"
             ? `Connect your ${platform} Account`
             : `Configure ${platform}`;
-
+    const platformIcon = getPlatformIcon(platform);
     return (
-        <div
-            className="p-8 w-full h-full overflow-hidden flex flex-col items-center relative"
-            style={{ backgroundColor: color }}
-        >
-            {onClose && (
-                <button
-                    onClick={onClose}
-                    className="absolute top-8 right-8 text-white text-xl font-bold hover:opacity-80"
-                >
-                    ✕
-                </button>
-            )}
-
-            <h3 className="text-[45px] font-semibold text-white mb-8 text-center shrink-0">
-                {title}
-            </h3>
-
-            {state === "connect" ? (
-                <div className="flex-1 flex flex-col items-center justify-center w-full gap-32 pb-16">
-                    {platform && icons[platform] && (
-                        <img
-                            src={icons[platform]}
-                            alt={`${platform} icon`}
-                            className="w-36 h-36 object-contain"
+        <div>
+            <GlassCardLayout color={color} onBack={onClose} footer={false}>
+                <div className="flex flex-col items-center">
+                    <h3 className="text-[45px] font-semibold text-black mb-8 text-center shrink-0">
+                        {title}
+                    </h3>
+                    <div className="relative mb-8">
+                        <div
+                            className="absolute inset-0 blur-2xl opacity-30 rounded-full"
+                            style={{ backgroundColor: color }}
                         />
-                    )}
-                    <Button
-                        label="Connect"
-                        mode="white"
-                        onClick={handleConnect}
-                    />
-                </div>
-            ) : (
-                <div className="w-full max-w-md flex flex-col flex-1 min-h-0">
-                    <div className="flex-1 overflow-y-auto pr-2 mb-4 p-2">
-                        {params && params.length > 0 ? (
-                            <div className="space-y-4 text-left text-white">
-                                {params.map((p) => (
-                                    <div key={p.name} className="flex flex-col">
-                                        <label className="text-sm font-bold mb-1">
-                                            {p.label || p.name}
-                                        </label>
-                                        {p.type === "string" && (
-                                            <Input
-                                                mode="white"
-                                                value={
-                                                    (values[
-                                                        p.name
-                                                    ] as string) ?? ""
-                                                }
-                                                onChange={(val) =>
-                                                    handleChange(p.name, val)
-                                                }
-                                                placeholder={
-                                                    p.description || ""
-                                                }
-                                            />
-                                        )}
-                                        {p.type === "number" && (
-                                            <Input
-                                                mode="white"
-                                                value={
-                                                    (
-                                                        values[p.name] as number
-                                                    )?.toString() ?? ""
-                                                }
-                                                onChange={(val) =>
-                                                    handleChange(
-                                                        p.name,
-                                                        Number(val)
-                                                    )
-                                                }
-                                                placeholder={
-                                                    p.description || ""
-                                                }
-                                            />
-                                        )}
-                                        {p.type === "boolean" && (
-                                            <div className="flex items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    className="w-6 h-6 rounded text-black border-none focus:ring-2 focus:ring-white/50"
-                                                    checked={
-                                                        !!(values[
+                        {platformIcon && (
+                            <img
+                                src={platformIcon}
+                                alt={platform}
+                                className="relative w-32 h-32 object-contain transition-transform hover:scale-110 duration-300"
+                            />
+                        )}
+                    </div>
+
+                    <div className="w-full max-w-md flex flex-col">
+                        <div className="pr-2 mb-4 p-2">
+                            {params && params.length > 0 ? (
+                                <div className="space-y-4 text-left text-gray-800">
+                                    {params.map((p) => (
+                                        <div
+                                            key={p.name}
+                                            className="flex flex-col"
+                                        >
+                                            <label className="text-sm font-bold mb-1">
+                                                {p.label || p.name}
+                                            </label>
+                                            {p.type === "string" && (
+                                                <Input
+                                                    value={
+                                                        (values[
                                                             p.name
-                                                        ] as boolean)
+                                                        ] as string) ?? ""
+                                                    }
+                                                    onChange={(val) =>
+                                                        handleChange(
+                                                            p.name,
+                                                            val
+                                                        )
+                                                    }
+                                                    placeholder={
+                                                        p.description || ""
+                                                    }
+                                                />
+                                            )}
+                                            {p.type === "number" && (
+                                                <Input
+                                                    value={
+                                                        (
+                                                            values[
+                                                                p.name
+                                                            ] as number
+                                                        )?.toString() ?? ""
+                                                    }
+                                                    onChange={(val) =>
+                                                        handleChange(
+                                                            p.name,
+                                                            Number(val)
+                                                        )
+                                                    }
+                                                    placeholder={
+                                                        p.description || ""
+                                                    }
+                                                />
+                                            )}
+                                            {p.type === "boolean" && (
+                                                <div className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="w-6 h-6 rounded text-black border-none focus:ring-2 focus:ring-white/50"
+                                                        checked={
+                                                            !!(values[
+                                                                p.name
+                                                            ] as boolean)
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleChange(
+                                                                p.name,
+                                                                e.target.checked
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+                                            {p.type === "select" && (
+                                                <select
+                                                    className="p-3 rounded-lg text-black w-full border-none outline-none focus:ring-2 focus:ring-white/50"
+                                                    value={
+                                                        (values[
+                                                            p.name
+                                                        ] as string) ?? ""
                                                     }
                                                     onChange={(e) =>
                                                         handleChange(
                                                             p.name,
-                                                            e.target.checked
+                                                            e.target.value
                                                         )
                                                     }
-                                                />
-                                            </div>
-                                        )}
-                                        {p.type === "select" && (
-                                            <select
-                                                className="p-3 rounded-lg text-black w-full border-none outline-none focus:ring-2 focus:ring-white/50"
-                                                value={
-                                                    (values[
-                                                        p.name
-                                                    ] as string) ?? ""
-                                                }
-                                                onChange={(e) =>
-                                                    handleChange(
-                                                        p.name,
-                                                        e.target.value
-                                                    )
-                                                }
-                                            >
-                                                <option value="">Select</option>
-                                                {(p.options || []).map(
-                                                    (opt) => (
-                                                        <option
-                                                            key={opt}
-                                                            value={opt}
-                                                        >
-                                                            {opt}
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-white text-center text-xl opacity-80 mt-8">
-                                No configuration needed.
-                            </div>
-                        )}
-                    </div>
-                    <div className="flex justify-center shrink-0 pb-4">
-                        <Button
-                            label="Save"
-                            mode="white"
-                            onClick={handleConnect}
-                        />
+                                                >
+                                                    <option value="">
+                                                        Select
+                                                    </option>
+                                                    {(p.options || []).map(
+                                                        (opt) => (
+                                                            <option
+                                                                key={opt}
+                                                                value={opt}
+                                                            >
+                                                                {opt}
+                                                            </option>
+                                                        )
+                                                    )}
+                                                </select>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-gray-700 text-center text-xl opacity-80 mt-8">
+                                    No configuration needed.
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex justify-center shrink-0 pb-4">
+                            <Button label="Save" onClick={handleConnect} />
+                        </div>
                     </div>
                 </div>
-            )}
+            </GlassCardLayout>
         </div>
     );
 }
