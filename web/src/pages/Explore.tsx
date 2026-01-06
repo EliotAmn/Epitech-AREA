@@ -86,7 +86,7 @@ export default function Explore() {
                     items={itemsToShow}
                     onSelect={(item) =>
                         navigate(item.path ?? `/widget/${item.id}`,
-                            { state: { title: item.title, color: item.color, platform: item.platform } }
+                            { state: { title: item.title, color: item.color, platform: item.platform, oauth_url: item.oauth_url } }
                         )
                     }
                 />

@@ -1,12 +1,14 @@
 import { useLocation, useNavigate } from "react-router-dom";
+
+import GlassCardLayout from "@/component/glassCard";
 import { getPlatformIcon } from "@/config/platforms";
 import Button from "../component/button";
-import GlassCardLayout from "@/component/glassCard";
 
 type WidgetLocationState = {
     title?: string;
     color?: string;
     platform?: string;
+    oauth_url?: string;
 };
 
 export default function WidgetDetail() {
@@ -17,6 +19,7 @@ export default function WidgetDetail() {
     const title = state.title ?? "Widget without title";
     const color = typeof state.color === "string" ? state.color : "#5865F2";
     const platform = state.platform ?? "unknown";
+    const oauth_url = state.oauth_url;
 
     const platformIcon = getPlatformIcon(platform);
 
@@ -30,7 +33,7 @@ export default function WidgetDetail() {
                         radial-gradient(at 0% 0%, ${color} 0px, transparent 70%),
                         radial-gradient(at 100% 0%, ${color} 0px, transparent 70%),
                         radial-gradient(at 50% 50%, ${color} 0px, transparent 70%)
-                    `
+                    `,
                 }}
             />
 
@@ -55,15 +58,23 @@ export default function WidgetDetail() {
                             />
                         )}
                     </div>
-                     <div className="w-full max-w-sm flex flex-col items-center gap-6">
-                         <Button
-                             label={`Connect ${platform}`}
-                             onClick={() => navigate("/create")}
-                         />
-                         <p className="text-slate-500 text-sm font-medium text-center leading-relaxed">
-                             Connect your <strong>{platform}</strong> account to enable this automation and start using <strong>{title}</strong>.
-                         </p>
-                     </div>
+                    <div className="w-full max-w-sm flex flex-col items-center gap-6">
+                        <Button
+                            label={`Connect ${platform}`}
+                            onClick={() => {
+                                if (oauth_url) {
+                                    window.location.href = oauth_url;
+                                } else {
+                                    navigate("/create");
+                                }
+                            }}
+                        />
+                        <p className="text-slate-500 text-sm font-medium text-center leading-relaxed">
+                            Connect your <strong>{platform}</strong> account to
+                            enable this automation and start using{" "}
+                            <strong>{title}</strong>.
+                        </p>
+                    </div>
                 </div>
             </GlassCardLayout>
         </div>

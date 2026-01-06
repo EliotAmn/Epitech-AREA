@@ -48,7 +48,7 @@ const ConnectCard = ({
     const icon = getPlatformIcon(item.platform);
     return (
         <div className="w-full flex-1 flex flex-col">
-            <GlassCardLayout color={item.color} onBack={onBack} footer={false}>
+            <GlassCardLayout color={item.color} onBack={onBack}>
                 <div className="flex flex-col w-full max-w-md mx-auto items-center">
                     <div className="text-center mb-10">
                         <h1 className="text-3xl font-black text-slate-900 leading-tight">
@@ -249,6 +249,11 @@ export default function Create() {
                             setActionService(selectedItem.platform);
                             setStep(2);
                             setSelectedItem(null);
+                            if (selectedItem.oauth_url) {
+                                window.location.href = selectedItem.oauth_url;
+                            } else {
+                                navigate("/create");
+                            }
                         }}
                         onDiscard={() => navigate(-1)}
                     />
@@ -308,6 +313,11 @@ export default function Create() {
                             setReactionService(selectedItem.platform);
                             setStep(4);
                             setSelectedItem(null);
+                            if (selectedItem.oauth_url) {
+                                window.location.href = selectedItem.oauth_url;
+                            } else {
+                                navigate("/create");
+                            }
                         }}
                         onDiscard={() => navigate(-1)}
                     />
