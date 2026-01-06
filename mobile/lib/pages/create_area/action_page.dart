@@ -23,25 +23,22 @@ class _ActionPageState extends State<ActionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Choose Action',
+          style: Theme.of(context).textTheme.displayLarge,
+        ),
+      ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(height: 60),
-            SizedBox(
-              width: 300,
-              child: Text(
-                'Configure actions',
-                style: Theme.of(context).textTheme.displayLarge,
-                textAlign: TextAlign.center,
-              ),
-            ),
             SizedBox(
               height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
             ),
             SizedBox(
-              height: 500,
+              height: 700,
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: widget.serviceActions.length,

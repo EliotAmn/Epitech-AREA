@@ -47,16 +47,17 @@ class _CreatePageState extends State<CreatePage> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Column(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
                 width: 300,
                 child: Text(
-                  'Choose your services',
+                  'Choose your Action Service',
                   style: Theme.of(context).textTheme.displayLarge,
                   textAlign: TextAlign.center,
                 ),
@@ -64,8 +65,9 @@ class _CreatePageState extends State<CreatePage> {
               SizedBox(
                 height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
               ),
-              for (var service in _services)
-                Padding(
+              const SizedBox(height: 12),
+              ..._services.map(
+                (service) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: CardButton(
                     label: service.name,
@@ -85,9 +87,10 @@ class _CreatePageState extends State<CreatePage> {
                     textColor: Colors.white,
                   ),
                 ),
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

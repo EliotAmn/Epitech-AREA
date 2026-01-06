@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
 import 'package:http/http.dart' as http;
 import '../global/cache.dart' as cache;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -23,7 +21,11 @@ class OAuthWebViewPage extends StatefulWidget {
   final String initialUrl;
   final String redirectUri;
 
-  const OAuthWebViewPage({required this.initialUrl, required this.redirectUri, super.key});
+  const OAuthWebViewPage({
+    required this.initialUrl,
+    required this.redirectUri,
+    super.key,
+  });
 
   @override
   State<OAuthWebViewPage> createState() => _OAuthWebViewPageState();
@@ -37,22 +39,28 @@ class _OAuthWebViewPageState extends State<OAuthWebViewPage> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(NavigationDelegate(
-        onNavigationRequest: (NavigationRequest request) {
-          final url = request.url;
-          try {
-            final uri = Uri.parse(url);
-            if (url.startsWith(widget.redirectUri) || uri.queryParameters.containsKey('grant_code') || uri.queryParameters.containsKey('code')) {
-              final code = uri.queryParameters['grant_code'] ?? uri.queryParameters['code'];
-              if (mounted) Navigator.of(context).pop(code);
-              return NavigationDecision.prevent;
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) {
+            final url = request.url;
+            try {
+              final uri = Uri.parse(url);
+              if (url.startsWith(widget.redirectUri) ||
+                  uri.queryParameters.containsKey('grant_code') ||
+                  uri.queryParameters.containsKey('code')) {
+                final code =
+                    uri.queryParameters['grant_code'] ??
+                    uri.queryParameters['code'];
+                if (mounted) Navigator.of(context).pop(code);
+                return NavigationDecision.prevent;
+              }
+            } catch (_) {
+              // ignore parse errors
             }
-          } catch (_) {
-            // ignore parse errors
-          }
-          return NavigationDecision.navigate;
-        },
-      ))
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
       ..loadRequest(Uri.parse(widget.initialUrl));
   }
 
@@ -143,8 +151,10 @@ class _LoginModalContentState extends State<_LoginModalContent> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
   final FlutterAppAuth _appAuth = const FlutterAppAuth();
-  late final String _googleClientId = (dotenv.env['GOOGLE_CLIENT_ID'] ?? '').trim();
-  late final String _googleRedirectUri = (dotenv.env['GOOGLE_REDIRECT_URI'] ?? '').trim();
+  late final String _googleClientId = (dotenv.env['GOOGLE_CLIENT_ID'] ?? '')
+      .trim();
+  late final String _googleRedirectUri =
+      (dotenv.env['GOOGLE_REDIRECT_URI'] ?? '').trim();
   String _errorMessage = '';
 
   @override
@@ -170,23 +180,16 @@ class _LoginModalContentState extends State<_LoginModalContent> {
     }
 
     try {
-      final AuthorizationTokenResponse result =
-          await _appAuth.authorizeAndExchangeCode(
+      final AuthorizationTokenResponse
+      result = await _appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
           _googleClientId,
           _googleRedirectUri,
           discoveryUrl:
-               'https://accounts.google.com/.well-known/openid-configuration',
+              'https://accounts.google.com/.well-known/openid-configuration',
           scopes: ['openid', 'profile', 'email'],
         ),
       );
-
-      if (result == null) {
-        setState(() {
-          _errorMessage = 'Google sign-in was cancelled.';
-        });
-        return;
-      }
 
       if (!mounted) return;
       final token = result.accessToken ?? result.idToken;
@@ -270,8 +273,11 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           debugPrint('Login failed with error: $error');
         });
   }
-  
-  Future<void> _loginWithProvider(BuildContext modalContext, String provider) async {
+
+  Future<void> _loginWithProvider(
+    BuildContext modalContext,
+    String provider,
+  ) async {
     setState(() {
       _errorMessage = '';
     });
@@ -306,10 +312,8 @@ class _LoginModalContentState extends State<_LoginModalContent> {
 
       final code = await Navigator.of(modalContext).push<String>(
         MaterialPageRoute(
-          builder: (context) => OAuthWebViewPage(
-            initialUrl: url,
-            redirectUri: '$url/redirect',
-          ),
+          builder: (context) =>
+              OAuthWebViewPage(initialUrl: url, redirectUri: '$url/redirect'),
         ),
       );
 
@@ -320,7 +324,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
         return;
       }
 
-      final tokenResp = await http.get(Uri.parse('${dotenv.env['API_URL']}/auth/oauth/consume?code=$code'));
+      final tokenResp = await http.get(
+        Uri.parse('${dotenv.env['API_URL']}/auth/oauth/consume?code=$code'),
+      );
       if (tokenResp.statusCode != 200 && tokenResp.statusCode != 201) {
         setState(() {
           _errorMessage = 'Token exchange failed: ${tokenResp.statusCode}';

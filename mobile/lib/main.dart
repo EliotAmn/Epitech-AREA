@@ -84,14 +84,17 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: _isLogined
           ? BottomNavigationBar(
               items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.plus_one),
+                  icon: Icon(Icons.search),
+                  label: 'Explore',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.add_box),
                   label: 'Create',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.logout),
-                  label: 'Logout',
+                  icon: Icon(Icons.list),
+                  label: 'My AREAs',
                 ),
               ],
               currentIndex: _selectedIndex,
