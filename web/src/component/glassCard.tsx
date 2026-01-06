@@ -30,7 +30,9 @@ export default function GlassCardLayout({
 
             {onBack && (
                 <button
+                    type="button"
                     onClick={onBack}
+                    aria-label={backLabel}
                     className="absolute top-8 left-8 z-20 text-slate-600 hover:text-black font-medium flex items-center gap-2"
                 >
                     ← {backLabel}

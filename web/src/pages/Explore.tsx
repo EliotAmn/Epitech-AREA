@@ -50,13 +50,6 @@ export default function Explore() {
             <h1 className="text-5xl text-black font-bold m-5 shrink-0">
                 Explore
             </h1>
-            {/* <div className="mb-6 shrink-0">
-                <Button
-                    label="Create my own area"
-                    mode="blue"
-                    onClick={() => navigate("/create")}
-                />
-            </div> */}
             <div className="w-3/4 mx-auto pt-4 shrink-0">
                 <div className="flex items-center justify-center gap-20 mb-4">
                     <button

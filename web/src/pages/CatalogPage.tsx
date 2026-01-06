@@ -6,8 +6,6 @@ import Button from "@/component/button";
 import SearchBar from "../component/SearchBar";
 import Widget from "../component/widget";
 
-import "../styles/responsiveGrids.css";
-
 import type { CatalogItem } from "../data/catalogData";
 
 interface CatalogPageProps {
@@ -97,6 +95,7 @@ export default function CatalogPage({
                                     key={item.id}
                                     title={item.title}
                                     platform={item.platform}
+                                    reactionPlatform={item.reactionPlatform}
                                     color={item.color}
                                     onClick={() => onSelect && onSelect(item)}
                                 />

@@ -77,8 +77,6 @@ export default function AreaDetail() {
 
     const actionName = area.actions?.[0]?.action_name || "Unknown";
     const reactionName = area.reactions?.[0]?.reaction_name || "Unknown";
-    console.log("area.actions", area.actions);
-    console.log("item", item);
     const actionPlatform =
         (item && item.platform) || area.actions?.[0]?.platform;
 
@@ -107,10 +105,18 @@ export default function AreaDetail() {
                     </h2>
 
                     <div className="relative mb-12">
-                        <div className="flex items-center justify-center gap-4 mb-4">
+                        <div
+                            className="flex items-center justify-center gap-4 mb-4"
+                            role="img"
+                            aria-label={`Action ${actionPlatform}${!samePlatform ? ` and reaction ${reactionPlatform}` : ""}`}
+                        >
                             <img
                                 src={actionIcon}
-                                alt={`${actionIcon} icon`}
+                                alt={
+                                    actionPlatform
+                                        ? `${actionPlatform} icon`
+                                        : "action icon"
+                                }
                                 className={
                                     samePlatform
                                         ? "w-32 h-32 object-contain"
@@ -119,10 +125,17 @@ export default function AreaDetail() {
                             />
                             {!samePlatform && (
                                 <>
-                                    <ArrowRight className="w-6 h-6 text-gray-500" />
+                                    <ArrowRight
+                                        className="w-6 h-6 text-gray-500"
+                                        aria-hidden
+                                    />
                                     <img
                                         src={reactionIcon}
-                                        alt={`${reactionIcon} icon`}
+                                        alt={
+                                            reactionPlatform
+                                                ? `${reactionPlatform} icon`
+                                                : "reaction icon"
+                                        }
                                         className="w-16 h-16 object-contain"
                                     />
                                 </>

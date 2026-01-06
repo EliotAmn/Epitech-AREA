@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-import { getPlatformIcon } from "@/config/platforms";
+import { ArrowRight } from "lucide-react";
+
+import { getPlatformColor, getPlatformIcon } from "@/config/platforms";
 
 function lightenColor(color: string, percent: number): string {
     if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
@@ -32,6 +34,7 @@ function lightenColor(color: string, percent: number): string {
 interface WidgetProps {
     title: string;
     platform: string;
+    reactionPlatform?: string;
     color?: string;
     onClick?: () => void;
 }
@@ -40,35 +43,78 @@ export default function Widget({
     title,
     color = "#ffffff",
     platform,
+    reactionPlatform,
     onClick,
 }: WidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const iconSrc = getPlatformIcon(platform);
+    const samePlatform = !reactionPlatform || platform === reactionPlatform;
+
+    const reactionColor = reactionPlatform
+        ? getPlatformColor(reactionPlatform)
+        : undefined;
+    const primaryColor = color;
+    const primaryHover = lightenColor(primaryColor, 5);
+    const reactionHover = reactionColor
+        ? lightenColor(reactionColor, 5)
+        : undefined;
+    const backgroundStyle =
+        !reactionColor || samePlatform
+            ? { backgroundColor: isHovered ? primaryHover : primaryColor }
+            : {
+                  backgroundImage: `linear-gradient(135deg, ${isHovered ? primaryHover : primaryColor} 0%, ${isHovered ? reactionHover : reactionColor} 100%)`,
+              };
 
     return (
         <div
             className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-start shrink-0`}
             style={{
-                backgroundColor: isHovered ? lightenColor(color, 5) : color,
+                ...backgroundStyle,
             }}
             onClick={onClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {platform && iconSrc && (
-                <div className="flex-1 w-full flex items-center justify-center">
-                    <img
-                        src={iconSrc}
-                        alt={`${platform} icon`}
-                        className="w-32 h-32 object-contain"
-                    />
-                </div>
-            )}
+            <div
+                className="flex-1 w-full flex items-center justify-center gap-4 mb-4"
+                role="img"
+                aria-label={`Action ${platform}${!samePlatform ? ` and reaction ${platform[1]}` : ""}`}
+            >
+                <img
+                    src={iconSrc}
+                    alt={
+                        Array.isArray(platform)
+                            ? `${platform[0]} icon`
+                            : "action icon"
+                    }
+                    className={
+                        samePlatform
+                            ? "w-32 h-32 object-contain"
+                            : "w-18 h-18 object-contain"
+                    }
+                />
+                {!samePlatform && reactionPlatform ? (
+                    <>
+                        <ArrowRight
+                            className="w-6 h-6 text-gray-500"
+                            aria-hidden
+                        />
+                        <img
+                            src={getPlatformIcon(reactionPlatform)}
+                            alt={iconSrc ? `${iconSrc} icon` : "reaction icon"}
+                            className="w-18 h-18 object-contain"
+                        />
+                    </>
+                ) : null}
+            </div>
             <h2 className="w-full text-3xl text-center text-[#ffffff] font-semibold mb-2">
                 {title}
             </h2>
             <p className="w-full text-center text-sm sm:text-md text-[#ffffff]">
-                {platform}
+                {platform}{" "}
+                {reactionPlatform && !samePlatform
+                    ? `& ${reactionPlatform}`
+                    : ""}
             </p>
         </div>
     );

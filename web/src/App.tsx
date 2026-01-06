@@ -1,23 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy } from "react";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Header from "./component/header";
 import { ProtectedRoute, PublicOnlyRoute } from "./component/ProtectedRoute";
 import ThemeProvider from "./context/ThemeContext";
-import AreaDetail from "./pages/AreaDetail";
-import Areas from "./pages/Areas";
-import ChangePassword from "./pages/ChangePassword";
-import Create from "./pages/Create";
-import EditArea from "./pages/EditArea";
-import Explore from "./pages/Explore";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
+const AreaDetail = lazy(() => import('./pages/AreaDetail'));
+const Areas = lazy(() => import('./pages/Areas'));
+const ChangePassword = lazy(() => import('./pages/ChangePassword'));
+const Create = lazy(() => import('./pages/Create'));
+const EditArea = lazy(() => import('./pages/EditArea'));
+const Explore = lazy(() => import('./pages/Explore'));
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
 import OAuthServiceProxy from "./pages/OAuthServiceProxy";
-import Profile from "./pages/Profile";
-import SignUp from "./pages/SignUp";
-import WidgetDetail from "./pages/WidgetDetail";
+const Profile = lazy(() => import('./pages/Profile'));
+const SignUp = lazy(() => import('./pages/SignUp'));
+const WidgetDetail = lazy(() => import('./pages/WidgetDetail'));
 import { AuthService } from "./services/api";
+import "./styles/responsiveGrids.css";
+
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(

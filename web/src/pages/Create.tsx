@@ -255,7 +255,11 @@ export default function Create() {
                                 navigate("/create");
                             }
                         }}
-                        onDiscard={() => navigate(-1)}
+                        onDiscard={() => {
+                            setActionService("");
+                            setStep(1);
+                            setSelectedItem(null);
+                        } }
                     />
                 )}
 
@@ -319,7 +323,12 @@ export default function Create() {
                                 navigate("/create");
                             }
                         }}
-                        onDiscard={() => navigate(-1)}
+                        onDiscard={() => {
+                            setReactionService("");
+                            setStep(3);
+                            setSelectedItem(null);
+                        }
+                        }
                     />
                 )}
 
