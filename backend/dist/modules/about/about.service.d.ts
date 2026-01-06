@@ -12,6 +12,7 @@ export interface ReactionInfo {
 }
 export interface ServiceInfo {
     name: string;
+    oauth_url?: string;
     actions: ActionInfo[];
     reactions: ReactionInfo[];
 }

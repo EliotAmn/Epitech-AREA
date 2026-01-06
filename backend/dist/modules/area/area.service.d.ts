@@ -15,7 +15,6 @@ export declare class AreaService {
     private readonly userservice_service;
     private actionPollers;
     private actionInstances;
-    private readonly ACTION_POLL_INTERVAL;
     constructor(action_repository: ActionRepository, area_repository: AreaRepository, reaction_repository: ReactionRepository, reaction_valider: ReactionValider, service_importer_service: ServiceImporterService, userservice_service: UserServiceService);
     handle_action_trigger(action_id: string, action_out: ActionTriggerOutput): Promise<void>;
     private stopAreaPollers;
@@ -32,37 +31,37 @@ export declare class AreaService {
             params?: Record<string, unknown>;
         }>;
     }): Promise<{
+        name: string;
         id: string;
         user_id: string;
         created_at: Date;
         updated_at: Date;
-        name: string;
     }>;
     findByUser(userId: string): Promise<({
         actions: {
-            params: Prisma.JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: Prisma.JsonValue;
             action_name: string;
             area_id: string;
             cache: Prisma.JsonValue;
         }[];
         reactions: {
-            params: Prisma.JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: Prisma.JsonValue;
             area_id: string;
             cache: Prisma.JsonValue;
             reaction_name: string;
         }[];
     } & {
+        name: string;
         id: string;
         user_id: string;
         created_at: Date;
         updated_at: Date;
-        name: string;
     })[]>;
     initializeAll(): Promise<void>;
     initializeOne(areaId: string): Promise<void>;
@@ -77,29 +76,29 @@ export declare class AreaService {
         }>;
     }): Promise<({
         actions: {
-            params: Prisma.JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: Prisma.JsonValue;
             action_name: string;
             area_id: string;
             cache: Prisma.JsonValue;
         }[];
         reactions: {
-            params: Prisma.JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: Prisma.JsonValue;
             area_id: string;
             cache: Prisma.JsonValue;
             reaction_name: string;
         }[];
     } & {
+        name: string;
         id: string;
         user_id: string;
         created_at: Date;
         updated_at: Date;
-        name: string;
     }) | null>;
     deleteArea(areaId: string, userId?: string): Promise<{
         ok: boolean;

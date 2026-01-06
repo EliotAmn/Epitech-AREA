@@ -27,7 +27,6 @@ let AreaService = class AreaService {
     userservice_service;
     actionPollers = new Map();
     actionInstances = new Map();
-    ACTION_POLL_INTERVAL = 1000;
     constructor(action_repository, area_repository, reaction_repository, reaction_valider, service_importer_service, userservice_service) {
         this.action_repository = action_repository;
         this.area_repository = area_repository;
@@ -157,6 +156,8 @@ let AreaService = class AreaService {
                         clearInterval(this.actionPollers.get(pollKey));
                         this.actionPollers.delete(pollKey);
                     }
+                    if (def_action.action.poll_interval <= 0)
+                        continue;
                     const timer = setInterval(() => {
                         def_action.action
                             .poll(sconf)
@@ -168,7 +169,7 @@ let AreaService = class AreaService {
                             .catch((err) => {
                             console.error(`Error polling action ${a.action_name} for area ${area.id}:`, err);
                         });
-                    }, this.ACTION_POLL_INTERVAL);
+                    }, def_action.action.poll_interval * 1000);
                     this.actionPollers.set(pollKey, timer);
                 }
                 catch (err) {

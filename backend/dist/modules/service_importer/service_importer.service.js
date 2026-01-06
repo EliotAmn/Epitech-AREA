@@ -21,7 +21,16 @@ let ServiceImporterService = class ServiceImporterService {
         this.services = services;
     }
     getAllServices() {
-        return this.services;
+        return this.services.filter((service) => {
+            if (service.mandatory_env_vars) {
+                for (const env_var of service.mandatory_env_vars) {
+                    if (!process.env[env_var]) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
     }
     getServiceByName(name) {
         return this.services.find((service) => service.name === name);

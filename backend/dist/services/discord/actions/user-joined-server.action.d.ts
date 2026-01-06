@@ -2,6 +2,7 @@ import { ActionTriggerOutput, ParameterDefinition, ServiceActionDefinition, Serv
 export declare class UserJoinedServerAction extends ServiceActionDefinition {
     name: string;
     label: string;
+    poll_interval: number;
     description: string;
     output_params: ParameterDefinition[];
     input_params: ParameterDefinition[];

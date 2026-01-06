@@ -7,6 +7,7 @@ class MessageContainsKeywordAction extends service_types_1.ServiceActionDefiniti
     name = 'message_contains_keyword';
     label = 'Message Contains Keyword';
     description = 'Triggers when a message contains a specific keyword';
+    poll_interval = 2;
     output_params = [
         {
             name: 'message_content',
@@ -63,7 +64,9 @@ class MessageContainsKeywordAction extends service_types_1.ServiceActionDefiniti
     lastMessageId = null;
     triggeredOutput = null;
     reload_cache(sconf) {
-        const keyword = sconf?.config?.keyword ? String(sconf.config.keyword) : '';
+        const keyword = sconf?.config?.keyword
+            ? String(sconf.config.keyword)
+            : '';
         const channelId = sconf?.config?.channel_id
             ? String(sconf.config.channel_id)
             : undefined;

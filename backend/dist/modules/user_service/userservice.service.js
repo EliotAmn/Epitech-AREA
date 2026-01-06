@@ -20,6 +20,30 @@ let UserServiceService = class UserServiceService {
     fromUserIdAndServiceName(userId, serviceName) {
         return this.userServiceRepository.fromUserIdAndServiceName(userId, serviceName);
     }
+    createOrFind(userId, serviceName) {
+        return this.userServiceRepository
+            .fromUserIdAndServiceName(userId, serviceName)
+            .then((existing) => {
+            if (existing) {
+                return existing;
+            }
+            return this.userServiceRepository.create(userId, serviceName);
+        });
+    }
+    setConfigProperty(userService, key, value) {
+        const config = userService.service_config || {};
+        config[key] = value;
+        return this.userServiceRepository.update({
+            where: { id: userService.id },
+            data: { service_config: config },
+        });
+    }
+    updateConfig(id, config) {
+        return this.userServiceRepository.update({
+            where: { id },
+            data: { service_config: config },
+        });
+    }
 };
 exports.UserServiceService = UserServiceService;
 exports.UserServiceService = UserServiceService = __decorate([

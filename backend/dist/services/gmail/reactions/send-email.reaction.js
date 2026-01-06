@@ -37,8 +37,7 @@ class SendEmailReaction extends service_types_1.ServiceReactionDefinition {
         },
     ];
     async execute(sconf, params) {
-        const token = sconf?.config
-            ?.google_access_token;
+        const token = sconf?.config?.google_access_token;
         if (typeof token !== 'string' || !token) {
             throw new Error('Missing Google access token in service config (google_access_token). Ensure the user connected with Google and token is stored for this service.');
         }

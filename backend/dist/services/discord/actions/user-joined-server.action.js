@@ -6,6 +6,7 @@ const discord_client_1 = require("../discord.client");
 class UserJoinedServerAction extends service_types_1.ServiceActionDefinition {
     name = 'user_joined_server';
     label = 'User Joined Server';
+    poll_interval = 2;
     description = 'Triggers when a user joins the Discord server';
     output_params = [
         {

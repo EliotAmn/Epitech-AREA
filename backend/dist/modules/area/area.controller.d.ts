@@ -9,11 +9,11 @@ export declare class AreaController {
             sub?: string;
         };
     }, dto: CreateAreaDto): Promise<{
+        name: string;
         id: string;
         user_id: string;
         created_at: Date;
         updated_at: Date;
-        name: string;
     }>;
     findMyAreas(req: Request & {
         user?: {
@@ -21,29 +21,29 @@ export declare class AreaController {
         };
     }): Promise<({
         actions: {
-            params: import("@prisma/client/runtime/library").JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: import("@prisma/client/runtime/library").JsonValue;
             action_name: string;
             area_id: string;
             cache: import("@prisma/client/runtime/library").JsonValue;
         }[];
         reactions: {
-            params: import("@prisma/client/runtime/library").JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: import("@prisma/client/runtime/library").JsonValue;
             area_id: string;
             cache: import("@prisma/client/runtime/library").JsonValue;
             reaction_name: string;
         }[];
     } & {
+        name: string;
         id: string;
         user_id: string;
         created_at: Date;
         updated_at: Date;
-        name: string;
     })[]>;
     reloadArea(id: string): Promise<{
         ok: boolean;
@@ -66,28 +66,28 @@ export declare class AreaController {
         }>;
     }): Promise<({
         actions: {
-            params: import("@prisma/client/runtime/library").JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: import("@prisma/client/runtime/library").JsonValue;
             action_name: string;
             area_id: string;
             cache: import("@prisma/client/runtime/library").JsonValue;
         }[];
         reactions: {
-            params: import("@prisma/client/runtime/library").JsonValue;
             id: string;
             created_at: Date;
             updated_at: Date;
+            params: import("@prisma/client/runtime/library").JsonValue;
             area_id: string;
             cache: import("@prisma/client/runtime/library").JsonValue;
             reaction_name: string;
         }[];
     } & {
+        name: string;
         id: string;
         user_id: string;
         created_at: Date;
         updated_at: Date;
-        name: string;
     }) | null>;
 }

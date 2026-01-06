@@ -14,9 +14,9 @@ export declare class OauthService {
     private findOrCreateUserFromProfile;
     handleProviderCallback(provider: string, profile: unknown): Promise<{
         user: Partial<{
+            name: string;
             id: string;
             created_at: Date;
-            name: string;
             email: string;
             auth_platform: string;
             auth_id: string | null;

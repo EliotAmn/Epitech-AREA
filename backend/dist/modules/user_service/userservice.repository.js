@@ -27,6 +27,24 @@ let UserServiceRepository = class UserServiceRepository {
             },
         });
     }
+    create(userId, serviceName) {
+        return this.prismaService.userService.create({
+            data: {
+                user_id: userId,
+                service_name: serviceName,
+            },
+        });
+    }
+    delete(id) {
+        return this.prismaService.userService.delete({
+            where: {
+                id,
+            },
+        });
+    }
+    update(args) {
+        return this.prismaService.userService.update(args);
+    }
 };
 exports.UserServiceRepository = UserServiceRepository;
 exports.UserServiceRepository = UserServiceRepository = __decorate([

@@ -36,7 +36,7 @@ let ReactionValider = class ReactionValider {
                     case service_types_1.ParameterType.SELECT:
                         if (typeof value !== 'string' ||
                             !param.options ||
-                            !param.options.includes(value))
+                            !param.options.some((option) => option.value === value))
                             return false;
                         break;
                     default:

@@ -46,6 +46,7 @@ let AboutService = AboutService_1 = class AboutService {
                 const reactions = this.formatReactions(service.reactions || []);
                 return {
                     name: service.name,
+                    oauth_url: service.oauth_url,
                     actions,
                     reactions,
                 };

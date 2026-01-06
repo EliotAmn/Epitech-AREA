@@ -12,6 +12,7 @@ class ServiceActionDefinition {
     name;
     label;
     description;
+    poll_interval = 0;
     output_params;
     input_params;
 }

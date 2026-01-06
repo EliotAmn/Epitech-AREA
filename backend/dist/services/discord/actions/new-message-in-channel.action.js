@@ -6,6 +6,7 @@ const discord_client_1 = require("../discord.client");
 class NewMessageInChannelAction extends service_types_1.ServiceActionDefinition {
     name = 'new_message_in_channel';
     label = 'New Message in Channel';
+    poll_interval = 2;
     description = 'Triggers when a new message is posted in a specific channel';
     output_params = [
         {

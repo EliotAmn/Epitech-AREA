@@ -22,14 +22,16 @@ let AuthMiddleware = class AuthMiddleware {
     }
     use(req, _res, next) {
         const header = req.get('authorization');
-        if (!header) {
-            throw new common_1.UnauthorizedException('Authorization header missing');
+        let token = null;
+        if (header) {
+            const match = header.match(/Bearer\s+(.+)/i);
+            if (match) {
+                token = match[1];
+            }
         }
-        const match = header.match(/Bearer\s+(.+)/i);
-        if (!match) {
-            throw new common_1.UnauthorizedException('Bearer token required');
+        if (!token) {
+            throw new common_1.UnauthorizedException('Authorization token missing');
         }
-        const token = match[1];
         try {
             const secret = this.configService.get('JWT_SECRET');
             const options = secret

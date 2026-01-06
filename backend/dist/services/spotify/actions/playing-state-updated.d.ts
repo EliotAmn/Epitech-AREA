@@ -1,14 +1,12 @@
 import { ServiceActionDefinition } from '@/common/service.types';
 import type { ActionTriggerOutput, ParameterDefinition, ServiceConfig } from '@/common/service.types';
-export declare class MessageContainsKeywordAction extends ServiceActionDefinition {
+export declare class PlayingStateUpdated extends ServiceActionDefinition {
     name: string;
     label: string;
     description: string;
     poll_interval: number;
     output_params: ParameterDefinition[];
     input_params: ParameterDefinition[];
-    private lastMessageId;
-    private triggeredOutput;
-    reload_cache(sconf: ServiceConfig): Promise<Record<string, unknown>>;
-    poll(_sconf: ServiceConfig): Promise<ActionTriggerOutput>;
+    reload_cache(): Promise<Record<string, unknown>>;
+    poll(sconf: ServiceConfig): Promise<ActionTriggerOutput>;
 }
