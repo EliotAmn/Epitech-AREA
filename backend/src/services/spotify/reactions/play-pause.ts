@@ -83,6 +83,10 @@ export class PlayPause extends ServiceReactionDefinition {
           : 'https://api.spotify.com/v1/me/player/play';
       }
 
+      if (!endpoint) {
+        logger.error(`Invalid or unsupported Spotify play/pause action: ${action}`);
+        throw new Error(`Invalid Spotify play/pause action: ${action}`);
+      }
       await axios.put(
         endpoint,
         {},
