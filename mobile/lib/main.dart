@@ -6,6 +6,7 @@ import 'pages/create_area/create_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'global/cache.dart' as cache;
+import 'pages/logout_page.dart';
 
 Future<void> main() async {
   try {
@@ -77,10 +78,19 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('AREA', style: Theme.of(context).textTheme.displayLarge),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: LogoutPage(onLogoutSuccess: _onLogoutSuccess)
+          ),
+        ],
+        
       ),
-      body: getCurrentPage(),
+      body: Container(
+        child: getCurrentPage(),
+      ),
       bottomNavigationBar: _isLogined
           ? BottomNavigationBar(
               items: const [

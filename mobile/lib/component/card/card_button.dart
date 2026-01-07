@@ -26,26 +26,36 @@ class CardButton extends StatelessWidget {
       elevation: elevation,
       margin: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: color,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          width: double.infinity,
-          height: height,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 48, color: textColor),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(color: textColor),
-              ),
-            ],
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [color, color.withOpacity(0.7)],
+          ),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            width: double.infinity,
+            height: height,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 48, color: textColor),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(color: textColor),
+                ),
+              ],
+            ),
           ),
         ),
       ),

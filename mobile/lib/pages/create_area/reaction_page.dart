@@ -32,30 +32,30 @@ class ReactionPage extends StatelessWidget {
         itemBuilder: (context, index) {
           final service = allServices[index];
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: CardButton(
-              label: service.name,
-              icon: Icons.settings,
-              color: Colors.green,
-              textColor: Colors.white,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReactionListPage(
-                      actionServiceName: actionServiceName,
-                      selectedAction: selectedAction,
-                      actionInputValues: actionInputValues,
-                      reactionService: service,
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: CardButton(
+                label: service.name,
+                icon: Icons.settings,
+                color: Colors.green,
+                textColor: Colors.white,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReactionListPage(
+                        actionServiceName: actionServiceName,
+                        selectedAction: selectedAction,
+                        actionInputValues: actionInputValues,
+                        reactionService: service,
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      );
   }
 }
 
@@ -75,6 +75,7 @@ class ReactionListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -88,30 +89,30 @@ class ReactionListPage extends StatelessWidget {
         itemBuilder: (context, index) {
           final reaction = reactionService.reactions[index];
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: CardButton(
-              label: reaction.name,
-              icon: Icons.arrow_forward,
-              color: Colors.orange,
-              textColor: Colors.white,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ConfigPage(
-                      actionServiceName: actionServiceName,
-                      selectedAction: selectedAction,
-                      actionInputValues: actionInputValues,
-                      reactionServiceName: reactionService.name,
-                      selectedReaction: reaction,
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: CardButton(
+                label: reaction.name,
+                icon: Icons.arrow_forward,
+                color: Colors.orange,
+                textColor: Colors.white,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ConfigPage(
+                        actionServiceName: actionServiceName,
+                        selectedAction: selectedAction,
+                        actionInputValues: actionInputValues,
+                        reactionServiceName: reactionService.name,
+                        selectedReaction: reaction,
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
     );
   }
 }

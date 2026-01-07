@@ -55,6 +55,9 @@ class _CreatePageState extends State<CreatePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
+                height: (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
+              ),
+              SizedBox(
                 width: 300,
                 child: Text(
                   'Choose your Action Service',

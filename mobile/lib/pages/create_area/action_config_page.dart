@@ -72,65 +72,65 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.action.name,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.action.description,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 24),
-            if (widget.action.inputParams.isNotEmpty) ...[
+                widget.action.name,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
               Text(
-                'Configure Parameters:',
-                style: Theme.of(context).textTheme.titleMedium,
+                widget.action.description,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 16),
-              ...widget.action.inputParams.map((param) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        param.label + (param.requiredParam ? ' *' : ''),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      TextField(
-                        controller: _controllers[param.name],
-                        decoration: AppInputDecorations.primary(
-                          context,
-                          param.description,
+              const SizedBox(height: 24),
+              if (widget.action.inputParams.isNotEmpty) ...[
+                Text(
+                  'Configure Parameters:',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                ...widget.action.inputParams.map((param) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          param.label + (param.requiredParam ? ' *' : ''),
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        TextField(
+                          controller: _controllers[param.name],
+                          decoration: AppInputDecorations.primary(
+                            context,
+                            param.description,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _continue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                );
-              }).toList(),
-            ],
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _continue,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: Text(
-                  'Next: Choose Reaction',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    fontWeight: FontWeight.bold,
+                  child: Text(
+                    'Next: Choose Reaction',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }

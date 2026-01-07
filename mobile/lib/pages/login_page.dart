@@ -152,9 +152,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
 
       debugPrint('OAuth login successful');
       cache.AuthStore().saveToken(token);
-      if (context.mounted) {
-        return true;
-      }
+      return true;
     } else {
       if (mounted) {
         setState(() {
@@ -364,7 +362,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           ),
           TextButton(
             onPressed: () {
-              _loginWithOauth(context, 'google');
+              _loginWithOauth(context, 'gmail');
             },
             style: TextButton.styleFrom(
               backgroundColor: Colors.transparent,

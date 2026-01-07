@@ -23,9 +23,10 @@ class _ActionPageState extends State<ActionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          'Choose Action',
+          'Select Action',
           style: Theme.of(context).textTheme.displayLarge,
         ),
       ),
@@ -34,6 +35,9 @@ class _ActionPageState extends State<ActionPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
+            SizedBox(
+              height: (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
+            ),
             SizedBox(
               height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
             ),
@@ -69,7 +73,7 @@ class _ActionPageState extends State<ActionPage> {
             ),
           ],
         ),
-      ),
+        ),
     );
   }
 }

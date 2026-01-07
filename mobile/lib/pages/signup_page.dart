@@ -102,13 +102,13 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             Container(
               padding: const EdgeInsets.all(40.0),
               child: Column(
@@ -187,8 +187,8 @@ class _SignUpPageState extends State<SignUpPage> {
               },
             ),
           ],
-        ),
-      ),
+        ),        
+        )
     );
   }
 }
