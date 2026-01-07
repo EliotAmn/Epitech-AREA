@@ -32,16 +32,23 @@ export class SetVolume extends ServiceReactionDefinition {
     params: Record<string, ParameterValue>,
   ): Promise<void> {
     const accessToken = sconf.config.access_token as string | undefined;
-    const volume = params.volume?.value as number;
+    const rawVolume = params.volume?.value;
 
     if (!accessToken) {
       logger.error('No access token available for Spotify');
       throw new Error('No access token available');
     }
 
-    // Validate volume range
-    if (volume < 0 || volume > 100) {
-      logger.error(`Invalid volume value: ${volume}`);
+    // Validate volume presence and range
+    if (rawVolume === null || rawVolume === undefined) {
+      logger.error('Volume parameter is missing or undefined');
+      throw new Error('Volume parameter is required');
+    }
+
+    const volume = Number(rawVolume);
+
+    if (Number.isNaN(volume) || volume < 0 || volume > 100) {
+      logger.error(`Invalid volume value: ${rawVolume}`);
       throw new Error('Volume must be between 0 and 100');
     }
 
