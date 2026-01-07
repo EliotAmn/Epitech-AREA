@@ -9,6 +9,10 @@ import axios, { AxiosError } from 'axios';
 import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
 import { PlayingStateUpdated } from '@/services/spotify/actions/playing-state-updated';
+import { TrackChanged } from '@/services/spotify/actions/track-changed';
+import { PlayPause } from '@/services/spotify/reactions/play-pause';
+import { SetVolume } from '@/services/spotify/reactions/set-volume';
+import { SkipTrack } from '@/services/spotify/reactions/skip-track';
 
 const logger = new Logger('SpotifyService');
 
@@ -111,6 +115,6 @@ export default class SpotifyService implements ServiceDefinition {
   oauth_callback = oauth_callback;
   description =
     'Connect your Spotify account to automate music-related tasks and enhance your listening experience.';
-  actions = [PlayingStateUpdated];
-  reactions = [];
+  actions = [PlayingStateUpdated, TrackChanged];
+  reactions = [PlayPause, SkipTrack, SetVolume];
 }
