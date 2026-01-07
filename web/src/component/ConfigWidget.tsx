@@ -165,14 +165,44 @@ export default function ConfigWidget({
                                                         Select
                                                     </option>
                                                     {(p.options || []).map(
-                                                        (opt) => (
-                                                            <option
-                                                                key={opt}
-                                                                value={opt}
-                                                            >
-                                                                {opt}
-                                                            </option>
-                                                        )
+                                                        (opt) => {
+                                                            if (
+                                                                typeof opt ===
+                                                                "string"
+                                                            ) {
+                                                                return (
+                                                                    <option
+                                                                        key={
+                                                                            opt
+                                                                        }
+                                                                        value={
+                                                                            opt
+                                                                        }
+                                                                    >
+                                                                        {opt}
+                                                                    </option>
+                                                                );
+                                                            }
+                                                            const label =
+                                                                (opt as any)
+                                                                    .label ??
+                                                                (opt as any)
+                                                                    .value;
+                                                            const value =
+                                                                (opt as any)
+                                                                    .value ??
+                                                                label;
+                                                            return (
+                                                                <option
+                                                                    key={value}
+                                                                    value={
+                                                                        value
+                                                                    }
+                                                                >
+                                                                    {label}
+                                                                </option>
+                                                            );
+                                                        }
                                                     )}
                                                 </select>
                                             )}

@@ -140,7 +140,7 @@ export default function Summary({
 
                     <div>
                         <h4 className="font-bold text-lg border-b border-gray-300 mb-2 pb-1 text-gray-700">
-                            Reaction Config
+                            {reaction}  
                         </h4>
                         {Object.keys(reactionParams).length > 0 ? (
                             <ul className="space-y-1">

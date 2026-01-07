@@ -39,13 +39,16 @@ const ConnectCard = ({
     onConnect,
     onBack,
     onDiscard,
+    onSkip,
 }: {
     item: CatalogItem;
     onConnect: () => void;
     onBack?: () => void;
     onDiscard?: () => void;
+    onSkip?: () => void;
 }) => {
     const icon = getPlatformIcon(item.platform);
+    const connected = null;
     return (
         <div className="w-full flex-1 flex flex-col">
             <GlassCardLayout color={item.color} onBack={onBack}>
@@ -69,13 +72,26 @@ const ConnectCard = ({
                         )}
                     </div>
 
-                    <div className="mt-8 flex flex-col items-center gap-3">
+                    <div className="mt-8 flex flex-col items-center gap-3 w-full max-w-md px-4">
                         <Button
-                            label="Connect"
+                            label={
+                                connected === null
+                                    ? "Connect"
+                                    : connected
+                                      ? "Connected"
+                                      : "Connect"
+                            }
                             onClick={onConnect}
                             mode="black"
                             className="w-full py-4"
+                            disabled={!!connected}
                         />
+                        <button
+                            onClick={() => onSkip && onSkip()}
+                            className="w-full py-3 rounded-lg text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700"
+                        >
+                            Skip (Proceed without connecting)
+                        </button>
                         <button
                             onClick={() => onDiscard && onDiscard()}
                             className="text-slate-400 text-xs font-bold uppercase hover:text-slate-600 transition-colors py-2 text-center"
@@ -255,11 +271,17 @@ export default function Create() {
                                 navigate("/create");
                             }
                         }}
+                        onSkip={() => {
+                            // mark service selected and go to actions without connecting
+                            setActionService(selectedItem.platform);
+                            setStep(2);
+                            setSelectedItem(null);
+                        }}
                         onDiscard={() => {
                             setActionService("");
                             setStep(1);
                             setSelectedItem(null);
-                        } }
+                        }}
                     />
                 )}
 
@@ -323,12 +345,17 @@ export default function Create() {
                                 navigate("/create");
                             }
                         }}
+                        onSkip={() => {
+                            // mark reaction service selected and go to reactions without connecting
+                            setReactionService(selectedItem.platform);
+                            setStep(4);
+                            setSelectedItem(null);
+                        }}
                         onDiscard={() => {
                             setReactionService("");
                             setStep(3);
                             setSelectedItem(null);
-                        }
-                        }
+                        }}
                     />
                 )}
 

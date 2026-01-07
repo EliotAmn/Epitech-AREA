@@ -181,11 +181,24 @@ export default function Edit({ area }: EditProps) {
                                 }
                             >
                                 <option value="">Select</option>
-                                {(p.options || []).map((opt) => (
-                                    <option key={opt} value={opt}>
-                                        {opt}
-                                    </option>
-                                ))}
+                                {(p.options || []).map((opt) => {
+                                    if (typeof opt === "string") {
+                                        return (
+                                            <option key={opt} value={opt}>
+                                                {opt}
+                                            </option>
+                                        );
+                                    }
+                                    const label =
+                                        (opt as any).label ??
+                                        (opt as any).value;
+                                    const value = (opt as any).value ?? label;
+                                    return (
+                                        <option key={value} value={value}>
+                                            {label}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         )}
                     </div>
@@ -284,6 +297,12 @@ export default function Edit({ area }: EditProps) {
                         className="text-slate-400 text-xs font-bold uppercase hover:text-slate-600 transition-colors py-2 text-center"
                     >
                         Discard
+                    </button>
+                    <button
+                        onClick={() => navigate("/my-areas")}
+                        className="text-red-500 text-xs font-bold uppercase hover:text-red-700 transition-colors py-2 text-center"
+                    >
+                        Skip
                     </button>
                 </div>
             </div>
