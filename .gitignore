@@ -3,5 +3,4 @@
 .vscode/
 /.postgres_data/
 backend/.env
-/tunnel-eliot
-/tunnel-eliot/
+
