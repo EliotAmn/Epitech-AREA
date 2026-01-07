@@ -5,7 +5,6 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-    base: '/',
     plugins: [react(), tailwindcss()],
     cacheDir: "node_modules/.vite/web",
     resolve: {
@@ -14,8 +13,8 @@ export default defineConfig({
         },
     },
     server: {
-        allowedHosts: [".eliotamanieu.fr", "localhost", ".ngrok.io"],
         host: true,
+        allowedHosts: [".eliotamanieu.fr", "localhost", ".ngrok.io"],
     }
 });
 
