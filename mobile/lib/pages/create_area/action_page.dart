@@ -26,8 +26,8 @@ class _ActionPageState extends State<ActionPage> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          'Select Action',
-          style: Theme.of(context).textTheme.displayLarge,
+          '${widget.serviceName} actions',
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
       body: Center(
@@ -49,9 +49,10 @@ class _ActionPageState extends State<ActionPage> {
                 itemBuilder: (context, index) {
                   final action = widget.serviceActions[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(vertical: 1.0),
                     child: CardButton(
-                      label: action.description,
+                      height: 100,
+                      label: action.name,
                       icon: Icons.play_arrow,
                       onTap: () {
                         Navigator.of(context).push(

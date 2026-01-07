@@ -46,55 +46,62 @@ class _CreatePageState extends State<CreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 700),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
-              ),
-              SizedBox(
-                width: 300,
-                child: Text(
-                  'Choose your Action Service',
-                  style: Theme.of(context).textTheme.displayLarge,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(
-                height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-              ),
-              const SizedBox(height: 12),
-              ..._services.map(
-                (service) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: CardButton(
-                    label: service.name,
-                    icon: Icons.build,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ActionPage(
-                            serviceName: service.name,
-                            serviceActions: service.actions,
-                            allServices: _services,
-                          ),
-                        ),
-                      );
-                    },
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(
+          'Select your trigger service',
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
+      body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
+                ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    const gap = 6.0;
+                    final itemWidth = (constraints.maxWidth - gap) / 2;
+                    return Wrap(
+                      spacing: gap,
+                      runSpacing: gap,
+                      children: _services
+                          .map(
+                            (service) => SizedBox(
+                              width: itemWidth,
+                              child: CardButton(
+                                label: service.name,
+                                icon: Icons.build,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ActionPage(
+                                        serviceName: service.name,
+                                        serviceActions: service.actions,
+                                        allServices: _services,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                color: Colors.blue,
+                                textColor: Colors.white,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
     );
   }
 }

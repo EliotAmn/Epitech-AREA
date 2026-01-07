@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/logout_page.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
 import 'pages/create_area/create_page.dart';
@@ -77,20 +76,21 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final bool showMainAppBar = _selectedIndex != 1; // hide on Create page to let its own AppBar render
+
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: LogoutPage(onLogoutSuccess: _onLogoutSuccess)
-          ),
-        ],
-        
-      ),
-      body: Container(
-        child: getCurrentPage(),
-      ),
+      appBar: showMainAppBar
+          ? AppBar(
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+                ),
+              ],
+            )
+          : null,
+      body: getCurrentPage(),
       bottomNavigationBar: _isLogined
           ? BottomNavigationBar(
               items: const [

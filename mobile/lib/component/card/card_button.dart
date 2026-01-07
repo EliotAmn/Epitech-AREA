@@ -16,7 +16,7 @@ class CardButton extends StatelessWidget {
     required this.onTap,
     required this.color,
     this.textColor,
-    this.height = 200,
+    this.height = 150,
     this.elevation = 4,
   });
 
@@ -24,7 +24,7 @@ class CardButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: elevation,
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: Colors.transparent,
       child: Container(
@@ -46,13 +46,13 @@ class CardButton extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 48, color: textColor),
-                const SizedBox(height: 8),
+                // Icon(icon, size: 6, color: textColor),
+                const SizedBox(height: 0),
                 Text(
                   label,
                   style: Theme.of(
                     context,
-                  ).textTheme.titleLarge?.copyWith(color: textColor),
+                  ).textTheme.bodyLarge?.copyWith(color: textColor),
                 ),
               ],
             ),

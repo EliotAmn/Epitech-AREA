@@ -22,39 +22,55 @@ class ReactionPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Choose Reaction Service',
-          style: Theme.of(context).textTheme.displayLarge,
+          'Choose reaction ',
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: allServices.length,
-        itemBuilder: (context, index) {
-          final service = allServices[index];
-          return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: CardButton(
-                label: service.name,
-                icon: Icons.settings,
-                color: Colors.green,
-                textColor: Colors.white,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ReactionListPage(
-                        actionServiceName: actionServiceName,
-                        selectedAction: selectedAction,
-                        actionInputValues: actionInputValues,
-                        reactionService: service,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
-          },
-        ),
+      body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    const gap = 6.0;
+                    final itemWidth = (constraints.maxWidth - gap) / 2;
+                    return Wrap(
+                      spacing: gap,
+                      runSpacing: gap,
+                      children: allServices.map((service) {
+                        return SizedBox(
+                          width: itemWidth,
+                          child: CardButton(
+                            label: service.name,
+                            icon: Icons.refresh,
+                            color: const Color.fromARGB(255, 13, 15, 18),
+                            textColor: Colors.white,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReactionListPage(
+                                    actionServiceName: actionServiceName,
+                                    selectedAction: selectedAction,
+                                    actionInputValues: actionInputValues,
+                                    reactionService: service,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ) 
+      ),
       );
   }
 }
@@ -79,8 +95,8 @@ class ReactionListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${reactionService.name} Reactions',
-          style: Theme.of(context).textTheme.displayLarge,
+          '${reactionService.name} reactions',
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
       body: ListView.builder(
@@ -91,9 +107,10 @@ class ReactionListPage extends StatelessWidget {
           return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: CardButton(
+                height: 100,
                 label: reaction.name,
                 icon: Icons.arrow_forward,
-                color: Colors.orange,
+                color: const Color.fromARGB(255, 255, 98, 0),
                 textColor: Colors.white,
                 onTap: () {
                   Navigator.push(
