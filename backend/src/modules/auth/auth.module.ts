@@ -1,23 +1,18 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 
 import { AuthMiddleware } from '@/middleware/auth.middleware';
 import { PasswordModule } from '../common/password/password.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy';
 import { OauthLinkRepository } from './oauth-link.repository';
 import { OauthService } from './oauth.service';
-// import { GithubStrategy } from './strategies/github.strategy';
-import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
     ConfigModule,
-    PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -35,15 +30,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     PasswordModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    GoogleStrategy,
-    // GithubStrategy,
-    OauthService,
-    OauthLinkRepository,
-    AuthMiddleware,
-  ],
+  providers: [AuthService, OauthService, OauthLinkRepository, AuthMiddleware],
   exports: [AuthService, OauthService],
 })
 export class AuthModule implements NestModule {

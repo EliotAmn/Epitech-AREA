@@ -6,11 +6,9 @@ import {
   Param,
   Post,
   Query,
-  Req,
-  UseGuards,
+  Res,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBody,
   ApiOperation,
@@ -19,6 +17,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import axios from 'axios';
+import type { Response } from 'express';
 
 import { CreateUserDto, isAuthPlatform } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
@@ -70,37 +70,205 @@ export class AuthController {
   }
 
   @Get('google')
-  @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Start Google OAuth flow' })
   @ApiResponse({ status: 302, description: 'Redirects to Google consent page' })
-  googleAuth() {}
+  googleAuth(@Res() res: Response) {
+    const clientID = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const appUrl = this.configService.get<string>('APP_URL') || '';
+    if (!clientID) throw new BadRequestException('Google OAuth not configured');
+
+    const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/google/redirect`;
+    const scope = encodeURIComponent(
+      'email profile https://www.googleapis.com/auth/gmail.send',
+    );
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+      clientID,
+    )}&redirect_uri=${encodeURIComponent(callbackURL)}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+    return res.redirect(url);
+  }
 
   @Get('google/redirect')
-  @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Google OAuth callback' })
   @ApiResponse({
     status: 200,
     description: 'Returns an HTML page that posts grant_code to the frontend',
   })
-  async googleRedirect(@Req() req: { user?: unknown }) {
-    return this.handleProviderRedirect('google', req);
+  async googleRedirect(
+    @Query('code') code: string,
+    @Query('error') error: string,
+  ) {
+    if (error) throw new BadRequestException(error);
+    if (!code) throw new BadRequestException('Missing code');
+
+    const clientID = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
+    const appUrl = this.configService.get<string>('APP_URL') || '';
+    const redirectUri = `${appUrl.replace(/\/$/, '')}/auth/google/redirect`;
+    if (!clientID || !clientSecret) {
+      throw new BadRequestException('Google OAuth not configured');
+    }
+
+    const params = new URLSearchParams();
+    params.append('code', code);
+    params.append('client_id', clientID);
+    params.append('client_secret', clientSecret);
+    params.append('redirect_uri', redirectUri);
+    params.append('grant_type', 'authorization_code');
+
+    const tokenResp = await axios.post(
+      'https://oauth2.googleapis.com/token',
+      params.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+    );
+    const tokens = tokenResp.data as Record<string, any>;
+    const accessToken = tokens.access_token as string | undefined;
+    const refreshToken = tokens.refresh_token as string | undefined;
+
+    if (!accessToken)
+      throw new BadRequestException('Failed to obtain access token');
+
+    type GoogleUser = {
+      id: string;
+      email?: string;
+      name?: string;
+      [key: string]: any;
+    };
+
+    const userResp = await axios.get<GoogleUser>(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    const { id, email, name } = userResp.data;
+
+    const expiresIn =
+      typeof tokens.expires_in === 'number'
+        ? tokens.expires_in
+        : typeof tokens.expires_in === 'string' &&
+            /^[0-9]+$/.test(tokens.expires_in)
+          ? parseInt(tokens.expires_in, 10)
+          : undefined;
+
+    const profile = {
+      provider: 'google',
+      id,
+      email,
+      displayName: name,
+      accessToken,
+      refreshToken,
+      raw: userResp.data,
+      expires_in: expiresIn,
+    };
+
+    return this.handleProviderRedirect('google', { user: profile });
   }
 
   @Get('github')
-  @UseGuards(AuthGuard('github'))
   @ApiOperation({ summary: 'Start GitHub OAuth flow' })
   @ApiResponse({ status: 302, description: 'Redirects to GitHub consent page' })
-  githubAuth() {}
+  githubAuth(@Res() res: Response) {
+    const clientID = this.configService.get<string>('GITHUB_CLIENT_ID');
+    const appUrl = this.configService.get<string>('APP_URL') || '';
+    if (!clientID) throw new BadRequestException('GitHub OAuth not configured');
+
+    const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/github/redirect`;
+    const scope = encodeURIComponent('read:user user:email');
+    const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
+      clientID,
+    )}&redirect_uri=${encodeURIComponent(callbackURL)}&scope=${scope}`;
+    return res.redirect(url);
+  }
 
   @Get('github/redirect')
-  @UseGuards(AuthGuard('github'))
   @ApiOperation({ summary: 'GitHub OAuth callback' })
   @ApiResponse({
     status: 200,
     description: 'Returns an HTML page that posts grant_code to the frontend',
   })
-  async githubRedirect(@Req() req: { user?: unknown }) {
-    return this.handleProviderRedirect('github', req);
+  async githubRedirect(
+    @Query('code') code: string,
+    @Query('error') error: string,
+  ) {
+    if (error) throw new BadRequestException(error);
+    if (!code) throw new BadRequestException('Missing code');
+
+    const clientID = this.configService.get<string>('GITHUB_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('GITHUB_CLIENT_SECRET');
+    const appUrl = this.configService.get<string>('APP_URL') || '';
+    const redirectUri = `${appUrl.replace(/\/$/, '')}/auth/github/redirect`;
+    if (!clientID || !clientSecret) {
+      throw new BadRequestException('GitHub OAuth not configured');
+    }
+
+    const tokenResp = await axios.post(
+      'https://github.com/login/oauth/access_token',
+      {
+        client_id: clientID,
+        client_secret: clientSecret,
+        code,
+        redirect_uri: redirectUri,
+      },
+      { headers: { Accept: 'application/json' } },
+    );
+
+    const tokens = tokenResp.data as Record<string, any>;
+    const accessToken = tokens.access_token as string | undefined;
+    if (!accessToken)
+      throw new BadRequestException('Failed to obtain access token');
+
+    type GitHubUser = {
+      id: string | number;
+      email?: string | null;
+      name?: string | null;
+      login?: string;
+      [key: string]: any;
+    };
+
+    const userResp = await axios.get<GitHubUser>(
+      'https://api.github.com/user',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/json',
+        },
+      },
+    );
+
+    // GitHub email may require separate call; try to extract primary email if present
+    let email: string | undefined =
+      typeof userResp.data.email === 'string' ? userResp.data.email : undefined;
+    if (!email) {
+      try {
+        const emailsResp = await axios.get<
+          Array<{ email: string; primary?: boolean; verified?: boolean }>
+        >('https://api.github.com/user/emails', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: 'application/json',
+          },
+        });
+        const primary =
+          (emailsResp.data || []).find((e) => e.primary) ||
+          emailsResp.data?.[0];
+        email = primary?.email;
+      } catch {
+        // ignore
+      }
+    }
+
+    const profile = {
+      provider: 'github',
+      id: userResp.data.id,
+      email,
+      displayName: userResp.data.name || userResp.data.login,
+      accessToken,
+      refreshToken: undefined,
+      raw: userResp.data,
+    };
+
+    return this.handleProviderRedirect('github', { user: profile });
   }
 
   @Get('oauth/consume')
