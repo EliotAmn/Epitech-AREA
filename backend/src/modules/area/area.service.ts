@@ -225,10 +225,18 @@ export class AreaService {
           // Set up polling if applicable
           if (def_action.action.poll_interval <= 0) continue;
 
+          // Initialize cache from reload_cache
+          const initialCache = await def_action.action.reload_cache(sconf);
+          sconf.cache = initialCache || {};
+
           const timer = setInterval(() => {
             def_action.action
               .poll(sconf)
               .then(async (out: ActionTriggerOutput) => {
+                // Update cache with the returned cache from poll
+                if (out.cache) {
+                  sconf.cache = { ...sconf.cache, ...out.cache };
+                }
                 if (out && out.triggered) {
                   await this.handle_action_trigger(a.id, out);
                 }
