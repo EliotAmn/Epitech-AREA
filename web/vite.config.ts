@@ -13,6 +13,8 @@ export default defineConfig({
         },
     },
     server: {
+        host: true,
         allowedHosts: [".eliotamanieu.fr", "localhost", ".ngrok.io"],
     }
 });
+

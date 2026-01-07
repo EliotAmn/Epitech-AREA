@@ -78,6 +78,11 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
           },
         })
         .then((resp) => {
+          // Spotify returns 204 No Content when no player is active.
+          // Explicitly handle this case before accessing resp.data.
+          if (resp.status === 204) {
+            return resolve({ triggered: false, parameters: {} });
+          }
           const data = resp.data;
           if (!data || !data.item) {
             return resolve({ triggered: false, parameters: {} });
