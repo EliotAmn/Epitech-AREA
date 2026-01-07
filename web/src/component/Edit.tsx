@@ -9,7 +9,7 @@ import { aboutService } from "@/services/api/aboutService";
 import { areaService } from "@/services/api/areaService";
 import type { CatalogItem } from "../data/catalogData";
 import Button from "./button";
-import type { ParameterDefinition } from "./ConfigWidget";
+import type { ParameterDefinition, SelectOption } from "./ConfigWidget";
 import Input from "./input";
 
 type ServiceActionReaction = {
@@ -189,10 +189,11 @@ export default function Edit({ area }: EditProps) {
                                             </option>
                                         );
                                     }
+                                    const selectOpt = opt as SelectOption;
                                     const label =
-                                        (opt as any).label ??
-                                        (opt as any).value;
-                                    const value = (opt as any).value ?? label;
+                                        selectOpt.label ??
+                                        selectOpt.value;
+                                    const value = selectOpt.value ?? label;
                                     return (
                                         <option key={value} value={value}>
                                             {label}

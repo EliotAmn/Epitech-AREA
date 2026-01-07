@@ -5,13 +5,18 @@ import { getPlatformIcon } from "@/config/platforms";
 import Button from "./button";
 import Input from "./input";
 
+export interface SelectOption {
+    label?: string;
+    value: string;
+}
+
 export interface ParameterDefinition {
     name: string;
     type: "string" | "number" | "boolean" | "select";
     label?: string;
     description?: string;
     required?: boolean;
-    options?: string[];
+    options?: (string | SelectOption)[];
 }
 
 interface ConfigWidgetProps {
@@ -183,14 +188,13 @@ export default function ConfigWidget({
                                                                     </option>
                                                                 );
                                                             }
+                                                            const selectOpt =
+                                                                opt as SelectOption;
                                                             const label =
-                                                                (opt as any)
-                                                                    .label ??
-                                                                (opt as any)
-                                                                    .value;
+                                                                selectOpt.label ??
+                                                                selectOpt.value;
                                                             const value =
-                                                                (opt as any)
-                                                                    .value ??
+                                                                selectOpt.value ??
                                                                 label;
                                                             return (
                                                                 <option
