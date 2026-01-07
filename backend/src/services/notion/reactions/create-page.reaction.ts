@@ -6,6 +6,41 @@ import {
   ServiceReactionDefinition,
 } from '@/common/service.types';
 
+interface NotionPageResponse {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface NotionBlock {
+  object: string;
+  type: string;
+  paragraph: {
+    rich_text: Array<{
+      type: string;
+      text: {
+        content: string;
+      };
+    }>;
+  };
+}
+
+interface NotionPageCreateBody {
+  parent: {
+    type: string;
+    page_id?: string;
+  };
+  properties: {
+    title: {
+      title: Array<{
+        text: {
+          content: string;
+        };
+      }>;
+    };
+  };
+  children?: NotionBlock[];
+}
+
 export class CreatePageReaction extends ServiceReactionDefinition {
   name = 'create_page';
   label = 'Create Page';
@@ -94,7 +129,7 @@ export class CreatePageReaction extends ServiceReactionDefinition {
     };
 
     // Build the page content (children blocks)
-    const children: any[] = [];
+    const children: NotionBlock[] = [];
     if (content) {
       children.push({
         object: 'block',
@@ -112,7 +147,7 @@ export class CreatePageReaction extends ServiceReactionDefinition {
       });
     }
 
-    const requestBody: any = {
+    const requestBody: NotionPageCreateBody = {
       parent,
       properties,
     };
@@ -138,7 +173,7 @@ export class CreatePageReaction extends ServiceReactionDefinition {
       throw new Error(`Notion API error: ${res.status} ${text}`);
     }
 
-    const result = await res.json();
+    const result = (await res.json()) as NotionPageResponse;
     console.log('✅ Notion page created:', result.id);
   }
 

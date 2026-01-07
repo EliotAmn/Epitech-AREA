@@ -45,18 +45,15 @@ export class ArchivePageReaction extends ServiceReactionDefinition {
       archived: true,
     };
 
-    const res = await fetch(
-      `https://api.notion.com/v1/pages/${pageId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Notion-Version': '2022-06-28',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
+    const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify(requestBody),
+    });
 
     if (!res.ok) {
       const text = await res.text();

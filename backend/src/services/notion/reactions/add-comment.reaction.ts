@@ -44,7 +44,8 @@ export class AddCommentReaction extends ServiceReactionDefinition {
         ? params.page_id.value
         : null;
     const commentText =
-      params.comment_text?.value && typeof params.comment_text.value === 'string'
+      params.comment_text?.value &&
+      typeof params.comment_text.value === 'string'
         ? params.comment_text.value
         : null;
 
@@ -67,21 +68,18 @@ export class AddCommentReaction extends ServiceReactionDefinition {
       ],
     };
 
-    const res = await fetch(
-      `https://api.notion.com/v1/comments`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Notion-Version': '2022-06-28',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...requestBody,
-          discussion_id: pageId,
-        }),
+    const res = await fetch(`https://api.notion.com/v1/comments`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({
+        ...requestBody,
+        discussion_id: pageId,
+      }),
+    });
 
     if (!res.ok) {
       const text = await res.text();

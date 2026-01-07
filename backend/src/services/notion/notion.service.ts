@@ -6,10 +6,10 @@ import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
 import { PageCreated } from '@/services/notion/actions/page-created';
 import { PageUpdated } from '@/services/notion/actions/page-updated';
-import { CreatePageReaction } from '@/services/notion/reactions/create-page.reaction';
-import { UpdatePageReaction } from '@/services/notion/reactions/update-page.reaction';
 import { AddCommentReaction } from '@/services/notion/reactions/add-comment.reaction';
 import { ArchivePageReaction } from '@/services/notion/reactions/archive-page.reaction';
+import { CreatePageReaction } from '@/services/notion/reactions/create-page.reaction';
+import { UpdatePageReaction } from '@/services/notion/reactions/update-page.reaction';
 
 interface NotionTokenResponse {
   access_token: string;
@@ -57,7 +57,7 @@ async function oauth_callback(
       },
       {
         headers: {
-          'Authorization': `Basic ${authString}`,
+          Authorization: `Basic ${authString}`,
           'Content-Type': 'application/json',
         },
       },
@@ -110,5 +110,10 @@ export default class NotionService implements ServiceDefinition {
   description =
     'Connect your Notion workspace to automate tasks and integrate with your notes, databases, and pages.';
   actions = [PageCreated, PageUpdated];
-  reactions = [CreatePageReaction, UpdatePageReaction, AddCommentReaction, ArchivePageReaction];
+  reactions = [
+    CreatePageReaction,
+    UpdatePageReaction,
+    AddCommentReaction,
+    ArchivePageReaction,
+  ];
 }

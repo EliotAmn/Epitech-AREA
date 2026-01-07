@@ -94,7 +94,9 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
 
       if (!titleRes.ok) {
         const text = await titleRes.text();
-        throw new Error(`Failed to update page title: ${titleRes.status} ${text}`);
+        throw new Error(
+          `Failed to update page title: ${titleRes.status} ${text}`,
+        );
       }
 
       console.log(`✅ Page title updated: ${title}`);

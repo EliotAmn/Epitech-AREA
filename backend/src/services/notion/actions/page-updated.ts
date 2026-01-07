@@ -108,7 +108,9 @@ export class PageUpdated extends ServiceActionDefinition {
 
           // Find pages edited after last check (excluding very recent creation to avoid duplicates with page_created)
           const editedPages = data.results.filter(
-            (page) => page.last_edited_time > checkTime && page.created_time < checkTime,
+            (page) =>
+              page.last_edited_time > checkTime &&
+              page.created_time < checkTime,
           );
 
           if (editedPages.length === 0) {
@@ -122,7 +124,8 @@ export class PageUpdated extends ServiceActionDefinition {
           // Trigger on the most recently edited page
           const mostRecentPage = editedPages[0];
           const pageTitle =
-            mostRecentPage.properties.title?.title?.[0]?.plain_text || 'Untitled';
+            mostRecentPage.properties.title?.title?.[0]?.plain_text ||
+            'Untitled';
 
           console.log(
             `[Notion] Page updated: ${pageTitle} (${mostRecentPage.id})`,
