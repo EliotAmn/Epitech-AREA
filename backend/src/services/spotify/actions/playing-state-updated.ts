@@ -137,8 +137,30 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
             });
           }
         })
-        .catch((err: Error) => {
-          logger.error(`Error polling Spotify playing state: ${err.message}`);
+        .catch((err: unknown) => {
+          if (axios.isAxiosError(err)) {
+            const status = err.response?.status;
+            const data = err.response?.data;
+            let dataString: string;
+            if (typeof data === 'string') {
+              dataString = data;
+            } else if (data !== undefined) {
+              try {
+                dataString = JSON.stringify(data);
+              } catch {
+                dataString = '[unserializable response data]';
+              }
+            } else {
+              dataString = 'no response data';
+            }
+            logger.error(
+              `Error polling Spotify playing state: HTTP ${status ?? 'unknown status'} - ${dataString}`,
+            );
+          } else if (err instanceof Error) {
+            logger.error(`Error polling Spotify playing state: ${err.message}`);
+          } else {
+            logger.error('Error polling Spotify playing state: Unknown error type');
+          }
           resolve({ triggered: false, parameters: {} });
         });
     });
