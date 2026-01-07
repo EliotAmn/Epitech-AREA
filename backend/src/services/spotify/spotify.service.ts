@@ -76,7 +76,7 @@ async function oauth_callback(
     const refreshToken = tokens.refresh_token;
 
     logger.log(`OAuth successful for user ${userService.user_id}`);
-    logger.debug(`Access token received: ${accessToken.substring(0, 20)}...`);
+    logger.debug(`Access token received: ${!!accessToken}`);
     logger.debug(`Refresh token received: ${!!refreshToken}`);
 
     userService.service_config = {
