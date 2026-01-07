@@ -12,10 +12,10 @@ type ToastProps = {
 
 export default function Toast({
     visible = true,
-    title = "Confirmer l'action",
+    title = "Confirm action",
     subtitle,
-    confirmLabel = "Confirmer",
-    cancelLabel = "Annuler",
+    confirmLabel = "Confirm",
+    cancelLabel = "Cancel",
     loading = false,
     onConfirm,
     onCancel,

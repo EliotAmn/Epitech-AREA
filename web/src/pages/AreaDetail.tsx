@@ -203,13 +203,13 @@ export default function AreaDetail() {
             </GlassCardLayout>
             <Toast
                 visible={showConfirm}
-                title={`Supprimer l'area "${area.name}" ?`}
-                subtitle="Cette action est irréversible."
+                title={`Are you sure you want to delete "${area.name}" ?`}
+                subtitle="This action is irreversible"
                 loading={loading}
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
-                confirmLabel={loading ? "Suppression..." : "Confirmer"}
-                cancelLabel="Annuler"
+                confirmLabel={loading ? "Deletion..." : "Confirm"}
+                cancelLabel="Cancel"
             />
         </div>
     );
