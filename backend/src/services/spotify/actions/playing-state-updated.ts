@@ -140,7 +140,7 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
         .catch((err: unknown) => {
           if (axios.isAxiosError(err)) {
             const status = err.response?.status;
-            const data = err.response?.data;
+            const data: unknown = err.response?.data;
             let dataString: string;
             if (typeof data === 'string') {
               dataString = data;
@@ -159,7 +159,9 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
           } else if (err instanceof Error) {
             logger.error(`Error polling Spotify playing state: ${err.message}`);
           } else {
-            logger.error('Error polling Spotify playing state: Unknown error type');
+            logger.error(
+              'Error polling Spotify playing state: Unknown error type',
+            );
           }
           resolve({ triggered: false, parameters: {} });
         });
