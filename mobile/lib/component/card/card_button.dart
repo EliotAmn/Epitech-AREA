@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 
 class CardButton extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final IconData? icon;
   final VoidCallback onTap;
   final double height;
   final double elevation;
   final Color color;
   final Color? textColor;
+  final dynamic children;
+  final bool? isRow;
 
   const CardButton({
     super.key,
     required this.label,
-    required this.icon,
+    this.icon,
     required this.onTap,
     required this.color,
     this.textColor,
     this.height = 150,
     this.elevation = 4,
+    this.children,
+    this.isRow = false,
   });
 
   @override
@@ -43,10 +47,10 @@ class CardButton extends StatelessWidget {
             width: double.infinity,
             height: height,
             padding: const EdgeInsets.all(16),
-            child: Column(
+            child: isRow == true ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icon(icon, size: 6, color: textColor),
+                if (icon != null) Icon(icon, size: 6, color: textColor),
                 const SizedBox(height: 0),
                 Text(
                   label,
@@ -54,6 +58,27 @@ class CardButton extends StatelessWidget {
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: textColor),
                 ),
+                if (children != null) ...[
+                  const SizedBox(height: 8),
+                  children,
+                ],
+              ],
+            ) : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) Icon(icon, size: 40, color: textColor),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: textColor),
+                ),
+                if (children != null) ...[
+                  const SizedBox(height: 8),
+                  children,
+                ],
               ],
             ),
           ),

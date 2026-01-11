@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
-import 'pages/create_area/create_page.dart';
+import 'pages/create_area/create_home_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'global/cache.dart' as cache;
@@ -62,7 +62,7 @@ class _MainNavigationState extends State<MainNavigation> {
   List<Widget> _getPages() {
     return [
       const HomePage(),
-      const CreatePage(),
+      CreateHomePage(),
       LogoutPage(onLogoutSuccess: _onLogoutSuccess),
     ];
   }

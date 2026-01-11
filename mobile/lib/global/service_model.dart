@@ -2,8 +2,9 @@ class Service {
   final String name;
   final List<ServiceAction> actions;
   final List<ServiceReaction> reactions;
+  final String? oauthUrl;
 
-  Service({required this.name, required this.actions, required this.reactions});
+  Service({required this.name, required this.actions, required this.reactions, this.oauthUrl});
 
   factory Service.fromJson(Map<String, dynamic> json) {
     return Service(
@@ -14,6 +15,7 @@ class Service {
       reactions: (json['reactions'] as List? ?? [])
           .map((r) => ServiceReaction.fromJson(r as Map<String, dynamic>))
           .toList(),
+      oauthUrl: json['oauth_url'],
     );
   }
 
@@ -21,6 +23,7 @@ class Service {
     'name': name,
     'actions': actions.map((a) => a.toJson()).toList(),
     'reactions': reactions.map((r) => r.toJson()).toList(),
+    'oauth_url': oauthUrl,
   };
 }
 
@@ -86,12 +89,35 @@ class ServiceReaction {
   };
 }
 
+class OptionParam {
+  final String label;
+  final String value;
+
+  OptionParam({
+    required this.label,
+    required this.value,
+  });
+  factory OptionParam.fromJson(Map<String, dynamic> json) {
+    return OptionParam(
+      label: json['label'] ?? '',
+      value: json['value'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'label': label,
+    'value': value,
+  };
+}
+
 class ActionParam {
   final String name;
   final String type;
   final String label;
   final String description;
   final bool requiredParam;
+  final List<OptionParam>? options;
+  
 
   ActionParam({
     required this.name,
@@ -99,6 +125,7 @@ class ActionParam {
     required this.label,
     required this.description,
     required this.requiredParam,
+    this.options,
   });
 
   factory ActionParam.fromJson(Map<String, dynamic> json) {
@@ -108,6 +135,9 @@ class ActionParam {
       label: json['label'] ?? '',
       description: json['description'] ?? '',
       requiredParam: json['required'] ?? false,
+      options: (json['options'] as List? ?? [])
+          .map((o) => OptionParam.fromJson(o as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -117,5 +147,6 @@ class ActionParam {
     'label': label,
     'description': description,
     'required': requiredParam,
+    'options': options?.map((o) => o.toJson()).toList(),
   };
 }

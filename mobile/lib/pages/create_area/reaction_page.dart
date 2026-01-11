@@ -23,7 +23,7 @@ class ReactionPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Choose reaction ',
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.displayLarge,
         ),
       ),
       body: SingleChildScrollView(
@@ -44,8 +44,8 @@ class ReactionPage extends StatelessWidget {
                         return SizedBox(
                           width: itemWidth,
                           child: CardButton(
+                            isRow: true,
                             label: service.name,
-                            icon: Icons.refresh,
                             color: const Color.fromARGB(255, 13, 15, 18),
                             textColor: Colors.white,
                             onTap: () {
@@ -95,41 +95,79 @@ class ReactionListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${reactionService.name} reactions',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: reactionService.reactions.length,
-        itemBuilder: (context, index) {
-          final reaction = reactionService.reactions[index];
-          return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: CardButton(
-                height: 100,
-                label: reaction.name,
-                icon: Icons.arrow_forward,
-                color: const Color.fromARGB(255, 255, 98, 0),
-                textColor: Colors.white,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ConfigPage(
-                        actionServiceName: actionServiceName,
-                        selectedAction: selectedAction,
-                        actionInputValues: actionInputValues,
-                        reactionServiceName: reactionService.name,
-                        selectedReaction: reaction,
-                      ),
-                    ),
-                  );
-                },
+          'Select reactions',
+          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                color: Colors.white,
               ),
-            );
-          },
         ),
+        backgroundColor: Colors.orange,
+      ),
+      body:Column(
+        children:[
+          Container(
+              width: double.infinity,
+              color: Colors.orange,
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Icon( 
+                    Icons.play_circle_rounded,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    reactionService.name,
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Choose an action to trigger your area',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ), 
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: reactionService.reactions.length,
+              itemBuilder: (context, index) {
+                final reaction = reactionService.reactions[index];
+              return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: CardButton(
+                    isRow: true,
+                    height: 100,
+                    label: reaction.name,
+                    color: const Color.fromARGB(255, 255, 98, 0),
+                    textColor: Colors.white,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ConfigPage(
+                            actionServiceName: actionServiceName,
+                            selectedAction: selectedAction,
+                            actionInputValues: actionInputValues,
+                            reactionServiceName: reactionService.name,
+                            selectedReaction: reaction,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ]
+      )
     );
   }
 }
