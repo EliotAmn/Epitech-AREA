@@ -103,11 +103,12 @@ export class PageUpdated extends ServiceActionDefinition {
         )
         .then((resp) => {
           const data = resp.data;
+          const newTimestamp = new Date().toISOString();
           if (!data || !data.results || data.results.length === 0) {
             return resolve({
               triggered: false,
               parameters: {},
-              cache: { lastCheckTimestamp: checkTime },
+              cache: { lastCheckTimestamp: newTimestamp },
             });
           }
 
@@ -122,7 +123,7 @@ export class PageUpdated extends ServiceActionDefinition {
             return resolve({
               triggered: false,
               parameters: {},
-              cache: { lastCheckTimestamp: checkTime },
+              cache: { lastCheckTimestamp: newTimestamp },
             });
           }
 
@@ -136,7 +137,6 @@ export class PageUpdated extends ServiceActionDefinition {
             `[Notion] Page updated: ${pageTitle} (${mostRecentPage.id})`,
           );
 
-          const newTimestamp = new Date().toISOString();
           resolve({
             triggered: true,
             parameters: {
