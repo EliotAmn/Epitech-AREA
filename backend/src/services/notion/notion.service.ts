@@ -89,15 +89,34 @@ async function oauth_callback(
       bot_id: tokens.bot_id,
     };
   } catch (error: unknown) {
-    const axiosError = error as AxiosError<NotionErrorResponse>;
-    logger.error('=== NOTION OAUTH ERROR ===');
-    logger.error('Error response:', axiosError.response?.data);
-    logger.error('Error status:', axiosError.response?.status);
-    logger.error('Error message:', axiosError.message);
-    logger.error('========================');
-    const errorDetail =
-      axiosError.response?.data?.error_description || axiosError.message;
-    throw new UnauthorizedException(`Notion OAuth failed: ${errorDetail}`);
+    // Handle Axios errors specifically
+    if (axios.isAxiosError<NotionErrorResponse>(error)) {
+      const axiosError = error as AxiosError<NotionErrorResponse>;
+      logger.error('=== NOTION OAUTH ERROR ===');
+      logger.error('Error response:', axiosError.response?.data);
+      logger.error('Error status:', axiosError.response?.status);
+      logger.error('Error message:', axiosError.message);
+      logger.error('========================');
+      const errorDetail =
+        axiosError.response?.data?.error_description || axiosError.message;
+      throw new UnauthorizedException(`Notion OAuth failed: ${errorDetail}`);
+    }
+    // Re-throw known HTTP exceptions so they are not masked
+    if (
+      error instanceof UnauthorizedException ||
+      error instanceof BadRequestException
+    ) {
+      throw error;
+    }
+    // Fallback for unexpected non-Axios errors
+    logger.error('=== NOTION OAUTH UNEXPECTED ERROR ===');
+    logger.error('Error:', error);
+    logger.error('====================================');
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error during Notion OAuth';
+    throw new UnauthorizedException(`Notion OAuth failed: ${message}`);
   }
 
   return true;
