@@ -25,6 +25,9 @@ export interface ReactionInfo {
 export interface ServiceInfo {
   name: string;
   oauth_url?: string;
+  description?: string;
+  color?: string;
+  logo?: string;
   actions: ActionInfo[];
   reactions: ReactionInfo[];
 }
@@ -68,8 +71,6 @@ export class AboutService {
   private formatServices(): ServiceInfo[] {
     const services = this.serviceImporterService.getAllServices();
 
-    /* Doing hacky stuff with ServiceDefinition to obtain usable instances, would likely
-    be better if it had a clear type */
     return services.map((serviceClassOrInstance: ServiceClassOrInstance) => {
       try {
         const service =
@@ -84,6 +85,9 @@ export class AboutService {
 
         return {
           name: service.name,
+          description: service.description,
+          color: service.color,
+          logo: service.logo,
           oauth_url: service.oauth_url,
           actions,
           reactions,

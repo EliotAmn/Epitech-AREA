@@ -70,6 +70,8 @@ export interface ServiceDefinition {
   name: string;
   label: string;
   description: string;
+  color: string;
+  logo: string;
   oauth_url?: string;
   oauth_callback?: (
     userService: UserService,
