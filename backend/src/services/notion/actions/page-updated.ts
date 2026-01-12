@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import axios from 'axios';
 
 import { ParameterType, ServiceActionDefinition } from '@/common/service.types';
@@ -6,6 +7,8 @@ import type {
   ParameterDefinition,
   ServiceConfig,
 } from '@/common/service.types';
+
+const logger = new Logger('NotionService');
 
 interface NotionPage {
   id: string;
@@ -63,7 +66,7 @@ export class PageUpdated extends ServiceActionDefinition {
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
     if (!accessToken) {
-      console.log('[Notion] No access token, skipping poll');
+      logger.error('[Notion] No access token, skipping poll');
       return Promise.resolve({ triggered: false, parameters: {} });
     }
 
@@ -129,7 +132,7 @@ export class PageUpdated extends ServiceActionDefinition {
             mostRecentPage.properties.title?.title?.[0]?.plain_text ||
             'Untitled';
 
-          console.log(
+          logger.log(
             `[Notion] Page updated: ${pageTitle} (${mostRecentPage.id})`,
           );
 
@@ -149,11 +152,11 @@ export class PageUpdated extends ServiceActionDefinition {
         })
         .catch((err) => {
           if (axios.isAxiosError(err)) {
-            console.error('[Notion] Error polling page updates:');
-            console.error(`Status: ${err.response?.status}`);
-            console.error(`Response: ${JSON.stringify(err.response?.data)}`);
+            logger.error('[Notion] Error polling page updates:');
+            logger.error(`Status: ${err.response?.status}`);
+            logger.error(`Response: ${JSON.stringify(err.response?.data)}`);
           } else {
-            console.error('[Notion] Error polling page updates:', err);
+            logger.error('[Notion] Error polling page updates:', err);
           }
           resolve({
             triggered: false,
