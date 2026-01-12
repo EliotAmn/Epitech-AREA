@@ -83,6 +83,9 @@ async function oauth_callback(
 export default class SpotifyService implements ServiceDefinition {
   name = 'spotify';
   label = 'Spotify';
+  color = '#1DB954';
+  logo =
+    'https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_White.png';
   mandatory_env_vars = ['SPOTIFY_CLIENT_ID', 'SPOTIFY_CLIENT_SECRET'];
   oauth_url = buildUrlParameters('https://accounts.spotify.com/authorize', {
     client_id: process.env.SPOTIFY_CLIENT_ID!,
