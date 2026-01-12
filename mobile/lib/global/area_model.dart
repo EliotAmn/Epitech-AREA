@@ -1,3 +1,5 @@
+import '../utils/string_utils.dart';
+
 class Area {
   final String id;
   final String name;
@@ -39,6 +41,9 @@ class Area {
       }
     }
 
+    leftService = humanize(leftService);
+    rightService = humanize(rightService);
+
     final actions = (json['actions'] as List?) ?? const [];
     final firstAction = actions.isNotEmpty
         ? (actions.first as Map<String, dynamic>)
@@ -50,14 +55,14 @@ class Area {
 
     final action = AreaAction(
       serviceName: leftService,
-      actionName: (firstAction['action_name'] as String?) ?? '',
+      actionName: humanize((firstAction['action_name'] as String?) ?? ''),
       actionDescription: '',
       inputValues: (firstAction['params'] as Map<String, dynamic>?) ?? {},
     );
 
     final reaction = AreaReaction(
       serviceName: rightService,
-      reactionName: (firstReaction['reaction_name'] as String?) ?? '',
+      reactionName: humanize((firstReaction['reaction_name'] as String?) ?? ''),
       reactionDescription: '',
       inputValues: (firstReaction['params'] as Map<String, dynamic>?) ?? {},
     );

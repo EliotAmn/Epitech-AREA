@@ -1,3 +1,5 @@
+import '../utils/string_utils.dart';
+
 class Service {
   final String name;
   final List<ServiceAction> actions;
@@ -6,14 +8,40 @@ class Service {
   Service({required this.name, required this.actions, required this.reactions});
 
   factory Service.fromJson(Map<String, dynamic> json) {
+    final rawName = json['name'] ?? '';
+    final humanName = humanize(rawName.toString());
+    final actions = (json['actions'] as List? ?? [])
+        .map((a) => ServiceAction.fromJson(a as Map<String, dynamic>))
+        .toList();
+    final reactions = (json['reactions'] as List? ?? [])
+        .map((r) => ServiceReaction.fromJson(r as Map<String, dynamic>))
+        .toList();
+
+    final humanActions = actions
+        .map(
+          (a) => ServiceAction(
+            name: humanize(a.name),
+            description: a.description,
+            outputParams: a.outputParams,
+            inputParams: a.inputParams,
+          ),
+        )
+        .toList();
+
+    final humanReactions = reactions
+        .map(
+          (r) => ServiceReaction(
+            name: humanize(r.name),
+            description: r.description,
+            inputParams: r.inputParams,
+          ),
+        )
+        .toList();
+
     return Service(
-      name: json['name'] ?? '',
-      actions: (json['actions'] as List? ?? [])
-          .map((a) => ServiceAction.fromJson(a as Map<String, dynamic>))
-          .toList(),
-      reactions: (json['reactions'] as List? ?? [])
-          .map((r) => ServiceReaction.fromJson(r as Map<String, dynamic>))
-          .toList(),
+      name: humanName,
+      actions: humanActions,
+      reactions: humanReactions,
     );
   }
 
