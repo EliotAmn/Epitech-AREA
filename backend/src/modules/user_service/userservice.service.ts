@@ -14,10 +14,6 @@ export class UserServiceService {
     );
   }
 
-  findByUserId(userId: string) {
-    return this.userServiceRepository.findByUserId(userId);
-  }
-
   createOrFind(userId: string, serviceName: string) {
     return this.userServiceRepository
       .fromUserIdAndServiceName(userId, serviceName)

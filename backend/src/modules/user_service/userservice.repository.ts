@@ -17,14 +17,6 @@ export class UserServiceRepository {
     });
   }
 
-  findByUserId(userId: string) {
-    return this.prismaService.userService.findMany({
-      where: {
-        user_id: userId,
-      },
-    });
-  }
-
   create(userId: string, serviceName: string) {
     return this.prismaService.userService.create({
       data: {

@@ -19,17 +19,6 @@ export class UserServiceController {
     private readonly serviceImporterService: ServiceImporterService,
   ) {}
 
-  @Get()
-  async getMyServices(
-    @Req()
-    req: Request & {
-      user: { sub: string };
-    },
-  ) {
-    const userId = req.user?.sub;
-    return this.service.findByUserId(userId);
-  }
-
   @Get('/:service_name/redirect')
   async getServiceRedirectUrl(
     @Req()
