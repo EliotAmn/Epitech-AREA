@@ -2,6 +2,7 @@ import DiscordIcon from "../assets/discord_icon.webp";
 import GmailIcon from "../assets/gmail_icon.webp";
 import GoogleIcon from "../assets/logo_google.svg";
 import SpotifyIcon from "../assets/spotify_icon.webp";
+import NotionIcon from "../assets/notion-logo.svg";
 
 export const platforms: Record<string, { color: string; icon?: string }> = {
     discord: {
@@ -25,6 +26,10 @@ export const platforms: Record<string, { color: string; icon?: string }> = {
     },
     twitch: {
         color: "#9146FF",
+    },
+    notion: {
+        color: "#000000",
+        icon: NotionIcon,
     },
 };
 
