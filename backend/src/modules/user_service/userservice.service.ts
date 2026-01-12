@@ -21,7 +21,10 @@ export class UserServiceService {
         if (existing) {
           return existing;
         }
-        return this.userServiceRepository.create(userId, serviceName);
+        return this.userServiceRepository.create({
+          user_id: userId,
+          service_name: serviceName,
+        });
       });
   }
 
