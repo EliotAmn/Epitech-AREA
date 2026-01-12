@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import '../../component/card/card_button.dart';
 import '../../global/service_model.dart';
 import 'config_page.dart';
+import 'package:mobile/utils/string_utils.dart';
+import 'oauth_page.dart';
 
 class ReactionPage extends StatelessWidget {
   final String actionServiceName;
   final ServiceAction selectedAction;
   final Map<String, dynamic> actionInputValues;
   final List<Service> allServices;
+
 
   const ReactionPage({
     super.key,
@@ -126,7 +129,24 @@ class ReactionListPage extends StatelessWidget {
                           color: Colors.white,
                         ),
                   ),
+                  if (reactionService.oauthUrl != null) ...[
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle OAuth flow here, e.g., open a webview or external browser
+                        // same as login flow
+                        OAuthPage(oauthUrl: reactionService.oauthUrl!).initiateOAuthFlow(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                      ),
+                      child: Text(
+                        'Connect',
+                        style: TextStyle(color:  Color(int.parse('0xFF${reactionService.color.substring(1)}'))),
+                      ),
+                    ),
                   const SizedBox(height: 16),
+                ],
                 ],
               ),
             ), 
@@ -141,7 +161,7 @@ class ReactionListPage extends StatelessWidget {
                   child: CardButton(
                     isRow: true,
                     height: 100,
-                    label: reaction.name,
+                    label: humanize(reaction.name),
                     color: Color(int.parse('0xFF${reactionService.color.substring(1)}')),
                     textColor: Colors.white,
                     onTap: () {

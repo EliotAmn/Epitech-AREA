@@ -112,7 +112,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                           )
                         else
                          DropdownButtonFormField<String>(
-                          value: param.options!.isNotEmpty ? param.options![0].value : null,
+                          initialValue: param.options!.isNotEmpty ? param.options![0].value : null,
                           decoration: AppInputDecorations.primary(
                             context,
                             param.description,

@@ -71,6 +71,7 @@ void saveArea(BuildContext context) {
           .then((response) {
             if (response.statusCode == 201) {
               debugPrint('Area created successfully on server');
+              debugPrint('reponse body: ${response.body}');
               if (context.mounted) {
                 Navigator.of(context).popUntil((route) => route.isFirst);
                 ScaffoldMessenger.of(context).showSnackBar(

@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import '../../component/input/input_decorations.dart';
 import '../../global/service_model.dart';
 import '../../global/area_model.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:convert';
-import '../../global/cache.dart' as cache;
 import 'create_home_page.dart';
 
 class ConfigPage extends StatefulWidget {
@@ -30,7 +26,6 @@ class ConfigPage extends StatefulWidget {
 
 class _ConfigPageState extends State<ConfigPage> {
   final Map<String, TextEditingController> _controllers = {};
-  final Map<String, dynamic> _reactionInputValues = {};
 
   @override
   void initState() {

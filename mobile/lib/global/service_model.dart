@@ -23,7 +23,7 @@ class Service {
     final humanActions = actions
         .map(
           (a) => ServiceAction(
-            name: humanize(a.name),
+            name: a.name,
             description: a.description,
             outputParams: a.outputParams,
             inputParams: a.inputParams,
@@ -34,7 +34,7 @@ class Service {
     final humanReactions = reactions
         .map(
           (r) => ServiceReaction(
-            name: humanize(r.name),
+            name: r.name,
             description: r.description,
             inputParams: r.inputParams,
           ),

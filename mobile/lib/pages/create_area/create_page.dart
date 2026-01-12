@@ -3,6 +3,7 @@ import 'package:marquee/marquee.dart';
 import '../../component/card/card_button.dart';
 import 'action_page.dart';
 import '../../global/service_model.dart';
+import 'package:mobile/utils/string_utils.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({super.key, required this.services});
@@ -58,7 +59,7 @@ class _CreatePageState extends State<CreatePage> {
                             (service) => SizedBox(
                               width: itemWidth,
                               child: CardButton(
-                                label: service.name,
+                                label: humanize(service.name),
                                 icon: NetworkImage(service.logo),
                                 onTap: () {
                                   Navigator.of(context).push(
