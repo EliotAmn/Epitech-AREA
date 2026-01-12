@@ -7,6 +7,7 @@ import type {
   ParameterDefinition,
   ServiceConfig,
 } from '@/common/service.types';
+import { buildNotionHeaders } from '@/services/notion/notion.utils';
 
 const logger = new Logger('NotionService');
 
@@ -66,7 +67,7 @@ export class PageUpdated extends ServiceActionDefinition {
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
     if (!accessToken) {
-      logger.error('[Notion] No access token, skipping poll');
+      logger.error('No access token, skipping poll');
       return Promise.resolve({ triggered: false, parameters: {} });
     }
 
@@ -94,11 +95,7 @@ export class PageUpdated extends ServiceActionDefinition {
             page_size: 10,
           },
           {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Notion-Version': '2025-09-03',
-              'Content-Type': 'application/json',
-            },
+            headers: buildNotionHeaders(accessToken),
           },
         )
         .then((resp) => {
@@ -133,9 +130,7 @@ export class PageUpdated extends ServiceActionDefinition {
             mostRecentPage.properties.title?.title?.[0]?.plain_text ||
             'Untitled';
 
-          logger.log(
-            `[Notion] Page updated: ${pageTitle} (${mostRecentPage.id})`,
-          );
+          logger.log(`Page updated: ${pageTitle} (${mostRecentPage.id})`);
 
           resolve({
             triggered: true,
@@ -152,11 +147,11 @@ export class PageUpdated extends ServiceActionDefinition {
         })
         .catch((err) => {
           if (axios.isAxiosError(err)) {
-            logger.error('[Notion] Error polling page updates:');
+            logger.error('Error polling page updates:');
             logger.error(`Status: ${err.response?.status}`);
             logger.error(`Response: ${JSON.stringify(err.response?.data)}`);
           } else {
-            logger.error('[Notion] Error polling page updates:', err);
+            logger.error('Error polling page updates:', err);
           }
           resolve({
             triggered: false,

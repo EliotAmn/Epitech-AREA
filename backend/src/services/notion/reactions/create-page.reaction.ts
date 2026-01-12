@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
   ParameterDefinition,
   ParameterType,
@@ -5,7 +6,12 @@ import {
   ServiceConfig,
   ServiceReactionDefinition,
 } from '@/common/service.types';
+import {
+  buildNotionHeaders,
+  validatePageId,
+} from '@/services/notion/notion.utils';
 
+const logger = new Logger('NotionCreatePageReaction');
 interface NotionPageResponse {
   id: string;
   [key: string]: unknown;
@@ -101,6 +107,11 @@ export class CreatePageReaction extends ServiceReactionDefinition {
       throw new Error('Missing required parameter: title');
     }
 
+    // Validate parent_page_id format if provided
+    if (parentPageId) {
+      validatePageId(parentPageId);
+    }
+
     // Build the parent object
     let parent: { type: string; page_id?: string };
     if (parentPageId) {
@@ -160,11 +171,7 @@ export class CreatePageReaction extends ServiceReactionDefinition {
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Notion-Version': '2025-09-03',
-        'Content-Type': 'application/json',
-      },
+      headers: buildNotionHeaders(token),
       body: JSON.stringify(requestBody),
     });
 
@@ -174,7 +181,7 @@ export class CreatePageReaction extends ServiceReactionDefinition {
     }
 
     const result = (await res.json()) as NotionPageResponse;
-    console.log('[Notion] ✅ Page created:', result.id);
+    logger.log(`✅ Page created: ${result.id}`);
   }
 
   reload_cache(_sconf?: ServiceConfig): Promise<Record<string, any>> {

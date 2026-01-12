@@ -1,3 +1,5 @@
+import { Logger } from '@nestjs/common';
+
 import {
   ParameterDefinition,
   ParameterType,
@@ -5,6 +7,12 @@ import {
   ServiceConfig,
   ServiceReactionDefinition,
 } from '@/common/service.types';
+import {
+  buildNotionHeaders,
+  validatePageId,
+} from '@/services/notion/notion.utils';
+
+const logger = new Logger('NotionUpdatePageReaction');
 
 export class UpdatePageReaction extends ServiceReactionDefinition {
   name = 'update_page';
@@ -63,6 +71,14 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
       throw new Error('Missing required parameter: page_id');
     }
 
+    // Validate page_id format
+    validatePageId(pageId);
+
+    // Validate that at least one of title or content is provided
+    if (!title && !content) {
+      throw new Error('At least one of title or content must be provided');
+    }
+
     // Update page title if provided
     if (title) {
       const titleUpdateBody = {
@@ -83,11 +99,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
         `https://api.notion.com/v1/pages/${pageId}`,
         {
           method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Notion-Version': '2025-09-03',
-            'Content-Type': 'application/json',
-          },
+          headers: buildNotionHeaders(token),
           body: JSON.stringify(titleUpdateBody),
         },
       );
@@ -99,7 +111,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
         );
       }
 
-      console.log(`[Notion] ✅ Page title updated: ${title}`);
+      logger.log(`✅ Page title updated: ${title}`);
     }
 
     // Append content if provided
@@ -127,11 +139,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
         `https://api.notion.com/v1/blocks/${pageId}/children`,
         {
           method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Notion-Version': '2025-09-03',
-            'Content-Type': 'application/json',
-          },
+          headers: buildNotionHeaders(token),
           body: JSON.stringify(blockBody),
         },
       );
@@ -143,11 +151,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
         );
       }
 
-      console.log('[Notion] ✅ Content appended to page');
-    }
-
-    if (!title && !content) {
-      throw new Error('At least one of title or content must be provided');
+      logger.log('✅ Content appended to page');
     }
   }
 

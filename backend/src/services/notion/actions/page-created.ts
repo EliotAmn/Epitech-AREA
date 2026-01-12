@@ -7,13 +7,9 @@ import type {
   ParameterDefinition,
   ServiceConfig,
 } from '@/common/service.types';
+import { buildNotionHeaders } from '@/services/notion/notion.utils';
 
 const logger = new Logger('NotionPageCreated');
-const notionHeader = (accessToken: string) => ({
-  Authorization: `Bearer ${accessToken}`,
-  'Notion-Version': '2025-09-03',
-  'Content-Type': 'application/json',
-});
 
 interface NotionPage {
   id: string;
@@ -99,7 +95,7 @@ export class PageCreated extends ServiceActionDefinition {
             page_size: 10,
           },
           {
-            headers: notionHeader(accessToken),
+            headers: buildNotionHeaders(accessToken),
           },
         )
         .then((resp) => {

@@ -1,3 +1,5 @@
+import { Logger } from '@nestjs/common';
+
 import {
   ParameterDefinition,
   ParameterType,
@@ -5,7 +7,12 @@ import {
   ServiceConfig,
   ServiceReactionDefinition,
 } from '@/common/service.types';
+import {
+  buildNotionHeaders,
+  validatePageId,
+} from '@/services/notion/notion.utils';
 
+const logger = new Logger('NotionAddCommentReaction');
 export class AddCommentReaction extends ServiceReactionDefinition {
   name = 'add_comment';
   label = 'Add Comment';
@@ -57,6 +64,9 @@ export class AddCommentReaction extends ServiceReactionDefinition {
       throw new Error('Missing required parameter: comment_text');
     }
 
+    // Validate page_id format
+    validatePageId(pageId);
+
     const requestBody = {
       parent: {
         page_id: pageId,
@@ -73,11 +83,7 @@ export class AddCommentReaction extends ServiceReactionDefinition {
 
     const res = await fetch(`https://api.notion.com/v1/comments`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Notion-Version': '2025-09-03',
-        'Content-Type': 'application/json',
-      },
+      headers: buildNotionHeaders(token),
       body: JSON.stringify(requestBody),
     });
 
@@ -86,7 +92,7 @@ export class AddCommentReaction extends ServiceReactionDefinition {
       throw new Error(`Failed to add comment: ${res.status} ${text}`);
     }
 
-    console.log(`[Notion] ✅ Comment added to page: ${commentText}`);
+    logger.log(`✅ Comment added to page: ${commentText}`);
   }
 
   reload_cache(_sconf?: ServiceConfig): Promise<Record<string, any>> {

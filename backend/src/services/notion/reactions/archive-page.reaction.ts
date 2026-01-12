@@ -1,3 +1,5 @@
+import { Logger } from '@nestjs/common';
+
 import {
   ParameterDefinition,
   ParameterType,
@@ -5,7 +7,12 @@ import {
   ServiceConfig,
   ServiceReactionDefinition,
 } from '@/common/service.types';
+import {
+  buildNotionHeaders,
+  validatePageId,
+} from '@/services/notion/notion.utils';
 
+const logger = new Logger('NotionArchivePageReaction');
 export class ArchivePageReaction extends ServiceReactionDefinition {
   name = 'archive_page';
   label = 'Archive Page';
@@ -41,17 +48,16 @@ export class ArchivePageReaction extends ServiceReactionDefinition {
       throw new Error('Missing required parameter: page_id');
     }
 
+    // Validate page_id format
+    validatePageId(pageId);
+
     const requestBody = {
       archived: true,
     };
 
     const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
       method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Notion-Version': '2025-09-03',
-        'Content-Type': 'application/json',
-      },
+      headers: buildNotionHeaders(token),
       body: JSON.stringify(requestBody),
     });
 
@@ -60,7 +66,7 @@ export class ArchivePageReaction extends ServiceReactionDefinition {
       throw new Error(`Failed to archive page: ${res.status} ${text}`);
     }
 
-    console.log(`[Notion] ✅ Page archived: ${pageId}`);
+    logger.log(`✅ Page archived: ${pageId}`);
   }
 
   reload_cache(_sconf?: ServiceConfig): Promise<Record<string, any>> {
