@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 import Button from "../component/button";
 import Widget from "../component/widget";
 
-import "../styles/responsiveGrids.css";
-
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { ThemeContext } from "../context/theme";
 
