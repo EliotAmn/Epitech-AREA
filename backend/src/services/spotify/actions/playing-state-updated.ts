@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import axios from 'axios';
 
 import { ParameterType, ServiceActionDefinition } from '@/common/service.types';
@@ -25,6 +26,7 @@ interface SpotifyPlayerResponse {
     volume_percent: number;
   };
 }
+const logger = new Logger('SpotifyService');
 
 export class PlayingStateUpdated extends ServiceActionDefinition {
   name = 'spotify.playing_state_updated';
@@ -61,14 +63,19 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
 
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
-    if (!accessToken)
+    logger.debug(`Polling for user, access token present: ${!!accessToken}`);
+
+    if (!accessToken) {
+      logger.debug('No access token, skipping poll');
       return Promise.resolve({ triggered: false, parameters: {} });
+    }
 
     // Get per-user state from cache
     const lastPlayingState = sconf.cache?.lastPlayingState as
       | 'play'
       | 'pause'
       | null;
+    logger.debug(`Last playing state from cache: ${lastPlayingState}`);
 
     return new Promise((resolve) => {
       axios
@@ -78,13 +85,17 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
           },
         })
         .then((resp) => {
+          logger.debug(`Spotify API response status: ${resp.status}`);
+
           // Spotify returns 204 No Content when no player is active.
           // Explicitly handle this case before accessing resp.data.
           if (resp.status === 204) {
+            logger.debug('No active player (204 No Content)');
             return resolve({ triggered: false, parameters: {} });
           }
           const data = resp.data;
           if (!data || !data.item) {
+            logger.debug('No data or item in response');
             return resolve({ triggered: false, parameters: {} });
           }
           const isPlaying: boolean = data.is_playing;
@@ -92,10 +103,19 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
           const currentState: 'play' | 'pause' = isPlaying ? 'play' : 'pause';
           const triggerState: string = (sconf.config.state as string) || 'both';
 
+          logger.debug(`Current state: ${currentState}, Song: ${songName}`);
+          logger.debug(`Trigger state config: ${triggerState}`);
+
           let triggered = false;
           if (lastPlayingState !== currentState) {
+            logger.debug(
+              `State changed from ${lastPlayingState} to ${currentState}`,
+            );
             if (triggerState === 'both' || triggerState === currentState) {
               triggered = true;
+              logger.log(
+                `Trigger activated! State: ${currentState}, Song: ${songName}`,
+              );
             }
           }
 
@@ -117,8 +137,32 @@ export class PlayingStateUpdated extends ServiceActionDefinition {
             });
           }
         })
-        .catch((err) => {
-          console.error('Error polling Spotify playing state:', err);
+        .catch((err: unknown) => {
+          if (axios.isAxiosError(err)) {
+            const status = err.response?.status;
+            const data: unknown = err.response?.data;
+            let dataString: string;
+            if (typeof data === 'string') {
+              dataString = data;
+            } else if (data !== undefined) {
+              try {
+                dataString = JSON.stringify(data);
+              } catch {
+                dataString = '[unserializable response data]';
+              }
+            } else {
+              dataString = 'no response data';
+            }
+            logger.error(
+              `Error polling Spotify playing state: HTTP ${status ?? 'unknown status'} - ${dataString}`,
+            );
+          } else if (err instanceof Error) {
+            logger.error(`Error polling Spotify playing state: ${err.message}`);
+          } else {
+            logger.error(
+              'Error polling Spotify playing state: Unknown error type',
+            );
+          }
           resolve({ triggered: false, parameters: {} });
         });
     });

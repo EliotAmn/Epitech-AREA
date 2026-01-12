@@ -1,10 +1,20 @@
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '@prisma/client';
 import axios, { AxiosError } from 'axios';
 
 import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
 import { PlayingStateUpdated } from '@/services/spotify/actions/playing-state-updated';
+import { TrackChanged } from '@/services/spotify/actions/track-changed';
+import { PlayPause } from '@/services/spotify/reactions/play-pause';
+import { SetVolume } from '@/services/spotify/reactions/set-volume';
+import { SkipTrack } from '@/services/spotify/reactions/skip-track';
+
+const logger = new Logger('SpotifyService');
 
 interface SpotifyTokenResponse {
   access_token: string;
@@ -24,10 +34,14 @@ async function oauth_callback(
   params: { [key: string]: string },
 ): Promise<boolean> {
   const authorizationCode = params.code as string | undefined;
+  logger.debug(`OAuth callback received for user ${userService.user_id}`);
+  logger.debug(`Authorization code present: ${!!authorizationCode}`);
+
   if (!authorizationCode)
     throw new BadRequestException('Authorization code is missing');
 
   const redirectUri = buildServiceRedirectUrl('spotify');
+  logger.debug(`Redirect URI: ${redirectUri}`);
 
   // Call spotify with the authorization code and userId to exchange for tokens
   const formData = new URLSearchParams();
@@ -36,6 +50,8 @@ async function oauth_callback(
   formData.append('grant_type', 'authorization_code');
   formData.append('client_id', process.env.SPOTIFY_CLIENT_ID!);
   formData.append('client_secret', process.env.SPOTIFY_CLIENT_SECRET!);
+
+  logger.debug('Exchanging authorization code for tokens...');
 
   try {
     const res = await axios.post<SpotifyTokenResponse>(
@@ -48,6 +64,8 @@ async function oauth_callback(
       },
     );
 
+    logger.debug(`Token exchange response status: ${res.status}`);
+
     if (res.status !== 200)
       throw new UnauthorizedException(
         'Failed to exchange authorization code for tokens',
@@ -57,7 +75,9 @@ async function oauth_callback(
     const accessToken = tokens.access_token;
     const refreshToken = tokens.refresh_token;
 
-    console.log('✅ Spotify OAuth successful!');
+    logger.log(`OAuth successful for user ${userService.user_id}`);
+    logger.debug(`Access token received: ${!!accessToken}`);
+    logger.debug(`Refresh token received: ${!!refreshToken}`);
 
     userService.service_config = {
       ...((userService.service_config as object) || {}),
@@ -66,11 +86,12 @@ async function oauth_callback(
     };
   } catch (error: unknown) {
     const axiosError = error as AxiosError<SpotifyErrorResponse>;
-    console.error('=== SPOTIFY OAUTH ERROR ===');
-    console.error('Error response:', axiosError.response?.data);
-    console.error('Error status:', axiosError.response?.status);
-    console.error('Error message:', axiosError.message);
-    console.error('========================');
+    logger.error('OAuth token exchange failed');
+    logger.error(
+      `Error response: ${JSON.stringify(axiosError.response?.data)}`,
+    );
+    logger.error(`Error status: ${axiosError.response?.status}`);
+    logger.error(`Error message: ${axiosError.message}`);
 
     const errorDetail =
       axiosError.response?.data?.error_description || axiosError.message;
@@ -83,6 +104,9 @@ async function oauth_callback(
 export default class SpotifyService implements ServiceDefinition {
   name = 'spotify';
   label = 'Spotify';
+  color = '#1DB954';
+  logo =
+    'https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_White.png';
   mandatory_env_vars = ['SPOTIFY_CLIENT_ID', 'SPOTIFY_CLIENT_SECRET'];
   oauth_url = buildUrlParameters('https://accounts.spotify.com/authorize', {
     client_id: process.env.SPOTIFY_CLIENT_ID!,
@@ -94,6 +118,6 @@ export default class SpotifyService implements ServiceDefinition {
   oauth_callback = oauth_callback;
   description =
     'Connect your Spotify account to automate music-related tasks and enhance your listening experience.';
-  actions = [PlayingStateUpdated];
-  reactions = [];
+  actions = [PlayingStateUpdated, TrackChanged];
+  reactions = [PlayPause, SkipTrack, SetVolume];
 }
