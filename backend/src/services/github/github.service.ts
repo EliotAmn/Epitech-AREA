@@ -4,6 +4,8 @@ import axios, { AxiosError } from 'axios';
 
 import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
+import { GithubNewCommit } from './actions/new-commit';
+import { GithubCreateIssue } from './reactions/create-issue'; // Import reaction
 
 interface GithubTokenResponse {
   access_token: string;
@@ -74,6 +76,9 @@ async function oauth_callback(
 export default class GithubService implements ServiceDefinition {
   name = 'github';
   label = 'Github';
+  color = '#181717';
+  logo =
+    'https://camo.githubusercontent.com/285c02f902be30b9fca74a05d71d8fbd45658be33c5b99fb340ff8f78b3d1e51/68747470733a2f2f6564656e742e6769746875622e696f2f537570657254696e7949636f6e732f696d616765732f7376672f6769746875622e737667';
   mandatory_env_vars = ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'];
   oauth_url = buildUrlParameters('https://github.com/login/oauth/authorize', {
     client_id: process.env.GITHUB_CLIENT_ID!,
@@ -83,6 +88,6 @@ export default class GithubService implements ServiceDefinition {
   oauth_callback = oauth_callback;
   description =
     'GitHub is a development platform inspired by the way you work. From open source to business, you can host and review code, manage projects, and build software alongside millions of developers.';
-  actions = [];
-  reactions = [];
+  actions = [GithubNewCommit];
+  reactions = [GithubCreateIssue];
 }
