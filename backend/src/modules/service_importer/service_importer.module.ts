@@ -1,0 +1,72 @@
+import { readdirSync } from 'fs';
+import { join } from 'path';
+import { DynamicModule, Module } from '@nestjs/common';
+
+import { SERVICE_DEFINITION } from '@/common/consts';
+import { ServiceDefinition } from '@/common/service.types';
+import { ServiceImporterService } from './service_importer.service';
+
+interface ServiceModule {
+  default?: new () => ServiceDefinition;
+  [key: string]: unknown;
+}
+
+@Module({})
+export class ServiceImporterModule {
+  static register(): DynamicModule {
+    const pluginPath = join(__dirname, '../../services');
+    const dirs = readdirSync(pluginPath, { withFileTypes: true });
+
+    const discoveredServices: Array<new () => ServiceDefinition> = [];
+
+    for (const dir of dirs) {
+      if (!dir.isDirectory()) continue;
+
+      const serviceFileBase = join(pluginPath, dir.name, `${dir.name}.service`);
+      const moduleFile = join(pluginPath, dir.name, `${dir.name}.module`);
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const importedService = require(serviceFileBase) as ServiceModule;
+
+        const svc =
+          importedService.default ??
+          (Object.keys(importedService)[0]
+            ? (importedService[Object.keys(importedService)[0]] as new () =>
+                | ServiceDefinition
+                | undefined)
+            : undefined);
+
+        if (svc && typeof svc === 'function') {
+          discoveredServices.push(svc as new () => ServiceDefinition);
+        } else {
+          console.warn(
+            `[service] ${dir.name} ignored (no valid service export found)`,
+          );
+        }
+      } catch {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const _importedModule = require(moduleFile) as ServiceModule;
+        } catch {
+          console.warn(
+            `[service] ${dir.name} ignored (no service or module file found)`,
+          );
+        }
+      }
+    }
+
+    const serviceProvider = {
+      provide: SERVICE_DEFINITION,
+      useFactory: (): ServiceDefinition[] => {
+        return discoveredServices.map((Svc) => new Svc());
+      },
+    };
+
+    return {
+      module: ServiceImporterModule,
+      providers: [serviceProvider, ServiceImporterService],
+      exports: [serviceProvider, ServiceImporterService],
+    };
+  }
+}
