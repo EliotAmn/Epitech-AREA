@@ -9,6 +9,7 @@ import { getPlatformIcon } from "@/config/platforms";
 import type { CatalogItem } from "@/data/catalogData";
 import { areaService } from "@/services/api/areaService";
 import Button from "../component/button";
+import { humanize } from "../services/aboutParser";
 
 export default function AreaDetail() {
     const location = useLocation();
@@ -153,7 +154,7 @@ export default function AreaDetail() {
                                 Action
                             </h3>
                             <p className="text-xl md:text-2xl font-bold text-slate-800 wrap-break-words leading-tight">
-                                {actionName}
+                                {humanize(actionName)}
                             </p>
                             <div className="overflow-x-hidden">
                                 {renderParams(actionParams)}
@@ -168,7 +169,7 @@ export default function AreaDetail() {
                                 Reaction
                             </h3>
                             <p className="text-xl md:text-2xl font-bold text-slate-800 wrap-break-words leading-tight">
-                                {reactionName}
+                                {humanize(reactionName)}
                             </p>
                             <div className="overflow-x-hidden">
                                 {renderParams(reactionParams)}

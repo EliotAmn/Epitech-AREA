@@ -21,7 +21,7 @@ const colorForService = (name: string) => {
     return map[key] || "#6b7280";
 };
 
-const humanize = (s: string) =>
+export const humanize = (s: string) =>
     (s || "")
         .toString()
         .replace(/_/g, " ")
