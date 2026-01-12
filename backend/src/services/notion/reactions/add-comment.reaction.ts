@@ -58,6 +58,9 @@ export class AddCommentReaction extends ServiceReactionDefinition {
     }
 
     const requestBody = {
+      parent: {
+        page_id: pageId,
+      },
       rich_text: [
         {
           type: 'text',
@@ -75,10 +78,7 @@ export class AddCommentReaction extends ServiceReactionDefinition {
         'Notion-Version': '2022-06-28',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        ...requestBody,
-        discussion_id: pageId,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!res.ok) {
@@ -86,7 +86,7 @@ export class AddCommentReaction extends ServiceReactionDefinition {
       throw new Error(`Failed to add comment: ${res.status} ${text}`);
     }
 
-    console.log(`✅ Comment added to page: ${commentText}`);
+    console.log(`[Notion] ✅ Comment added to page: ${commentText}`);
   }
 
   reload_cache(_sconf?: ServiceConfig): Promise<Record<string, any>> {

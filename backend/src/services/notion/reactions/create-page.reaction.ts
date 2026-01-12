@@ -174,7 +174,7 @@ export class CreatePageReaction extends ServiceReactionDefinition {
     }
 
     const result = (await res.json()) as NotionPageResponse;
-    console.log('✅ Notion page created:', result.id);
+    console.log('[Notion] ✅ Page created:', result.id);
   }
 
   reload_cache(_sconf?: ServiceConfig): Promise<Record<string, any>> {

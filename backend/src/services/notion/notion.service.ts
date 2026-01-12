@@ -1,4 +1,8 @@
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserService } from '@prisma/client';
 import axios, { AxiosError } from 'axios';
 
@@ -10,6 +14,8 @@ import { AddCommentReaction } from '@/services/notion/reactions/add-comment.reac
 import { ArchivePageReaction } from '@/services/notion/reactions/archive-page.reaction';
 import { CreatePageReaction } from '@/services/notion/reactions/create-page.reaction';
 import { UpdatePageReaction } from '@/services/notion/reactions/update-page.reaction';
+
+const logger = new Logger('NotionService');
 
 interface NotionTokenResponse {
   access_token: string;
@@ -37,6 +43,7 @@ async function oauth_callback(
   params: { [key: string]: string },
 ): Promise<boolean> {
   const authorizationCode = params.code as string | undefined;
+
   if (!authorizationCode)
     throw new BadRequestException('Authorization code is missing');
 
@@ -71,8 +78,9 @@ async function oauth_callback(
     const tokens = res.data;
     const accessToken = tokens.access_token;
 
-    console.log('✅ Notion OAuth successful!');
-    console.log('Workspace:', tokens.workspace_name || tokens.workspace_id);
+    logger.log('✅ Notion OAuth successful!');
+
+    // Store access token and other details in user's service config
 
     userService.service_config = {
       ...((userService.service_config as object) || {}),
@@ -82,12 +90,11 @@ async function oauth_callback(
     };
   } catch (error: unknown) {
     const axiosError = error as AxiosError<NotionErrorResponse>;
-    console.error('=== NOTION OAUTH ERROR ===');
-    console.error('Error response:', axiosError.response?.data);
-    console.error('Error status:', axiosError.response?.status);
-    console.error('Error message:', axiosError.message);
-    console.error('========================');
-
+    logger.error('=== NOTION OAUTH ERROR ===');
+    logger.error('Error response:', axiosError.response?.data);
+    logger.error('Error status:', axiosError.response?.status);
+    logger.error('Error message:', axiosError.message);
+    logger.error('========================');
     const errorDetail =
       axiosError.response?.data?.error_description || axiosError.message;
     throw new UnauthorizedException(`Notion OAuth failed: ${errorDetail}`);

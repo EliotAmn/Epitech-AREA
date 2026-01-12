@@ -60,7 +60,7 @@ export class ArchivePageReaction extends ServiceReactionDefinition {
       throw new Error(`Failed to archive page: ${res.status} ${text}`);
     }
 
-    console.log(`✅ Page archived: ${pageId}`);
+    console.log(`[Notion] ✅ Page archived: ${pageId}`);
   }
 
   reload_cache(_sconf?: ServiceConfig): Promise<Record<string, any>> {

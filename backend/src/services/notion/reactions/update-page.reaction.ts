@@ -99,7 +99,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
         );
       }
 
-      console.log(`✅ Page title updated: ${title}`);
+      console.log(`[Notion] ✅ Page title updated: ${title}`);
     }
 
     // Append content if provided
@@ -143,7 +143,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
         );
       }
 
-      console.log('✅ Content appended to page');
+      console.log('[Notion] ✅ Content appended to page');
     }
 
     if (!title && !content) {

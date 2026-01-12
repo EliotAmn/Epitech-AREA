@@ -62,8 +62,10 @@ export class PageUpdated extends ServiceActionDefinition {
 
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
-    if (!accessToken)
+    if (!accessToken) {
+      console.log('[Notion] No access token, skipping poll');
       return Promise.resolve({ triggered: false, parameters: {} });
+    }
 
     // Get last check timestamp from cache
     const lastCheckTimestamp = sconf.cache?.lastCheckTimestamp as
@@ -131,6 +133,7 @@ export class PageUpdated extends ServiceActionDefinition {
             `[Notion] Page updated: ${pageTitle} (${mostRecentPage.id})`,
           );
 
+          const newTimestamp = new Date().toISOString();
           resolve({
             triggered: true,
             parameters: {
@@ -141,11 +144,17 @@ export class PageUpdated extends ServiceActionDefinition {
                 value: mostRecentPage.last_edited_time,
               },
             },
-            cache: { lastCheckTimestamp: checkTime },
+            cache: { lastCheckTimestamp: newTimestamp },
           });
         })
         .catch((err) => {
-          console.error('Error polling Notion page updates:', err);
+          if (axios.isAxiosError(err)) {
+            console.error('[Notion] Error polling page updates:');
+            console.error(`Status: ${err.response?.status}`);
+            console.error(`Response: ${JSON.stringify(err.response?.data)}`);
+          } else {
+            console.error('[Notion] Error polling page updates:', err);
+          }
           resolve({
             triggered: false,
             parameters: {},

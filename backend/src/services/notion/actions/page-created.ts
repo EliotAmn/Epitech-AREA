@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import axios from 'axios';
 
 import { ParameterType, ServiceActionDefinition } from '@/common/service.types';
@@ -6,6 +7,8 @@ import type {
   ParameterDefinition,
   ServiceConfig,
 } from '@/common/service.types';
+
+const logger = new Logger('NotionPageCreated');
 
 interface NotionPage {
   id: string;
@@ -62,8 +65,10 @@ export class PageCreated extends ServiceActionDefinition {
 
   poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
-    if (!accessToken)
+    if (!accessToken) {
+      logger.error('No access token, skipping poll');
       return Promise.resolve({ triggered: false, parameters: {} });
+    }
 
     // Get last check timestamp from cache
     const lastCheckTimestamp = sconf.cache?.lastCheckTimestamp as
@@ -125,10 +130,7 @@ export class PageCreated extends ServiceActionDefinition {
           const pageTitle =
             newestPage.properties.title?.title?.[0]?.plain_text || 'Untitled';
 
-          console.log(
-            `[Notion] New page detected: ${pageTitle} (${newestPage.id})`,
-          );
-
+          const newTimestamp = new Date().toISOString();
           resolve({
             triggered: true,
             parameters: {
@@ -139,11 +141,17 @@ export class PageCreated extends ServiceActionDefinition {
                 value: newestPage.created_time,
               },
             },
-            cache: { lastCheckTimestamp: checkTime },
+            cache: { lastCheckTimestamp: newTimestamp },
           });
         })
         .catch((err) => {
-          console.error('Error polling Notion page creation:', err);
+          if (axios.isAxiosError(err)) {
+            logger.error('Error polling page creation:');
+            logger.error(`Status: ${err.response?.status}`);
+            logger.error(`Response: ${JSON.stringify(err.response?.data)}`);
+          } else {
+            logger.error('Error polling page creation:', err);
+          }
           resolve({
             triggered: false,
             parameters: {},
