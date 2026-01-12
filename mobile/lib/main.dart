@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/logout_page.dart';
-import 'pages/home_page.dart';
+import 'package:mobile/pages/my_areas_page.dart';
 import 'pages/login_page.dart';
 import 'pages/create_area/create_page.dart';
 import 'themes.dart';
@@ -61,9 +61,9 @@ class _MainNavigationState extends State<MainNavigation> {
 
   List<Widget> _getPages() {
     return [
-      const HomePage(),
-      const CreatePage(),
       LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+      const CreatePage(),
+      MyAreasPage(),
     ];
   }
 
