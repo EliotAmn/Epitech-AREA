@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import logoGoogle from "@/assets/logo_google.svg";
 import Button from "@/component/button";
 import Input from "@/component/input";
 import { ApiClientError, authService } from "@/services/api";
@@ -13,6 +12,8 @@ export default function Login() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const logoGoogle =
+        "https://logos-world.net/wp-content/uploads/2020/09/Google-Symbol-700x394.png";
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -88,7 +89,7 @@ export default function Login() {
                         onChange={setPassword}
                         showToggle={true}
                     />
-                                        <button
+                    <button
                         className="text-sm text-gray-600 underline cursor-pointer"
                         onClick={() => navigate("/signup")}
                     >
@@ -103,7 +104,13 @@ export default function Login() {
                         label="Login with Google"
                         mode="white"
                         onClick={handleGoogleLogin}
-                        icon={logoGoogle}
+                        icon={
+                            <img
+                                src={logoGoogle}
+                                alt="Google"
+                                className="w-8 h-8 object-contain"
+                            />
+                        }
                         disabled={loading}
                     />
                 </div>
