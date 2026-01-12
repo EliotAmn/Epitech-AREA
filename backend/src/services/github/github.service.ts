@@ -48,7 +48,7 @@ async function oauth_callback(
       },
     );
 
-    if (res.status != 200)
+    if (res.status !== 200)
       throw new UnauthorizedException(
         'Failed to exchange authorization code for tokens',
       );
@@ -75,8 +75,8 @@ async function oauth_callback(
 
 export default class GithubService implements ServiceDefinition {
   name = 'github';
-  label = 'Github';
-  color = '#181717';
+  label = 'GitHub';
+  color = '#4078C0';
   logo =
     'https://camo.githubusercontent.com/285c02f902be30b9fca74a05d71d8fbd45658be33c5b99fb340ff8f78b3d1e51/68747470733a2f2f6564656e742e6769746875622e696f2f537570657254696e7949636f6e732f696d616765732f7376672f6769746875622e737667';
   mandatory_env_vars = ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'];
