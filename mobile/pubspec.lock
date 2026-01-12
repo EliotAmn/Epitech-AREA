@@ -110,8 +110,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-<<<<<<< HEAD
-=======
   flutter_appauth:
     dependency: "direct main"
     description:
@@ -128,7 +126,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "11.0.0"
->>>>>>> dev
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -203,8 +200,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-<<<<<<< HEAD
-=======
   gtk:
     dependency: transitive
     description:
@@ -213,7 +208,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
->>>>>>> dev
   http:
     dependency: "direct main"
     description:
@@ -483,8 +477,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-<<<<<<< HEAD
-=======
   url_launcher:
     dependency: "direct main"
     description:
@@ -549,7 +541,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.5"
->>>>>>> dev
   vector_math:
     dependency: transitive
     description:
@@ -574,8 +565,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
-<<<<<<< HEAD
-=======
   webview_flutter:
     dependency: "direct main"
     description:
@@ -608,7 +597,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.23.5"
->>>>>>> dev
   win32:
     dependency: transitive
     description:
@@ -627,8 +615,4 @@ packages:
     version: "1.1.0"
 sdks:
   dart: ">=3.10.1 <4.0.0"
-<<<<<<< HEAD
-  flutter: ">=3.35.0"
-=======
   flutter: ">=3.38.1"
->>>>>>> dev
