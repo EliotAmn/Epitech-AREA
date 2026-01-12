@@ -1,5 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
 import { apiClient } from "@/services/api/apiClient";
 
 export default function OAuthServiceProxy() {
@@ -146,4 +148,3 @@ export default function OAuthServiceProxy() {
         </div>
     );
 }
-

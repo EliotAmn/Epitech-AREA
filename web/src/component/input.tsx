@@ -10,6 +10,7 @@ interface InputProps {
     isFixed?: boolean;
     showToggle?: boolean;
     isHidden?: boolean;
+    mode?: "default" | "white";
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -21,6 +22,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             isFixed = false,
             showToggle = false,
             isHidden,
+            mode = "default",
         },
         ref
     ) => {
@@ -35,12 +37,22 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             type = "password";
         }
 
+        const modeClasses = (() => {
+            switch (mode) {
+                case "white":
+                    return "text-white border-gray-200 focus:ring-white";
+                case "default":
+                default:
+                    return "text-[#A7A7A7] border-gray-200 focus:ring-blue-500";
+            }
+        })();
+
         return (
             <div className="relative w-full max-w-[480px]">
                 <input
                     ref={ref}
                     type={type}
-                    className="w-full h-12 sm:h-[50px] px-4 sm:px-[15px] text-[#A7A7A7] font-bold py-2 border-gray-200 border-2 rounded-xl text-sm sm:text-[18px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full h-12 sm:h-[50px] px-4 sm:px-[15px] font-bold py-2 border-2 rounded-xl text-sm sm:text-[18px] focus:outline-none focus:ring-2 ${modeClasses}`}
                     placeholder={placeholder}
                     value={value}
                     onChange={(e) =>

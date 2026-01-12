@@ -2,6 +2,7 @@ export interface CatalogItem {
     id: string;
     title: string;
     platform: string;
+    reactionPlatform?: string;
     color?: string;
     path?: string;
     oauth_url?: string;
