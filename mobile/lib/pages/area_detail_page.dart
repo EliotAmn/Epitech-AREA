@@ -132,7 +132,7 @@ class AreaDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Action/Reaction name
+            // Action / Reaction name
             Text(
               actionName,
               style: Theme.of(
