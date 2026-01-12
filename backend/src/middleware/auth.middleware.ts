@@ -29,16 +29,20 @@ export class AuthMiddleware implements NestMiddleware {
     next: NextFunction,
   ) {
     const header = req.get('authorization');
-    if (!header) {
-      throw new UnauthorizedException('Authorization header missing');
+    let token: string | null = null;
+
+    // Try to get token from Authorization header first
+    if (header) {
+      const match = header.match(/Bearer\s+(.+)/i);
+      if (match) {
+        token = match[1];
+      }
     }
 
-    const match = header.match(/Bearer\s+(.+)/i);
-    if (!match) {
-      throw new UnauthorizedException('Bearer token required');
+    if (!token) {
+      throw new UnauthorizedException('Authorization token missing');
     }
 
-    const token = match[1];
     try {
       const secret = this.configService.get<string>('JWT_SECRET');
       const options: (VerifyOptions & { secret?: string }) | undefined = secret

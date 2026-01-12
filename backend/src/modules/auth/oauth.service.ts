@@ -2,7 +2,9 @@ import * as crypto from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
+import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { UserServiceRepository } from '../user_service/userservice.repository';
 import { OauthLinkRepository } from './oauth-link.repository';
@@ -31,6 +33,7 @@ export class OauthService {
     private readonly usersService: UserService,
     private readonly jwtService: JwtService,
     private readonly userServiceRepository: UserServiceRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   private isOauthProfile(obj: unknown): obj is OauthProfile {
@@ -113,6 +116,53 @@ export class OauthService {
 
     const safeUser: Partial<User & Record<string, any>> = { ...user };
     delete safeUser.password_hash;
+
+    try {
+      const maybeAccess = profile.accessToken;
+      const maybeRefresh = profile.refreshToken;
+      const profileData = profile as Record<string, unknown>;
+      const expiresIn = (profileData.expires_in || profileData.expiresIn) as
+        | number
+        | undefined;
+
+      if (provider === 'google' && (maybeAccess || maybeRefresh)) {
+        const existing = await this.prisma.userService.findFirst({
+          where: { user_id: user.id, service_name: 'gmail' },
+        });
+
+        const now = Date.now();
+        // Calculate absolute expiration time if expiresIn is provided
+        const expiryDate = expiresIn
+          ? now + Number(expiresIn) * 1000
+          : undefined;
+
+        const newConfig = {
+          ...((existing?.service_config as Record<string, any> | undefined) ||
+            {}),
+          ...(maybeAccess ? { google_access_token: maybeAccess } : {}),
+          ...(maybeRefresh ? { google_refresh_token: maybeRefresh } : {}),
+          ...(expiryDate ? { google_token_expires_at: expiryDate } : {}),
+        };
+
+        if (existing) {
+          await this.prisma.userService.update({
+            where: { id: existing.id },
+            data: { service_config: newConfig as Prisma.JsonObject },
+          });
+        } else {
+          await this.prisma.userService.create({
+            data: {
+              user_id: user.id,
+              service_name: 'gmail',
+              service_config: newConfig as Prisma.JsonObject,
+            },
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to persist google tokens to user_service:', e);
+    }
+
     return { user: safeUser, access_token: token };
   }
 

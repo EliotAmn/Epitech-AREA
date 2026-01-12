@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'pages/home_page.dart';
-import 'pages/counter_page.dart';
+import 'package:mobile/pages/logout_page.dart';
+import 'package:mobile/pages/my_areas_page.dart';
 import 'pages/login_page.dart';
+import 'pages/create_area/create_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'global/cache.dart' as cache;
@@ -52,19 +53,25 @@ class _MainNavigationState extends State<MainNavigation> {
     });
   }
 
-  final List<Widget> _pages = [const HomePage(), const CounterPage()];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  List<Widget> _getPages() {
+    return [
+      LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+      const CreatePage(),
+      MyAreasPage(),
+    ];
+  }
+
   Widget getCurrentPage() {
     if (!_isLogined) {
       return LoginPage(onLoginSuccess: _onLoginSuccess);
     }
-    return _pages[_selectedIndex];
+    return _getPages()[_selectedIndex];
   }
 
   @override
@@ -77,10 +84,17 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: _isLogined
           ? BottomNavigationBar(
               items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.plus_one),
-                  label: 'Counter',
+                  icon: Icon(Icons.search),
+                  label: 'Explore',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.add_box),
+                  label: 'Create',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.list),
+                  label: 'My AREAs',
                 ),
               ],
               currentIndex: _selectedIndex,
@@ -93,6 +107,13 @@ class _MainNavigationState extends State<MainNavigation> {
   void _onLoginSuccess() {
     setState(() {
       _isLogined = true;
+    });
+  }
+
+  void _onLogoutSuccess() {
+    setState(() {
+      _isLogined = false;
+      _selectedIndex = 0;
     });
   }
 }

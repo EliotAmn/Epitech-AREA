@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import {
   ActionTriggerOutput,
   ParameterDefinition,
@@ -12,6 +10,7 @@ import { DiscordClientManager } from '../discord.client';
 export class UserJoinedServerAction extends ServiceActionDefinition {
   name = 'user_joined_server';
   label = 'User Joined Server';
+  poll_interval = 2;
   description = 'Triggers when a user joins the Discord server';
   output_params: ParameterDefinition[] = [
     {
@@ -59,7 +58,7 @@ export class UserJoinedServerAction extends ServiceActionDefinition {
   reload_cache(
     sconf: ServiceConfig,
   ): Promise<{ guild_id: string; handler_id: string }> {
-    const guildId = sconf.config.guild_id;
+    const guildId = sconf.config.guild_id as string;
 
     if (!guildId) {
       throw new Error('guild_id is required in service config');

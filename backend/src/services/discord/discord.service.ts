@@ -9,6 +9,8 @@ import { SendMessageToChannelReaction } from './reactions/send-message-to-channe
 export default class DiscordService implements ServiceDefinition {
   name = 'discord';
   label = 'Discord';
+  color = '#5865F2';
+  logo = 'https://discord.com/assets/145dc557845548a36a82337912ca3ac5.svg';
   description =
     'Discord bot integration with OAuth for server management and automation';
 

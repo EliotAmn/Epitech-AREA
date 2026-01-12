@@ -1,3 +1,5 @@
+import { UserService } from '@prisma/client';
+
 export enum ParameterType {
   STRING = 'string',
   NUMBER = 'number',
@@ -16,22 +18,25 @@ export interface ParameterDefinition {
   label: string;
   description: string;
   required: boolean;
-  options?: string[]; // For SELECT type
+  options?: { label: string; value: string }[]; // For SELECT type
 }
 
 export interface ServiceConfig {
-  config: Record<string, any>;
+  config: Record<string, unknown>;
+  cache?: Record<string, unknown>;
 }
 
 export interface ActionTriggerOutput {
   triggered: boolean;
   parameters: Record<string, ParameterValue>;
+  cache?: Record<string, unknown>;
 }
 
 export abstract class ServiceActionDefinition {
   name: string;
   label: string;
   description: string;
+  poll_interval: number = 0; // in seconds, 0 means no polling
   output_params: ParameterDefinition[];
   input_params?: ParameterDefinition[];
 
@@ -65,6 +70,14 @@ export interface ServiceDefinition {
   name: string;
   label: string;
   description: string;
+  color: string;
+  logo: string;
+  oauth_url?: string;
+  oauth_callback?: (
+    userService: UserService,
+    params: { [key: string]: string },
+  ) => Promise<boolean>;
+  mandatory_env_vars?: string[];
   actions: Array<ServiceActionConstructor>;
   reactions: Array<ServiceReactionConstructor>;
 }

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
-
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
@@ -26,7 +24,7 @@ export class AreaService {
   private actionPollers: Map<string, ReturnType<typeof setInterval>> =
     new Map();
   private actionInstances: Map<string, ServiceActionDefinition> = new Map();
-  private readonly ACTION_POLL_INTERVAL = 1000;
+
   constructor(
     private readonly action_repository: ActionRepository,
     private readonly area_repository: AreaRepository,
@@ -328,6 +326,14 @@ export class AreaService {
             clearInterval(this.actionPollers.get(pollKey));
             this.actionPollers.delete(pollKey);
           }
+
+          // Set up polling if applicable
+          if (def_action.action.poll_interval <= 0) continue;
+
+          // Initialize cache from reload_cache
+          const initialCache = await def_action.action.reload_cache(sconf);
+          sconf.cache = initialCache || {};
+
           const timer = setInterval(() => {
             // Refresh token before each poll if needed
             this.tokenRefreshService
@@ -339,6 +345,10 @@ export class AreaService {
                 return def_action.action.poll(sconf);
               })
               .then(async (out: ActionTriggerOutput) => {
+                // Update cache with the returned cache from poll
+                if (out.cache) {
+                  sconf.cache = { ...sconf.cache, ...out.cache };
+                }
                 if (out && out.triggered) {
                   await this.handle_action_trigger(a.id, out);
                 }
@@ -349,7 +359,7 @@ export class AreaService {
                   err,
                 );
               });
-          }, this.ACTION_POLL_INTERVAL);
+          }, def_action.action.poll_interval * 1000);
           this.actionPollers.set(pollKey, timer);
         } catch (err) {
           console.error('Failed to start poller for action:', err);

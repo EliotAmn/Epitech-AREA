@@ -64,4 +64,16 @@ export class UserServiceRepository {
       },
     });
   }
+
+  delete(id: string) {
+    return this.prismaService.userService.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
+  update(args: { where: any; data: any }) {
+    return this.prismaService.userService.update(args);
+  }
 }

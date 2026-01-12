@@ -6,17 +6,17 @@ class AppThemes {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color.fromARGB(255, 255, 255, 255),
+      seedColor: const Color(0xFF2563EB),
       brightness: Brightness.light,
     ),
-    appBarTheme: const AppBarTheme(
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
+    appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+    cardTheme: const CardThemeData(
+      margin: EdgeInsets.all(8),
+      color: Color(0xFF2563EB),
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-      bodyLarge: TextStyle(fontSize: 16, color: Colors.black87),
+      bodyLarge: TextStyle(fontSize: 16),
     ),
   );
 
@@ -25,21 +25,17 @@ class AppThemes {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color.fromARGB(255, 0, 0, 0),
+      seedColor: const Color(0xFF7CB4FF),
       brightness: Brightness.dark,
     ),
-    appBarTheme: const AppBarTheme(
-      centerTitle: true,
-      backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
+    appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+    cardTheme: const CardThemeData(
+      margin: EdgeInsets.all(8),
+      color: Color(0xFF0B1E36),
     ),
     textTheme: const TextTheme(
-      displayLarge: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-      bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
+      displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      bodyLarge: TextStyle(fontSize: 16),
     ),
   );
 }

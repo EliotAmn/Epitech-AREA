@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
 import 'package:http/http.dart' as http;
@@ -92,11 +94,13 @@ class _LoginModalContent extends StatefulWidget {
 class _LoginModalContentState extends State<_LoginModalContent> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  final AppLinks _appLinks = AppLinks();
   String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
+    _initDeepLinks();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
   }
@@ -106,6 +110,127 @@ class _LoginModalContentState extends State<_LoginModalContent> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initDeepLinks() async {
+    _appLinks.uriLinkStream.listen((Uri uri) {
+      _handleUri(uri);
+    });
+  }
+
+  void _handleUri(Uri uri) {
+    if (uri.scheme == 'com.example.app') {
+      debugPrint('Received deep link: $uri');
+      if (uri.fragment.isNotEmpty) {
+        final fragmentParams = Uri.splitQueryString(uri.fragment);
+        final oauthCode = fragmentParams['oauth_code'];
+
+        debugPrint('OAuth code from deep link: $oauthCode');
+        if (oauthCode != null) {
+          _oauth2Token(oauthCode).then((success) {
+            if (success && context.mounted) {
+              Navigator.of(context).pop();
+              widget.onLoginSuccess();
+            }
+          });
+        } else {
+          debugPrint('No oauth_code found in deep link fragment');
+        }
+      }
+    }
+  }
+
+  Future<bool> _oauth2Token(String oauthCode) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/auth/oauth/consume?code=$oauthCode'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    debugPrint('OAuth token response status: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final token = data['access_token'] as String;
+
+      debugPrint('OAuth login successful');
+      cache.AuthStore().saveToken(token);
+      if (context.mounted) {
+        return true;
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'OAuth login failed: ${response.statusCode}';
+        });
+        return false;
+      }
+      debugPrint(
+        'OAuth login failed with status code: ${response.statusCode} & body: ${response.body}',
+      );
+    }
+    return false;
+  }
+
+  Future<void> _loginWithOauth(
+    BuildContext modalContext,
+    String provider,
+  ) async {
+    if (dotenv.env['API_URL'] == null) {
+      setState(() {
+        _errorMessage = 'API_URL is not configured';
+      });
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse("${dotenv.env['API_URL']}/about.json"),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final services = (data['server']['services'] as List)
+            .map((e) => e as Map<String, dynamic>)
+            .toList();
+        final service = services.firstWhere(
+          (svc) => (svc['name'] as String?) == provider,
+        );
+        final redirectUrl = service['oauth_url'] as String? ?? '';
+
+        if (!mounted) return;
+
+        if (redirectUrl.isEmpty) {
+          setState(() {
+            _errorMessage = 'Failed to get OAuth URL for $provider';
+          });
+          return;
+        }
+
+        try {
+          await launchUrl(
+            Uri.parse(redirectUrl),
+            mode: LaunchMode.externalApplication,
+          );
+        } catch (e) {
+          if (!mounted) return;
+          setState(() {
+            _errorMessage = 'Oauth sign-in failed: $e';
+          });
+          debugPrint('Oauth sign-in failed: $e');
+        }
+      } else {
+        debugPrint('Failed to fetch about.json: ${response.statusCode}');
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Failed to fetch OAuth URL for $provider';
+          });
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching about.json: $error');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Network error: $error';
+        });
+      }
+    }
   }
 
   void _login(BuildContext modalContext) {
@@ -236,6 +361,22 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           ),
           SizedBox(
             height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+          ),
+          TextButton(
+            onPressed: () {
+              _loginWithOauth(context, 'google');
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 7),
+            ),
+            child: Text(
+              'Sign in with Google',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
