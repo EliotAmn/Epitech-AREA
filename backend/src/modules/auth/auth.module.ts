@@ -6,6 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthMiddleware } from '@/middleware/auth.middleware';
 import { PasswordModule } from '../common/password/password.module';
 import { UserModule } from '../user/user.module';
+import { UserServiceModule } from '../user_service/userservice.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -33,6 +34,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     }),
     UserModule,
     PasswordModule,
+    UserServiceModule,
   ],
   controllers: [AuthController],
   providers: [

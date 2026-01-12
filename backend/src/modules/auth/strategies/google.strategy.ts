@@ -44,10 +44,18 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     );
   }
 
-  validate(accessToken: string, refreshToken: string, profile: GoogleProfile) {
+  validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: GoogleProfile,
+    done: (error: Error | null, user?: any) => void,
+  ) {
     try {
       this.logger.debug(
         `Google profile received id=${profile.id} email=${profile.emails?.[0]?.value}`,
+      );
+      this.logger.debug(
+        `OAuth tokens: accessToken=${!!accessToken} refreshToken=${!!refreshToken}`,
       );
     } catch (err: unknown) {
       const msg =
@@ -59,12 +67,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       this.logger.debug(msg || 'Google profile received (unable to stringify)');
     }
 
-    return {
+    const result = {
       provider: 'google',
       id: profile.id,
       email: profile.emails?.[0]?.value,
       displayName: profile.displayName,
+      accessToken,
+      refreshToken,
       raw: profile,
     };
+
+    done(null, result);
   }
 }

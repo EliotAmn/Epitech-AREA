@@ -1,20 +1,25 @@
 import * as crypto from 'crypto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 
 import { UserService } from '../user/user.service';
+import { UserServiceRepository } from '../user_service/userservice.repository';
 import { OauthLinkRepository } from './oauth-link.repository';
 
 interface OauthProfile {
   id: string | number;
   email?: string;
   displayName?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
   [key: string]: any;
 }
 
 @Injectable()
 export class OauthService {
+  private readonly logger = new Logger(OauthService.name);
   private readonly GRANT_TTL_MS = 60_000;
   private readonly grants = new Map<
     string,
@@ -25,6 +30,7 @@ export class OauthService {
     private readonly oauthLinkRepo: OauthLinkRepository,
     private readonly usersService: UserService,
     private readonly jwtService: JwtService,
+    private readonly userServiceRepository: UserServiceRepository,
   ) {}
 
   private isOauthProfile(obj: unknown): obj is OauthProfile {
@@ -81,6 +87,25 @@ export class OauthService {
       throw new Error('Invalid OAuth profile received from provider');
     }
     const user = await this.findOrCreateUserFromProfile(provider, profile);
+
+    // Store OAuth tokens in UserService table if they exist
+    if (profile.accessToken) {
+      try {
+        await this.storeOAuthTokens(
+          user.id,
+          provider,
+          profile.accessToken,
+          profile.refreshToken,
+          profile.expiresIn,
+        );
+      } catch (error) {
+        this.logger.error(
+          `Failed to store OAuth tokens for user ${user.id}:`,
+          error,
+        );
+      }
+    }
+
     const token = this.jwtService.sign({
       sub: user.id,
       email: user.email,
@@ -89,6 +114,50 @@ export class OauthService {
     const safeUser: Partial<User & Record<string, any>> = { ...user };
     delete safeUser.password_hash;
     return { user: safeUser, access_token: token };
+  }
+
+  private async storeOAuthTokens(
+    userId: string,
+    serviceName: string,
+    accessToken: string,
+    refreshToken?: string,
+    expiresIn?: number,
+  ) {
+    const expiresAt = expiresIn
+      ? new Date(Date.now() + expiresIn * 1000)
+      : null;
+
+    // Check if user service already exists
+    const existingService =
+      await this.userServiceRepository.fromUserIdAndServiceName(
+        userId,
+        serviceName,
+      );
+
+    if (existingService) {
+      // Update existing service with new tokens
+      await this.userServiceRepository.updateTokens(existingService.id, {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        token_expires_at: expiresAt,
+      });
+      this.logger.debug(
+        `Updated OAuth tokens for user ${userId} service ${serviceName}`,
+      );
+    } else {
+      // Create new user service with tokens
+      await this.userServiceRepository.create({
+        user_id: userId,
+        service_name: serviceName,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        token_expires_at: expiresAt,
+        service_config: {},
+      });
+      this.logger.debug(
+        `Created UserService with OAuth tokens for user ${userId} service ${serviceName}`,
+      );
+    }
   }
 
   createGrant(accessToken: string): string {

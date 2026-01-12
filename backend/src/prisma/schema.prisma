@@ -24,14 +24,17 @@ model User {
 }
 
 model UserService {
-  id             String   @id @default(uuid()) @db.Uuid
-  service_name   String
-  service_config Json?
-  errored        Boolean  @default(false)
-  user_id        String   @db.Uuid
-  user           User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  id               String    @id @default(uuid()) @db.Uuid
+  service_name     String
+  service_config   Json?
+  errored          Boolean   @default(false)
+  access_token     String?
+  refresh_token    String?
+  token_expires_at DateTime?
+  user_id          String    @db.Uuid
+  user             User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
 
   @@unique([user_id, service_name])
   @@index([user_id])
