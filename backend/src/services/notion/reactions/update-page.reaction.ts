@@ -85,7 +85,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${token}`,
-            'Notion-Version': '2022-06-28',
+            'Notion-Version': '2025-09-03',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(titleUpdateBody),
@@ -129,7 +129,7 @@ export class UpdatePageReaction extends ServiceReactionDefinition {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${token}`,
-            'Notion-Version': '2022-06-28',
+            'Notion-Version': '2025-09-03',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(blockBody),

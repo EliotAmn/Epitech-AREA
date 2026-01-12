@@ -75,7 +75,7 @@ export class AddCommentReaction extends ServiceReactionDefinition {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
-        'Notion-Version': '2022-06-28',
+        'Notion-Version': '2025-09-03',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
