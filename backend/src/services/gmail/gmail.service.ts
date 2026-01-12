@@ -12,4 +12,5 @@ export default class GmailService implements ServiceDefinition {
 
   actions = [];
   reactions = [SendEmailReaction];
+  oauth_url = 'https://bd6379adde31.ngrok-free.app/auth/google';
 }

@@ -4,9 +4,11 @@ class Service {
   final String name;
   final List<ServiceAction> actions;
   final List<ServiceReaction> reactions;
+  final String logo;
+  final String color;
   final String? oauthUrl;
 
-  Service({required this.name, required this.actions, required this.reactions, this.oauthUrl});
+  Service({required this.name, required this.actions, required this.reactions, required this.logo, required this.color, this.oauthUrl});
 
   factory Service.fromJson(Map<String, dynamic> json) {
     final rawName = json['name'] ?? '';
@@ -44,6 +46,8 @@ class Service {
       actions: humanActions,
       reactions: humanReactions,
       oauthUrl: json['oauth_url'],
+      logo: json['logo'] ?? '',
+      color: json['color'] ?? '',
     );
   }
 

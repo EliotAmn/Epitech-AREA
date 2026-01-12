@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CardButton extends StatelessWidget {
   final String label;
-  final IconData? icon;
+  final NetworkImage? icon;
   final VoidCallback onTap;
   final double height;
   final double elevation;
@@ -50,7 +50,7 @@ class CardButton extends StatelessWidget {
             child: isRow == true ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (icon != null) Icon(icon, size: 6, color: textColor),
+                if (icon != null) Image(image:  icon!, width: 40, height: 40, color: textColor),
                 const SizedBox(height: 0),
                 Text(
                   label,
@@ -66,7 +66,7 @@ class CardButton extends StatelessWidget {
             ) : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (icon != null) Icon(icon, size: 40, color: textColor),
+                if (icon != null) Image(image:  icon!, width: 40, height: 40, color: textColor),
                 const SizedBox(height: 8),
                 Text(
                   label,

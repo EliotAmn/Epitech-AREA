@@ -61,8 +61,8 @@ class _MainNavigationState extends State<MainNavigation> {
 
   List<Widget> _getPages() {
     return [
-      CreateHomePage(),
       LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+      CreateHomePage(),
       MyAreasPage(),
     ];
   }

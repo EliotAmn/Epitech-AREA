@@ -58,8 +58,8 @@ class _CreatePageState extends State<CreatePage> {
                             (service) => SizedBox(
                               width: itemWidth,
                               child: CardButton(
-                                isRow: true,
                                 label: service.name,
+                                icon: NetworkImage(service.logo),
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
@@ -68,11 +68,13 @@ class _CreatePageState extends State<CreatePage> {
                                         serviceActions: service.actions,
                                         allServices: widget.services,
                                         oauthUrl: service.oauthUrl,
+                                        color: Color(int.parse('0xFF${service.color.substring(1)}')),
+                                        logo: service.logo,
                                       ),
                                     ),
                                   );
                                 },
-                                color: Colors.blue,
+                                color: Color(int.parse('0xFF${service.color.substring(1)}')),
                                 textColor: Colors.white,
                               ),
                             ),

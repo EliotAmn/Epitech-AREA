@@ -11,12 +11,16 @@ class ActionPage extends StatefulWidget {
     required this.serviceActions,
     required this.allServices,
     this.oauthUrl,
+    this.color,
+    this.logo,
   });
 
   final String serviceName;
   final List<ServiceAction> serviceActions;
   final List<Service> allServices;
   final String? oauthUrl;
+  final Color? color;
+  final String? logo;
 
   @override
   State<ActionPage> createState() => _ActionPageState();
@@ -27,7 +31,7 @@ class _ActionPageState extends State<ActionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
+        backgroundColor: widget.color ?? const Color.fromARGB(255, 78, 78, 78),
         title: Text(
           'Select action',
           style: Theme.of(context).textTheme.displayLarge?.copyWith(
@@ -42,15 +46,12 @@ class _ActionPageState extends State<ActionPage> {
           children: [
             Container(
               width: double.infinity,
-              color: Colors.green,
+              color: widget.color ?? const Color.fromARGB(255, 78, 78, 78),
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  Icon( 
-                    Icons.play_circle_rounded,
-                    size: 40,
-                    color: Colors.white,
-                  ),
+                  Image(image:  widget.logo != null ? NetworkImage(widget.logo!) : const NetworkImage('https://via.placeholder.com/100'),
+                      width: 100, height: 100, color: Colors.white),
                   const SizedBox(height: 16),
                   Text(
                     widget.serviceName,
@@ -78,7 +79,7 @@ class _ActionPageState extends State<ActionPage> {
                       ),
                       child: Text(
                         'Connect',
-                        style: TextStyle(color: Colors.green),
+                        style: TextStyle(color: widget.color ?? const Color.fromARGB(255, 78, 78, 78)),
                       ),
                     ),
                   ],
@@ -111,7 +112,7 @@ class _ActionPageState extends State<ActionPage> {
                           ),
                         );
                       },
-                      color: Colors.green,
+                      color: widget.color ?? const Color.fromARGB(255, 78, 78, 78),
                       textColor: Colors.white,
                     ),
                   );

@@ -44,9 +44,9 @@ class ReactionPage extends StatelessWidget {
                         return SizedBox(
                           width: itemWidth,
                           child: CardButton(
-                            isRow: true,
                             label: service.name,
-                            color: const Color.fromARGB(255, 13, 15, 18),
+                            icon: NetworkImage(service.logo),
+                            color: Color(int.parse('0xFF${service.color.substring(1)}')),
                             textColor: Colors.white,
                             onTap: () {
                               Navigator.push(
@@ -100,21 +100,18 @@ class ReactionListPage extends StatelessWidget {
                 color: Colors.white,
               ),
         ),
-        backgroundColor: Colors.orange,
+        backgroundColor: Color(int.parse('0xFF${reactionService.color.substring(1)}')),
       ),
       body:Column(
         children:[
           Container(
               width: double.infinity,
-              color: Colors.orange,
+              color: Color(int.parse('0xFF${reactionService.color.substring(1)}')),
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  Icon( 
-                    Icons.play_circle_rounded,
-                    size: 40,
-                    color: Colors.white,
-                  ),
+                  Image(image: NetworkImage(reactionService.logo),
+                      width: 100, height: 100, color: Colors.white),
                   const SizedBox(height: 16),
                   Text(
                     reactionService.name,
@@ -145,7 +142,7 @@ class ReactionListPage extends StatelessWidget {
                     isRow: true,
                     height: 100,
                     label: reaction.name,
-                    color: const Color.fromARGB(255, 255, 98, 0),
+                    color: Color(int.parse('0xFF${reactionService.color.substring(1)}')),
                     textColor: Colors.white,
                     onTap: () {
                       Navigator.push(
