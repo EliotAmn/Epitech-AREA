@@ -22,7 +22,7 @@ interface GithubCommit {
 }
 
 export class GithubNewCommit extends ServiceActionDefinition {
-  name = 'new_commit';
+  name = 'github.new_commit';
   label = 'New Commit on Repository';
   description = 'Triggers when a new commit is pushed to a specific repository';
   poll_interval = 60;

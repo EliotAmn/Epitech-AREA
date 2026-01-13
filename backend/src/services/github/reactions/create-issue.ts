@@ -9,7 +9,7 @@ import {
 import type { ParameterDefinition } from '@/common/service.types';
 
 export class GithubCreateIssue extends ServiceReactionDefinition {
-  name = 'create_issue';
+  name = 'github.create_issue';
   label = 'Create Issue';
   description = 'Creates a new issue in a GitHub repository';
 
