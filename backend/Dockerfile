@@ -41,6 +41,10 @@ COPY --from=builder --chown=nestjs:nodejs /app/src/prisma ./src/prisma
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules/prisma ./node_modules/prisma
 
+# Copy entrypoint script
+COPY --chown=nestjs:nodejs entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 # Install wget for healthcheck
 RUN apk add --no-cache wget
 
@@ -48,5 +52,5 @@ USER nestjs
 
 EXPOSE 8080
 
-# Run migrations and start the server (no need to generate again, already done in builder)
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=src/prisma/schema.prisma && node dist/main"]
+# Use entrypoint script to handle migrations and startup
+ENTRYPOINT ["./entrypoint.sh"]

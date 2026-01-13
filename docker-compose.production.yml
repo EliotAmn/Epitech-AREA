@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    restart: always
+    image: ghcr.io/eliotamn/epitech-area/backend:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgresql://myuser:mypassword@database:5432/mydatabase
+      JWT_SECRET: your-super-secret-jwt-key-change-this
+      FRONTEND_URL: https://area-front.eliotamanieu.fr
+      APP_URL: https://area-backprod.eliotamanieu.fr
+      # Service credentials
+      SPOTIFY_CLIENT_ID: your-spotify-client-id
+      SPOTIFY_CLIENT_SECRET: your-spotify-client-secret
+      GMAIL_CLIENT_ID: your-gmail-client-id
+      GMAIL_CLIENT_SECRET: your-gmail-client-secret
+      TWITCH_CLIENT_ID: your-twitch-client-id
+      TWITCH_CLIENT_SECRET: your-twitch-client-secret
+      TRELLO_API_KEY: your-trello-api-key
+      TRELLO_API_SECRET: your-trello-api-secret
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/about.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Web App
+  frontend:
+    restart: always
+    image: ghcr.io/eliotamn/epitech-area/web:latest
+    ports:
+      - "6000:8081"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      VITE_API_URL: https://area-backprod.eliotamanieu.fr
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+
