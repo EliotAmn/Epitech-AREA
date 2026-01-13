@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -57,6 +58,58 @@ export class UserServiceController {
       userservice_instance.id,
       userservice_instance.service_config,
     );
+
+    return { success: true };
+  }
+
+  @Get('/:service_name/status')
+  async getUserServiceStatus(
+    @Req()
+    req: Request & {
+      user: { sub: string };
+    },
+    @Param('service_name') serviceName: string,
+  ) {
+    const userId = req.user?.sub;
+
+    const userservice_instance = await this.service.fromUserIdAndServiceName(
+      userId,
+      serviceName,
+    );
+
+    if (!userservice_instance) {
+      return { connected: false, config: {} };
+    }
+
+    const config = userservice_instance.service_config || {};
+    const connected =
+      Object.keys(config).length > 0 && config !== null && config !== undefined;
+
+    return { connected, config };
+  }
+
+  @Delete('/:service_name')
+  async disconnectUserService(
+    @Req()
+    req: Request & {
+      user: { sub: string };
+    },
+    @Param('service_name') serviceName: string,
+  ) {
+    const userId = req.user?.sub;
+
+    const userservice_instance = await this.service.fromUserIdAndServiceName(
+      userId,
+      serviceName,
+    );
+
+    if (!userservice_instance) {
+      // nothing to disconnect
+      return { success: true };
+    }
+
+    // Clear stored config/tokens for this userservice
+    await this.service.updateConfig(userservice_instance.id, {});
 
     return { success: true };
   }

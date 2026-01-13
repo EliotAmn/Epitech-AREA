@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import Button from "@/component/button";
 import SearchBar from "../component/SearchBar";
 import Widget from "../component/widget";
-
 import type { CatalogItem } from "../data/catalogData";
 
 interface CatalogPageProps {
@@ -24,6 +23,15 @@ export default function CatalogPage({
     const [query, setQuery] = useState("");
     const navigate = useNavigate();
 
+    const itemLabel = useMemo(() => {
+        if (!items || items.length === 0) return "Item";
+        const id = items[0].id || "";
+        if (id.startsWith("service::")) return "Service";
+        if (id.startsWith("action::")) return "Action";
+        if (id.startsWith("reaction::")) return "Reaction";
+        return "Area";
+    }, [items]);
+
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
         if (!q) return items;
@@ -35,7 +43,7 @@ export default function CatalogPage({
     }, [items, query]);
 
     return (
-        <div className="h-full flex flex-col w-full bg-slate-50">
+        <div className="flex flex-col w-full bg-slate-50">
             <div className="relative w-full pt-16 pb-20 px-8">
                 <div
                     className="absolute inset-0 z-0 opacity-40"
@@ -49,11 +57,14 @@ export default function CatalogPage({
                         className={`flex flex-col md:flex-row  ${description ? "md:items-end" : "md:items-start"} justify-between gap-6`}
                     >
                         <div className="text-left">
-                            <h1 className={`text-6xl font-black text-slate-900 mb-2 ${description ? "-mt-8" : "mt-0"}`}>
+                            <h1
+                                className={`text-6xl font-black text-slate-900 mb-2 ${description ? "-mt-8" : "mt-0"}`}
+                            >
                                 {description}
                             </h1>
                             <p className="text-slate-500 font-bold tracking-widest uppercase text-[10px] ml-1">
-                                {items.length} Active Automations
+                                {items.length} {itemLabel}
+                                {items.length <= 1 ? "" : "s"}
                             </p>
                         </div>
                         {noButton ? null : (
@@ -80,7 +91,7 @@ export default function CatalogPage({
                 </div>
             </div>
 
-            <div className="flex-1 w-full overflow-y-auto mt-8">
+            <div className="w-full mt-8">
                 <div className="max-w-7xl mx-auto px-8 pb-12 flex flex-col items-center">
                     <div className="responsiveGrid">
                         {filtered.length === 0 ? (
@@ -93,7 +104,7 @@ export default function CatalogPage({
                             filtered.map((item) => (
                                 <Widget
                                     key={item.id}
-                                    title={item.title}
+                                    title={item.label}
                                     platform={item.platform}
                                     reactionPlatform={item.reactionPlatform}
                                     color={item.color}

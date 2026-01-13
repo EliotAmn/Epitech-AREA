@@ -2,17 +2,26 @@ import { useContext, useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import {
+    fetchCatalogFromAbout,
+    sortCatalogItemsByLabel,
+} from "@/services/aboutParser";
 import Button from "../component/button";
 import Widget from "../component/widget";
-
-import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { ThemeContext } from "../context/theme";
 
 function Home() {
     const navigate = useNavigate();
     const { setTheme, resetTheme } = useContext(ThemeContext);
     const [reactions, setReactions] = useState<
-        { id: string; title: string; platform: string; color?: string }[]
+        {
+            id: string;
+            title: string;
+            label: string;
+            platform: string;
+            color?: string;
+            path?: string;
+        }[]
     >([]);
 
     useEffect(() => {
@@ -25,7 +34,8 @@ function Home() {
 
         const load = async () => {
             const parsed = await fetchCatalogFromAbout();
-            if (mounted) setReactions(parsed.reactions);
+            if (mounted)
+                setReactions(sortCatalogItemsByLabel(parsed.reactions));
         };
 
         load();
@@ -36,7 +46,7 @@ function Home() {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-start">
+        <div className="min-h-screen flex flex-col items-center justify-start overflow-auto">
             <div className="flex flex-col items-center justify-center w-full gap-10 md:h-[530px] bg-[#242424] pb-8 px-4">
                 <p className="text-center text-[#ffffff] text-3xl sm:text-4xl md:text-[75px] font-bold leading-tight">
                     Automate. Save time.
@@ -54,17 +64,24 @@ function Home() {
                 Get started with any Applet
             </h2>
 
-            <div className="responsiveGrid">
+            <div className="responsiveGrid p-20">
                 {reactions.map((act) => (
                     <Widget
                         key={act.id}
-                        title={act.title}
+                        title={act.label}
                         platform={act.platform}
                         color={act.color}
                         onClick={() =>
-                            navigate(`/widget/${encodeURIComponent(act.id)}`, {
-                                state: { title: act.title, color: act.color },
-                            })
+                            navigate(
+                                act.path ??
+                                    `/reaction/${encodeURIComponent(act.id)}`,
+                                {
+                                    state: {
+                                        title: act.label,
+                                        color: act.color,
+                                    },
+                                }
+                            )
                         }
                     />
                 ))}

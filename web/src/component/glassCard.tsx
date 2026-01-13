@@ -4,6 +4,7 @@ interface GlassCardLayoutProps {
     backLabel?: string;
     onBack?: () => void;
     footer?: boolean;
+    maxWidthClass?: string;
 }
 
 export default function GlassCardLayout({
@@ -12,6 +13,7 @@ export default function GlassCardLayout({
     backLabel = "Back",
     onBack,
     footer = true,
+    maxWidthClass = "max-w-2xl",
 }: GlassCardLayoutProps) {
     const colors = Array.isArray(color) ? color : [color, color];
     return (
@@ -39,7 +41,7 @@ export default function GlassCardLayout({
                 </button>
             )}
 
-            <div className="relative z-10 w-full max-w-2xl mx-4 my-8">
+            <div className={`relative z-10 w-full ${maxWidthClass} mx-4 my-8`}>
                 <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-4xl p-8 md:p-10 shadow-2xl flex flex-col items-center">
                     <div className="w-full">{children}</div>
                     {footer && (

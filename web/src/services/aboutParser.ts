@@ -29,16 +29,6 @@ export const humanize = (s: string) =>
         .trim()
         .replace(/(^|\s)\S/g, (t: string) => t.toUpperCase());
 
-const slugify = (s: string) =>
-    (s || "")
-        .toString()
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/_/g, "-")
-        .replace(/[^a-z0-9-]/g, "")
-        .replace(/-+/g, "-")
-        .replace(/(^-|-$)/g, "");
-
 export async function fetchCatalogFromAbout(): Promise<{
     actions: CatalogItem[];
     services: CatalogItem[];
@@ -55,16 +45,18 @@ export async function fetchCatalogFromAbout(): Promise<{
         )?.server;
         const rawServices: {
             name?: string;
+            label?: string;
             title?: string;
             oauth_url?: string;
             color?: string;
             logo?: string;
-            actions?: { name?: string; title?: string }[];
-            reactions?: { name?: string; title?: string }[];
+            actions?: { name?: string; title?: string; label?: string }[];
+            reactions?: { name?: string; title?: string; label?: string }[];
         }[] = server && Array.isArray(server.services) ? server.services : [];
 
         for (const svc of rawServices) {
             const svcName: string = svc?.name || svc?.title || "Unknown";
+            const svcLabel: string = svc?.label || svcName;
             const svcColor = svc?.color || colorForService(svcName);
             const svcLogo = svc?.logo;
 
@@ -74,15 +66,15 @@ export async function fetchCatalogFromAbout(): Promise<{
                     icon: svcLogo,
                 };
             }
-            const svcSlug = slugify(svcName) || "service";
 
             // service entry
             services.push({
-                id: `service::${svcSlug}`,
-                title: humanize(svcName),
+                id: `service::${svcName}`,
+                title: svcName,
+                label: svcLabel,
                 platform: svcName,
                 color: svcColor,
-                path: `/service/${encodeURIComponent(svcSlug)}`,
+                path: `/service/${encodeURIComponent(svcName)}`,
                 oauth_url: svc?.oauth_url,
                 serviceName: svcName,
             });
@@ -90,13 +82,13 @@ export async function fetchCatalogFromAbout(): Promise<{
             if (Array.isArray(svc.actions)) {
                 for (const a of svc.actions) {
                     const aname = a?.name || a?.title || "action";
-                    const aslug = slugify(aname) || "action";
                     actions.push({
-                        id: `action::${svcSlug}::${aslug}`,
-                        title: humanize(aname),
+                        id: `action::${svcName}::${aname}`,
+                        title: aname,
+                        label: a.label,
                         platform: svcName,
                         color: svcColor,
-                        path: `/action/${encodeURIComponent(svcSlug)}-${encodeURIComponent(aslug)}`,
+                        path: `/action/${encodeURIComponent(svcName)}-${encodeURIComponent(aname)}`,
                         // preserve original definition name for creating areas
                         defName: aname,
                         serviceName: svcName,
@@ -107,13 +99,13 @@ export async function fetchCatalogFromAbout(): Promise<{
             if (Array.isArray(svc.reactions)) {
                 for (const r of svc.reactions) {
                     const rname = r?.name || r?.title || "reaction";
-                    const rslug = slugify(rname) || "reaction";
                     reactions.push({
-                        id: `reaction::${svcSlug}::${rslug}`,
-                        title: humanize(rname),
+                        id: `reaction::${svcName}::${rname}`,
+                        title: rname,
+                        label: r.label,
                         platform: svcName,
                         color: svcColor,
-                        path: `/reaction/${encodeURIComponent(svcSlug)}-${encodeURIComponent(rslug)}`,
+                        path: `/reaction/${encodeURIComponent(svcName)}-${encodeURIComponent(rname)}`,
                         // preserve original definition name for creating areas
                         defName: rname,
                         serviceName: svcName,
@@ -126,4 +118,14 @@ export async function fetchCatalogFromAbout(): Promise<{
     }
 
     return { actions, services, reactions };
+}
+
+export function sortCatalogItemsByLabel(items: CatalogItem[]) {
+    return items
+        .slice()
+        .sort((a, b) =>
+            (a.label || a.title || "")
+                .toLowerCase()
+                .localeCompare((b.label || b.title || "").toLowerCase())
+        );
 }

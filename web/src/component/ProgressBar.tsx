@@ -1,4 +1,4 @@
-import { ChevronLeft, Check } from "lucide-react";
+import { Check, ChevronLeft } from "lucide-react";
 
 interface ProgressBarProps {
     steps: number;
@@ -33,14 +33,16 @@ export default function ProgressBar({
                     className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-linear-to-r from-blue-500 to-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.3)]"
                     style={{
                         width: `${percent}%`,
-                        transition: "width 600ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        transition:
+                            "width 600ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                     }}
                 />
 
                 {Array.from({ length: steps }).map((_, i) => {
                     const n = i + 1;
                     const left = (i / denom) * 100;
-                    const isCompleted = current > n || (completedSteps && completedSteps[i]);
+                    const isCompleted =
+                        current > n || (completedSteps && completedSteps[i]);
                     const isActive = current === n;
 
                     return (
@@ -54,11 +56,13 @@ export default function ProgressBar({
                                 onClick={() => onStepClick?.(n)}
                                 className={`
                                     relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
-                                    ${isCompleted
-                                        ? "bg-blue-600 text-white"
-                                        : isActive
-                                            ? "bg-white border-4 border-blue-600 text-blue-600 scale-110 shadow-lg shadow-blue-200"
-                                            : "bg-white border-2 border-slate-200 text-slate-400"}
+                                    ${
+                                        isCompleted
+                                            ? "bg-blue-600 text-white"
+                                            : isActive
+                                              ? "bg-white border-4 border-blue-600 text-blue-600 scale-110 shadow-lg shadow-blue-200"
+                                              : "bg-white border-2 border-slate-200 text-slate-400"
+                                    }
                                     hover:border-blue-400
                                 `}
                             >
@@ -69,10 +73,12 @@ export default function ProgressBar({
                                 )}
                             </button>
 
-                            <span className={`
+                            <span
+                                className={`
                                 absolute top-12 whitespace-nowrap text-[11px] font-black uppercase tracking-widest transition-colors duration-300
                                 ${isActive ? "text-blue-600" : isCompleted ? "text-slate-800" : "text-slate-300"}
-                            `}>
+                            `}
+                            >
                                 {labels[i] || `Step ${n}`}
                             </span>
                         </div>

@@ -7,28 +7,11 @@ import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { aboutService } from "@/services/api/aboutService";
 import { areaService } from "@/services/api/areaService";
+import type { AboutData } from "@/services/types/aboutTypes";
 import type { CatalogItem } from "../data/catalogData";
 import Button from "./button";
 import type { ParameterDefinition, SelectOption } from "./ConfigWidget";
 import Input from "./input";
-
-type ServiceActionReaction = {
-    name: string;
-    description: string;
-    input_params?: ParameterDefinition[];
-};
-
-type ServiceDefinition = {
-    name: string;
-    actions: ServiceActionReaction[];
-    reactions: ServiceActionReaction[];
-};
-
-type AboutData = {
-    server: {
-        services: ServiceDefinition[];
-    };
-};
 
 interface Area {
     id: string;
@@ -191,8 +174,7 @@ export default function Edit({ area }: EditProps) {
                                     }
                                     const selectOpt = opt as SelectOption;
                                     const label =
-                                        selectOpt.label ??
-                                        selectOpt.value;
+                                        selectOpt.label ?? selectOpt.value;
                                     const value = selectOpt.value ?? label;
                                     return (
                                         <option key={value} value={value}>

@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import GlassCardLayout from "@/component/glassCard";
 import { getPlatformIcon } from "@/config/platforms";
+import { getUserServiceStatus } from "@/services/api/userserviceClient";
 import Button from "./button";
 import Input from "./input";
 
@@ -41,6 +44,24 @@ export default function ConfigWidget({
     onChange,
 }: ConfigWidgetProps) {
     const navigate = useNavigate();
+    const [connected, setConnected] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const res = await getUserServiceStatus(platform);
+                if (!mounted) return;
+                setConnected(!!res.connected);
+            } catch {
+                if (!mounted) return;
+                setConnected(false);
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, [platform]);
 
     const handleConnect = () => {
         if (onConnect) {
@@ -220,7 +241,20 @@ export default function ConfigWidget({
                             )}
                         </div>
                         <div className="flex justify-center shrink-0 pb-4">
-                            <Button label="Save" onClick={handleConnect} />
+                            {connected === null ? (
+                                <Button
+                                    label="Loading..."
+                                    onClick={() => {}}
+                                    disabled={true}
+                                />
+                            ) : connected === false ? (
+                                <Button
+                                    label="Connect..."
+                                    onClick={handleConnect}
+                                />
+                            ) : (
+                                <Button label="Save" onClick={handleConnect} />
+                            )}
                         </div>
                     </div>
                 </div>
