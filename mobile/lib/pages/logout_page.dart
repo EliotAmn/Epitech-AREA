@@ -42,7 +42,6 @@ class LogoutPage extends StatelessWidget {
       onPressed: () {
         logout(context);
       },
-      child: const Icon(Icons.logout),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
@@ -50,6 +49,7 @@ class LogoutPage extends StatelessWidget {
         padding: EdgeInsets.zero,
         minimumSize: const Size(40, 40),
       ),
+      child: const Icon(Icons.logout),
     );
   }
 }

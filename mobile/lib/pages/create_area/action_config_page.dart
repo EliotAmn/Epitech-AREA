@@ -130,7 +130,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
               ],
               const SizedBox(height: 24),
               SizedBox(
