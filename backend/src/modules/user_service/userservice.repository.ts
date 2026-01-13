@@ -30,7 +30,6 @@ export class UserServiceRepository {
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
         token_expires_at: tokens.token_expires_at,
-        updated_at: new Date(),
       },
     });
   }
@@ -40,7 +39,6 @@ export class UserServiceRepository {
       where: { id: userServiceId },
       data: {
         errored,
-        updated_at: new Date(),
       },
     });
   }
