@@ -187,7 +187,9 @@ export class TokenRefreshService {
     refreshToken: string,
   ): Promise<TokenRefreshResult> {
     const clientId = this.configService.get<string>('AIRTABLE_CLIENT_ID');
-    const clientSecret = this.configService.get<string>('AIRTABLE_CLIENT_SECRET');
+    const clientSecret = this.configService.get<string>(
+      'AIRTABLE_CLIENT_SECRET',
+    );
 
     if (!clientId || !clientSecret) {
       throw new OAuthError(
@@ -196,7 +198,9 @@ export class TokenRefreshService {
       );
     }
 
-    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(
+      'base64',
+    );
 
     const formData = new URLSearchParams({
       grant_type: 'refresh_token',
@@ -211,7 +215,7 @@ export class TokenRefreshService {
       scope: string;
     }>('https://airtable.com/oauth2/v1/token', formData, {
       headers: {
-        'Authorization': `Basic ${credentials}`,
+        Authorization: `Basic ${credentials}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });

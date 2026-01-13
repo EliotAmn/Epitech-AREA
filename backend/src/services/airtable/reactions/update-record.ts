@@ -48,7 +48,8 @@ export class UpdateRecord extends ServiceReactionDefinition {
       name: 'fields_json',
       type: ParameterType.STRING,
       label: 'Fields to Update (JSON)',
-      description: 'Fields to update as JSON string, e.g. {"Status": "Complete"}',
+      description:
+        'Fields to update as JSON string, e.g. {"Status": "Complete"}',
       required: true,
     },
   ];
@@ -70,15 +71,19 @@ export class UpdateRecord extends ServiceReactionDefinition {
 
     if (!baseId || !tableId || !recordId || !fieldsJson) {
       logger.error('Missing required parameters');
-      throw new Error('Base ID, Table ID, Record ID, and Fields JSON are required');
+      throw new Error(
+        'Base ID, Table ID, Record ID, and Fields JSON are required',
+      );
     }
 
-    logger.debug(`Updating record ${recordId} in base ${baseId}, table ${tableId}`);
+    logger.debug(
+      `Updating record ${recordId} in base ${baseId}, table ${tableId}`,
+    );
 
     let fields: Record<string, any>;
     try {
-      fields = JSON.parse(fieldsJson);
-    } catch (error) {
+      fields = JSON.parse(fieldsJson) as Record<string, any>;
+    } catch {
       logger.error(`Invalid JSON in fields_json: ${fieldsJson}`);
       throw new Error('Fields JSON is not valid JSON');
     }

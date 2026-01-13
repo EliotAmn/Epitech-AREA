@@ -65,7 +65,9 @@ export class DeleteRecord extends ServiceReactionDefinition {
       throw new Error('Base ID, Table ID, and Record ID are required');
     }
 
-    logger.debug(`Deleting record ${recordId} from base ${baseId}, table ${tableId}`);
+    logger.debug(
+      `Deleting record ${recordId} from base ${baseId}, table ${tableId}`,
+    );
 
     try {
       const response = await axios.delete<AirtableDeleteResponse>(
@@ -80,7 +82,9 @@ export class DeleteRecord extends ServiceReactionDefinition {
       if (response.data.deleted) {
         logger.log(`Successfully deleted record: ${response.data.id}`);
       } else {
-        logger.warn(`Record deletion response indicated not deleted: ${recordId}`);
+        logger.warn(
+          `Record deletion response indicated not deleted: ${recordId}`,
+        );
       }
     } catch (error: unknown) {
       const err = error as { response?: { status?: number; data?: unknown } };

@@ -21,6 +21,39 @@ interface AirtableListResponse {
 
 const logger = new Logger('AirtableService');
 
+function safeToString(value: unknown): string {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value.toString() : '';
+  }
+
+  if (typeof value === 'boolean' || typeof value === 'bigint') {
+    return value.toString();
+  }
+
+  if (typeof value === 'symbol') {
+    return value.description ?? '';
+  }
+
+  if (typeof value === 'function') {
+    return '[function]';
+  }
+
+  // À partir d'ici, TypeScript sait que c'est object
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '[unserializable object]';
+  }
+}
+
 export class FieldValueChanged extends ServiceActionDefinition {
   name = 'airtable.field_value_changed';
   label = 'On specific field value changed';
@@ -92,10 +125,8 @@ export class FieldValueChanged extends ServiceActionDefinition {
       return Promise.resolve({ triggered: false, parameters: {} });
     }
 
-    const fieldValues = (sconf.cache?.fieldValues as Record<
-      string,
-      string
-    >) || {};
+    const fieldValues =
+      (sconf.cache?.fieldValues as Record<string, string>) || {};
 
     return new Promise((resolve) => {
       axios
@@ -129,9 +160,8 @@ export class FieldValueChanged extends ServiceActionDefinition {
           const newFieldValues: Record<string, string> = {};
 
           for (const record of data.records) {
-            const currentValue = record.fields[fieldName];
-            const currentValueStr =
-              currentValue !== undefined ? String(currentValue) : '';
+            const currentValue = record.fields[fieldName] as unknown;
+            const currentValueStr = safeToString(currentValue);
             const previousValueStr = fieldValues[record.id] || '';
 
             newFieldValues[record.id] = currentValueStr;
@@ -181,8 +211,14 @@ export class FieldValueChanged extends ServiceActionDefinition {
             cache: { fieldValues: newFieldValues },
           });
         })
-        .catch((error) => {
-          logger.error(`Failed to fetch records: ${error.message}`);
+        .catch((error: unknown) => {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : typeof error === 'string'
+                ? error
+                : 'Unknown error';
+          logger.error(`Failed to fetch records: ${errorMessage}`);
           return resolve({ triggered: false, parameters: {} });
         });
     });

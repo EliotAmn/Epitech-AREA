@@ -146,8 +146,14 @@ export class RecordCreated extends ServiceActionDefinition {
             cache: { lastRecordIds: currentRecordIds },
           });
         })
-        .catch((error) => {
-          logger.error(`Failed to fetch records: ${error.message}`);
+        .catch((error: unknown) => {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : typeof error === 'string'
+                ? error
+                : 'Unknown error';
+          logger.error(`Failed to fetch records: ${errorMessage}`);
           return resolve({ triggered: false, parameters: {} });
         });
     });

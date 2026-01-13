@@ -77,10 +77,8 @@ export class RecordUpdated extends ServiceActionDefinition {
       return Promise.resolve({ triggered: false, parameters: {} });
     }
 
-    const recordSnapshots = (sconf.cache?.recordSnapshots as Record<
-      string,
-      string
-    >) || {};
+    const recordSnapshots =
+      (sconf.cache?.recordSnapshots as Record<string, string>) || {};
 
     return new Promise((resolve) => {
       axios
@@ -149,8 +147,14 @@ export class RecordUpdated extends ServiceActionDefinition {
             cache: { recordSnapshots: newSnapshots },
           });
         })
-        .catch((error) => {
-          logger.error(`Failed to fetch records: ${error.message}`);
+        .catch((error: unknown) => {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : typeof error === 'string'
+                ? error
+                : 'Unknown error';
+          logger.error(`Failed to fetch records: ${errorMessage}`);
           return resolve({ triggered: false, parameters: {} });
         });
     });

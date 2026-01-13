@@ -42,7 +42,8 @@ export class CreateRecord extends ServiceReactionDefinition {
       name: 'fields_json',
       type: ParameterType.STRING,
       label: 'Fields (JSON)',
-      description: 'Record fields as JSON string, e.g. {"Name": "John", "Email": "john@example.com"}',
+      description:
+        'Record fields as JSON string, e.g. {"Name": "John", "Email": "john@example.com"}',
       required: true,
     },
   ];
@@ -70,8 +71,8 @@ export class CreateRecord extends ServiceReactionDefinition {
 
     let fields: Record<string, any>;
     try {
-      fields = JSON.parse(fieldsJson);
-    } catch (error) {
+      fields = JSON.parse(fieldsJson) as Record<string, any>;
+    } catch {
       logger.error(`Invalid JSON in fields_json: ${fieldsJson}`);
       throw new Error('Fields JSON is not valid JSON');
     }

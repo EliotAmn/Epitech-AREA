@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   BadRequestException,
   Logger,
@@ -5,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { UserService } from '@prisma/client';
 import axios, { AxiosError } from 'axios';
-import * as crypto from 'crypto';
 
 import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
