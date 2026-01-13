@@ -219,25 +219,21 @@ export default function WidgetDetail() {
                                     </p>
                                 </div>
                             ) : (
-                                filtered.map(
-                                    (item) => (
-                                        (
-                                            <Widget
-                                                key={item.id}
-                                                title={item.label}
-                                                platform={item.platform}
-                                                color={item.color}
-                                                onClick={() =>
-                                                    navigate(
-                                                        item.path ??
-                                                            `/widget/${item.id}`,
-                                                        { state: item }
-                                                    )
-                                                }
-                                            />
-                                        )
-                                    )
-                                )
+                                filtered.map((item) => (
+                                    <Widget
+                                        key={item.id}
+                                        title={item.label}
+                                        platform={item.platform}
+                                        color={item.color}
+                                        onClick={() =>
+                                            navigate(
+                                                item.path ??
+                                                    `/widget/${item.id}`,
+                                                { state: item }
+                                            )
+                                        }
+                                    />
+                                ))
                             )}
                         </div>
                     </div>
