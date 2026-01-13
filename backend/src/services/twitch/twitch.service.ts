@@ -143,8 +143,8 @@ async function oauth_callback(
 export default class TwitchService implements ServiceDefinition {
   name = 'twitch';
   label = 'Twitch';
-  color = '#9146FF';
-  logo = 'https://assets.twitch.tv/assets/favicon-32-e29e246c157142c94346.png';
+  color = '#7E58BD';
+  logo = 'https://img.icons8.com/ios11/512/FFFFFF/twitch.png';
   mandatory_env_vars = ['TWITCH_CLIENT_ID', 'TWITCH_CLIENT_SECRET'];
   oauth_url = buildUrlParameters('https://id.twitch.tv/oauth2/authorize', {
     client_id: process.env.TWITCH_CLIENT_ID!,

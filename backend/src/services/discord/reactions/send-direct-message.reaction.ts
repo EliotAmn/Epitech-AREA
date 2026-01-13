@@ -9,7 +9,7 @@ import {
 import { getDiscordClient } from '../discord.client';
 
 export class SendDirectMessageReaction extends ServiceReactionDefinition {
-  name = 'send_direct_message';
+  name = 'discord.send_direct_message';
   description = 'Sends a direct message to a Discord user';
   input_params: ParameterDefinition[] = [
     {
