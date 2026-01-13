@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import {
@@ -10,6 +10,9 @@ import {
   ServiceReactionDefinition,
 } from '@/common/service.types';
 import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
+import { OAuthError } from '@/modules/user_service/token-refresh.errors';
+import { TokenRefreshService } from '@/modules/user_service/token-refresh.service';
+import { UserServiceRepository } from '@/modules/user_service/userservice.repository';
 import { UserServiceService } from '@/modules/user_service/userservice.service';
 import { ActionRepository } from './action/action.repository';
 import { AreaRepository } from './area.repository';
@@ -18,6 +21,7 @@ import { ReactionValider } from './reaction/reaction.valider';
 
 @Injectable()
 export class AreaService {
+  private readonly logger = new Logger(AreaService.name);
   private actionPollers: Map<string, ReturnType<typeof setInterval>> =
     new Map();
   private actionInstances: Map<string, ServiceActionDefinition> = new Map();
@@ -29,6 +33,8 @@ export class AreaService {
     private readonly reaction_valider: ReactionValider,
     private readonly service_importer_service: ServiceImporterService,
     private readonly userservice_service: UserServiceService,
+    private readonly tokenRefreshService: TokenRefreshService,
+    private readonly userServiceRepository: UserServiceRepository,
   ) {}
 
   async handle_action_trigger(
@@ -66,7 +72,7 @@ export class AreaService {
           | { service: ServiceDefinition; reaction: ServiceReactionDefinition }
           | undefined;
         if (!defs) {
-          console.error(
+          this.logger.error(
             `Reaction definition not found: ${r_user.reaction_name}`,
           );
           continue;
@@ -143,7 +149,7 @@ export class AreaService {
           reaction_in_params[key].value = replaced;
         });
 
-        console.log(
+        this.logger.log(
           `Preparing to execute reaction ${r_user.reaction_name} for area ${area.id} with params:`,
           Object.keys(reaction_in_params),
         );
@@ -154,29 +160,127 @@ export class AreaService {
         );
 
         if (!is_valid) {
-          console.log(
+          this.logger.log(
             `Skipping reaction ${r_user.reaction_name} for area ${area.id} because parameters are invalid or missing`,
           );
           continue;
         }
 
-        const service_config =
+        let service_config =
           (user_service?.service_config as Prisma.JsonObject) || {};
         const reaction_params = (r_user.params as Prisma.JsonObject) || {};
+
+        // Ensure valid OAuth token before executing reaction
+        try {
+          const accessToken = await this.tokenRefreshService.ensureValidToken(
+            area.user_id,
+            service_def.name,
+          );
+
+          // Add access token to service config if available
+          if (accessToken) {
+            service_config = { ...service_config, access_token: accessToken };
+          }
+        } catch (tokenError) {
+          this.logger.error(
+            `Token refresh failed for service ${service_def.name}:`,
+            tokenError,
+          );
+
+          // Check if it's an OAuth error that requires re-authentication
+          if (tokenError instanceof OAuthError && tokenError.isAuthError()) {
+            // Mark user service as errored
+            if (user_service) {
+              await this.userServiceRepository.markAsErrored(
+                user_service.id,
+                true,
+              );
+            }
+
+            // Disable all areas using this service
+            await this.disableAreasDueToAuthError(
+              area.user_id,
+              service_def.name,
+            );
+
+            this.logger.warn(
+              `Disabled areas for user ${area.user_id} due to auth error on service ${service_def.name}`,
+            );
+            continue; // Skip this reaction
+          }
+
+          // For other errors, still try to execute the reaction
+          this.logger.warn(
+            `Proceeding with reaction execution despite token refresh failure`,
+          );
+        }
+
         const sconf = {
           config: { ...service_config, ...reaction_params },
         } as any;
 
-        console.log(
+        this.logger.log(
           `Executing reaction ${r_user.reaction_name} for area ${area.id}`,
         );
         await r_def.execute(sconf, reaction_in_params);
       } catch (err) {
-        console.error(
+        this.logger.error(
           `Error executing reaction ${r_user.reaction_name} for area ${area.id}:`,
           err,
         );
       }
+    }
+  }
+
+  /**
+   * Disable all areas for a user that use a specific service due to authentication errors
+   */
+  private async disableAreasDueToAuthError(
+    userId: string,
+    serviceName: string,
+  ): Promise<void> {
+    try {
+      // Find all areas for this user
+      const userAreas = await this.area_repository.findByUserId(userId);
+
+      for (const area of userAreas) {
+        // Check if any reaction in this area uses the problematic service
+        const reactionUsesService = (area.reactions || []).some(
+          (reaction: any) => {
+            const reactionDef = this.service_importer_service.getReactionByName(
+              reaction.reaction_name,
+            );
+            return reactionDef?.service.name === serviceName;
+          },
+        );
+
+        // Check if any action in this area uses the problematic service
+        const actionUsesService = (area.actions || []).some((action: any) => {
+          const actionDef = this.service_importer_service.getActionByName(
+            action.action_name,
+          );
+          return actionDef?.service.name === serviceName;
+        });
+
+        if (reactionUsesService || actionUsesService) {
+          // Stop pollers for this area
+          this.stopAreaPollers(area.id);
+
+          // Update the area's enabled status in the database
+          await this.area_repository.update(area.id, {
+            enabled: false,
+          });
+
+          this.logger.log(
+            `Disabled area ${area.id} due to auth error on service ${serviceName}`,
+          );
+        }
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to disable areas for user ${userId} service ${serviceName}:`,
+        error,
+      );
     }
   }
 
@@ -206,9 +310,26 @@ export class AreaService {
             userId,
             service_name,
           );
-        const service_config =
+        let service_config =
           (user_service?.service_config as Prisma.JsonObject) || {};
         const action_params = (a.params as Prisma.JsonObject) || {};
+
+        // Ensure valid OAuth token before initializing action
+        try {
+          const accessToken = await this.tokenRefreshService.ensureValidToken(
+            userId,
+            service_name,
+          );
+          if (accessToken) {
+            service_config = { ...service_config, access_token: accessToken };
+          }
+        } catch (tokenError) {
+          this.logger.error(
+            `Token refresh failed for action ${a.action_name}:`,
+            tokenError,
+          );
+        }
+
         const sconf = {
           config: { ...service_config, ...action_params },
         } as any;
@@ -230,8 +351,15 @@ export class AreaService {
           sconf.cache = initialCache || {};
 
           const timer = setInterval(() => {
-            def_action.action
-              .poll(sconf)
+            // Refresh token before each poll if needed
+            this.tokenRefreshService
+              .ensureValidToken(userId, service_name)
+              .then((accessToken) => {
+                if (accessToken) {
+                  sconf.config.access_token = accessToken;
+                }
+                return def_action.action.poll(sconf);
+              })
               .then(async (out: ActionTriggerOutput) => {
                 // Update cache with the returned cache from poll
                 if (out.cache) {
@@ -242,7 +370,7 @@ export class AreaService {
                 }
               })
               .catch((err: any) => {
-                console.error(
+                this.logger.error(
                   `Error polling action ${a.action_name} for area ${area.id}:`,
                   err,
                 );
@@ -250,10 +378,10 @@ export class AreaService {
           }, def_action.action.poll_interval * 1000);
           this.actionPollers.set(pollKey, timer);
         } catch (err) {
-          console.error('Failed to start poller for action:', err);
+          this.logger.error('Failed to start poller for action:', err);
         }
       } catch (e) {
-        console.error(
+        this.logger.error(
           'Failed to initialize action cache for area during startup:',
           e,
         );
@@ -282,7 +410,7 @@ export class AreaService {
         } as any;
         await def_reaction.reaction.reload_cache(sconf);
       } catch (e) {
-        console.error(
+        this.logger.error(
           'Failed to initialize reaction cache for area during startup:',
           e,
         );
@@ -327,7 +455,7 @@ export class AreaService {
     try {
       await this.initializeOne(created.id);
     } catch (err) {
-      console.error('Error during post-create area initialization:', err);
+      this.logger.error('Error during post-create area initialization:', err);
     }
     return created;
   }

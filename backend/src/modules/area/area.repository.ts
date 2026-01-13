@@ -31,7 +31,7 @@ export class AreaRepository {
     });
   }
 
-  update(id: string, data: Prisma.AreaReactionUpdateInput) {
+  update(id: string, data: Prisma.AreaUpdateInput) {
     return this.prisma.area.update({
       where: { id },
       data,
