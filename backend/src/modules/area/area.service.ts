@@ -255,6 +255,12 @@ export class AreaService {
         if (usesService) {
           // Stop pollers for this area
           this.stopAreaPollers(area.id);
+          
+          // Update the area's enabled status in the database
+          await this.area_repository.update(area.id, {
+            enabled: false,
+          });
+          
           this.logger.log(
             `Disabled area ${area.id} due to auth error on service ${serviceName}`,
           );
