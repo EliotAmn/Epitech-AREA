@@ -77,7 +77,10 @@ export class GithubNewCommit extends ServiceActionDefinition {
 
   async reload_cache(sconf: ServiceConfig): Promise<Record<string, unknown>> {
     const accessToken = sconf.config.access_token as string | undefined;
-    const repo = sconf.config.repository as string;
+    let repo = sconf.config.repository as string;
+    if (repo && repo.endsWith('/')) {
+      repo = repo.slice(0, -1);
+    }
     const branch = (sconf.config.branch as string) || 'main';
 
     if (!accessToken || !repo) {
@@ -113,7 +116,10 @@ export class GithubNewCommit extends ServiceActionDefinition {
 
   async poll(sconf: ServiceConfig): Promise<ActionTriggerOutput> {
     const accessToken = sconf.config.access_token as string | undefined;
-    const repo = sconf.config.repository as string;
+    let repo = sconf.config.repository as string;
+    if (repo && repo.endsWith('/')) {
+      repo = repo.slice(0, -1);
+    }
     const branch = (sconf.config.branch as string) || 'main';
 
     if (!accessToken || !repo) {

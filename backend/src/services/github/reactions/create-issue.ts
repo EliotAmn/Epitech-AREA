@@ -43,7 +43,10 @@ export class GithubCreateIssue extends ServiceReactionDefinition {
     params: Record<string, ParameterValue>,
   ): Promise<void> {
     const accessToken = sconf.config.access_token as string | undefined;
-    const repo = params.repository?.value as string;
+    let repo = params.repository?.value as string;
+    if (repo && repo.endsWith('/')) {
+      repo = repo.slice(0, -1);
+    }
     const title = params.title?.value as string;
     const body = params.body?.value as string;
 
