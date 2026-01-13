@@ -40,27 +40,38 @@ export class OAuthError extends Error {
 /**
  * Parse axios error response to determine OAuth error code
  */
-export function parseOAuthError(error: any): OAuthErrorCode {
+export function parseOAuthError(error: unknown): OAuthErrorCode {
+  // Type guard for axios-like error structure
+  const isAxiosError = (
+    err: unknown,
+  ): err is { response?: { data?: unknown; status?: number } } => {
+    return typeof err === 'object' && err !== null && 'response' in err;
+  };
+
   // Check for axios error with response
-  if (error.response?.data) {
-    const data = error.response.data;
-    const errorField = data.error || data.error_description || '';
+  if (isAxiosError(error) && error.response?.data) {
+    const data = error.response.data as Record<string, unknown>;
+    const errorValue = data.error ?? data.error_description ?? '';
+    const errorField = typeof errorValue === 'string' ? errorValue : '';
 
     // Check for specific OAuth error codes
-    if (
-      errorField.includes('invalid_grant') ||
-      error.response.status === 400
-    ) {
+    if (errorField.includes('invalid_grant') || error.response.status === 400) {
       return OAuthErrorCode.INVALID_GRANT;
     }
 
-    if (errorField.includes('token_revoked') || errorField.includes('revoked')) {
+    if (
+      errorField.includes('token_revoked') ||
+      errorField.includes('revoked')
+    ) {
       return OAuthErrorCode.TOKEN_REVOKED;
     }
   }
 
   // Check HTTP status codes
-  if (error.response?.status === 401 || error.response?.status === 403) {
+  if (
+    isAxiosError(error) &&
+    (error.response?.status === 401 || error.response?.status === 403)
+  ) {
     return OAuthErrorCode.TOKEN_REVOKED;
   }
 

@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
-import { UserServiceRepository } from './userservice.repository';
 import {
   OAuthError,
   OAuthErrorCode,
   parseOAuthError,
 } from './token-refresh.errors';
+import { UserServiceRepository } from './userservice.repository';
 
 interface TokenRefreshResult {
   access_token: string;
@@ -58,7 +58,9 @@ export class TokenRefreshService {
       } else if (serviceName === 'github') {
         tokenResponse = await this.refreshGithubToken(refreshToken);
       } else {
-        throw new Error(`Token refresh not supported for service: ${serviceName}`);
+        throw new Error(
+          `Token refresh not supported for service: ${serviceName}`,
+        );
       }
 
       // Calculate new expiry date

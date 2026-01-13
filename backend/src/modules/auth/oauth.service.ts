@@ -5,8 +5,8 @@ import { User } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { UserService } from '../user/user.service';
 import { UserServiceRepository } from '../user_service/userservice.repository';
+import { UserService } from '../user/user.service';
 import { OauthLinkRepository } from './oauth-link.repository';
 
 interface OauthProfile {

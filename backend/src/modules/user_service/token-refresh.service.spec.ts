@@ -133,11 +133,7 @@ describe('TokenRefreshService', () => {
 
         mockedAxios.post.mockResolvedValue(mockTokenResponse);
 
-        await service.refreshAccessToken(
-          userServiceId,
-          'google',
-          refreshToken,
-        );
+        await service.refreshAccessToken(userServiceId, 'google', refreshToken);
 
         expect(userServiceRepository.updateTokens).toHaveBeenCalledWith(
           userServiceId,
@@ -157,11 +153,7 @@ describe('TokenRefreshService', () => {
 
         mockedAxios.post.mockResolvedValue(mockTokenResponse);
 
-        await service.refreshAccessToken(
-          userServiceId,
-          'google',
-          refreshToken,
-        );
+        await service.refreshAccessToken(userServiceId, 'google', refreshToken);
 
         expect(userServiceRepository.updateTokens).toHaveBeenCalledWith(
           userServiceId,
@@ -241,8 +233,14 @@ describe('TokenRefreshService', () => {
     describe('Unsupported service', () => {
       it('should throw error for unsupported service', async () => {
         await expect(
-          service.refreshAccessToken(userServiceId, 'unsupported', refreshToken),
-        ).rejects.toThrow('Token refresh not supported for service: unsupported');
+          service.refreshAccessToken(
+            userServiceId,
+            'unsupported',
+            refreshToken,
+          ),
+        ).rejects.toThrow(
+          'Token refresh not supported for service: unsupported',
+        );
       });
     });
   });
@@ -261,7 +259,9 @@ describe('TokenRefreshService', () => {
       };
 
       // Mock the repository to return the user service
-      (userServiceRepository.fromUserIdAndServiceName as jest.Mock).mockResolvedValue(mockUserService);
+      (
+        userServiceRepository.fromUserIdAndServiceName as jest.Mock
+      ).mockResolvedValue(mockUserService);
 
       const result = await service.ensureValidToken(userId, serviceName);
 
@@ -285,7 +285,9 @@ describe('TokenRefreshService', () => {
         },
       };
 
-      (userServiceRepository.fromUserIdAndServiceName as jest.Mock).mockResolvedValue(mockUserService);
+      (
+        userServiceRepository.fromUserIdAndServiceName as jest.Mock
+      ).mockResolvedValue(mockUserService);
       mockedAxios.post.mockResolvedValue(mockTokenResponse);
 
       const result = await service.ensureValidToken(userId, serviceName);
@@ -296,7 +298,9 @@ describe('TokenRefreshService', () => {
     });
 
     it('should return null if user service not found', async () => {
-      (userServiceRepository.fromUserIdAndServiceName as jest.Mock).mockResolvedValue(null);
+      (
+        userServiceRepository.fromUserIdAndServiceName as jest.Mock
+      ).mockResolvedValue(null);
 
       const result = await service.ensureValidToken(userId, serviceName);
 
@@ -311,7 +315,9 @@ describe('TokenRefreshService', () => {
         token_expires_at: null,
       };
 
-      (userServiceRepository.fromUserIdAndServiceName as jest.Mock).mockResolvedValue(mockUserService);
+      (
+        userServiceRepository.fromUserIdAndServiceName as jest.Mock
+      ).mockResolvedValue(mockUserService);
 
       const result = await service.ensureValidToken(userId, serviceName);
 
@@ -326,7 +332,9 @@ describe('TokenRefreshService', () => {
         token_expires_at: new Date(Date.now() - 10 * 60 * 1000),
       };
 
-      (userServiceRepository.fromUserIdAndServiceName as jest.Mock).mockResolvedValue(mockUserService);
+      (
+        userServiceRepository.fromUserIdAndServiceName as jest.Mock
+      ).mockResolvedValue(mockUserService);
 
       await expect(
         service.ensureValidToken(userId, serviceName),

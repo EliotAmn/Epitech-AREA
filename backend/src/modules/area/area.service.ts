@@ -10,10 +10,10 @@ import {
   ServiceReactionDefinition,
 } from '@/common/service.types';
 import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
-import { TokenRefreshService } from '@/modules/user_service/token-refresh.service';
 import { OAuthError } from '@/modules/user_service/token-refresh.errors';
-import { UserServiceService } from '@/modules/user_service/userservice.service';
+import { TokenRefreshService } from '@/modules/user_service/token-refresh.service';
 import { UserServiceRepository } from '@/modules/user_service/userservice.repository';
+import { UserServiceService } from '@/modules/user_service/userservice.service';
 import { ActionRepository } from './action/action.repository';
 import { AreaRepository } from './area.repository';
 import { ReactionRepository } from './reaction/reaction.repository';
@@ -198,7 +198,10 @@ export class AreaService {
             }
 
             // Disable all areas using this service
-            await this.disableAreasDueToAuthError(area.user_id, service_def.name);
+            await this.disableAreasDueToAuthError(
+              area.user_id,
+              service_def.name,
+            );
 
             this.logger.warn(
               `Disabled areas for user ${area.user_id} due to auth error on service ${service_def.name}`,
@@ -242,12 +245,14 @@ export class AreaService {
 
       for (const area of userAreas) {
         // Check if any reaction in this area uses the problematic service
-        const reactionUsesService = (area.reactions || []).some((reaction: any) => {
-          const reactionDef = this.service_importer_service.getReactionByName(
-            reaction.reaction_name,
-          );
-          return reactionDef?.service.name === serviceName;
-        });
+        const reactionUsesService = (area.reactions || []).some(
+          (reaction: any) => {
+            const reactionDef = this.service_importer_service.getReactionByName(
+              reaction.reaction_name,
+            );
+            return reactionDef?.service.name === serviceName;
+          },
+        );
 
         // Check if any action in this area uses the problematic service
         const actionUsesService = (area.actions || []).some((action: any) => {
@@ -260,12 +265,12 @@ export class AreaService {
         if (reactionUsesService || actionUsesService) {
           // Stop pollers for this area
           this.stopAreaPollers(area.id);
-          
+
           // Update the area's enabled status in the database
           await this.area_repository.update(area.id, {
             enabled: false,
           });
-          
+
           this.logger.log(
             `Disabled area ${area.id} due to auth error on service ${serviceName}`,
           );
