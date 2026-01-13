@@ -31,6 +31,7 @@ export interface ServiceInfo {
   actions: ActionInfo[];
   reactions: ReactionInfo[];
 }
+
 export interface AboutResponse {
   client: {
     host: string;
@@ -85,6 +86,7 @@ export class AboutService {
 
         return {
           name: service.name,
+          label: service.label,
           description: service.description,
           color: service.color,
           logo: service.logo,
@@ -111,6 +113,7 @@ export class AboutService {
         const actionInstance = new ActionClass();
         return {
           name: actionInstance.name || 'unknown_action',
+          label: actionInstance.label || 'Unknown Action',
           description: actionInstance.description || 'No description available',
           output_params: actionInstance.output_params || [],
           input_params: actionInstance.input_params || [],
@@ -133,6 +136,7 @@ export class AboutService {
         const reactionInstance = new ReactionClass();
         return {
           name: reactionInstance.name || 'unknown_reaction',
+          label: reactionInstance.label || 'Unknown Reaction',
           description:
             reactionInstance.description || 'No description available',
           input_params: reactionInstance.input_params || [],
