@@ -71,7 +71,7 @@ export class TokenRefreshService {
       // Update database with new tokens
       await this.userServiceRepository.updateTokens(userServiceId, {
         access_token: tokenResponse.access_token,
-        refresh_token: tokenResponse.refresh_token || refreshToken, // Use new refresh token if provided
+        refresh_token: tokenResponse.refresh_token ?? refreshToken, // Use new refresh token if provided, otherwise keep existing
         token_expires_at: expiresAt,
       });
 
@@ -116,18 +116,20 @@ export class TokenRefreshService {
       );
     }
 
+    const params = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
+    });
+
     const response = await axios.post<{
       access_token: string;
       expires_in?: number;
       refresh_token?: string;
     }>(
       'https://oauth2.googleapis.com/token',
-      {
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
-        grant_type: 'refresh_token',
-      },
+      params,
       {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       },
@@ -182,7 +184,26 @@ export class TokenRefreshService {
 
   /**
    * Ensure a valid access token is available, refreshing if necessary
-   * Returns the valid access token or throws if refresh fails
+   *
+   * @param userId - The ID of the user
+   * @param serviceName - The name of the service (e.g., 'google', 'github')
+   * @returns A Promise that resolves to:
+   *   - `string`: A valid access token (either existing or freshly refreshed)
+   *   - `null`: When the user service doesn't exist or doesn't use OAuth tokens
+   *     (e.g., Discord bot tokens that don't expire)
+   * @throws {OAuthError} When the token is expired but no refresh token is available
+   *   (error code: REFRESH_NOT_SUPPORTED)
+   * @throws {OAuthError} When token refresh fails due to invalid/expired refresh token
+   *   or OAuth provider errors
+   *
+   * @example
+   * ```typescript
+   * // Returns valid token or refreshes if expired
+   * const token = await ensureValidToken(userId, 'google');
+   *
+   * // Returns null for services without OAuth
+   * const token = await ensureValidToken(userId, 'discord'); // null
+   * ```
    */
   async ensureValidToken(
     userId: string,
