@@ -24,7 +24,7 @@ class ReactionPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Choose reaction ',
+          'Choose a reaction',
           style: Theme.of(context).textTheme.displayLarge,
         ),
       ),
