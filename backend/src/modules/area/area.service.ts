@@ -166,7 +166,7 @@ export class AreaService {
           continue;
         }
 
-        const service_config =
+        let service_config =
           (user_service?.service_config as Prisma.JsonObject) || {};
         const reaction_params = (r_user.params as Prisma.JsonObject) || {};
 
@@ -179,7 +179,7 @@ export class AreaService {
 
           // Add access token to service config if available
           if (accessToken) {
-            service_config.access_token = accessToken;
+            service_config = { ...service_config, access_token: accessToken };
           }
         } catch (tokenError) {
           this.logger.error(
@@ -310,7 +310,7 @@ export class AreaService {
             userId,
             service_name,
           );
-        const service_config =
+        let service_config =
           (user_service?.service_config as Prisma.JsonObject) || {};
         const action_params = (a.params as Prisma.JsonObject) || {};
 
@@ -321,7 +321,7 @@ export class AreaService {
             service_name,
           );
           if (accessToken) {
-            service_config.access_token = accessToken;
+            service_config = { ...service_config, access_token: accessToken };
           }
         } catch (tokenError) {
           this.logger.error(
