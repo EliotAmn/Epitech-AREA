@@ -12,7 +12,7 @@ RUN npm ci
 FROM deps AS builder
 
 # Accept API URL as build argument
-ARG VITE_API_URL=http://localhost:8080
+ARG VITE_API_URL=https://area-backprod.eliotamanieu.fr
 ENV VITE_API_URL=${VITE_API_URL}
 
 COPY . .
@@ -27,6 +27,11 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy entrypoint script for runtime configuration
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8081
 
-CMD ["nginx", "-g", "daemon off;"]
+# Use entrypoint script to inject runtime environment variables
+ENTRYPOINT ["/entrypoint.sh"]
