@@ -11,6 +11,7 @@ import {
 } from '@/common/service.types';
 import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
 import { TokenRefreshService } from '@/modules/user_service/token-refresh.service';
+import { OAuthError } from '@/modules/user_service/token-refresh.errors';
 import { UserServiceService } from '@/modules/user_service/userservice.service';
 import { UserServiceRepository } from '@/modules/user_service/userservice.repository';
 import { ActionRepository } from './action/action.repository';
@@ -186,12 +187,8 @@ export class AreaService {
             tokenError,
           );
 
-          // Check if it's an auth error (token revoked)
-          if (
-            tokenError instanceof Error &&
-            (tokenError.message.includes('invalid_grant') ||
-              tokenError.message.includes('revoked'))
-          ) {
+          // Check if it's an OAuth error that requires re-authentication
+          if (tokenError instanceof OAuthError && tokenError.isAuthError()) {
             // Mark user service as errored
             if (user_service) {
               await this.userServiceRepository.markAsErrored(

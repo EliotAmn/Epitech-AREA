@@ -1,8 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { UserServiceRepository } from './userservice.repository';
+import {
+  OAuthError,
+  OAuthErrorCode,
+  parseOAuthError,
+} from './token-refresh.errors';
 
 interface TokenRefreshResult {
   access_token: string;
@@ -78,6 +83,17 @@ export class TokenRefreshService {
         `Failed to refresh token for service ${serviceName}:`,
         error,
       );
+
+      // Parse and throw structured OAuth error
+      if (axios.isAxiosError(error)) {
+        const errorCode = parseOAuthError(error);
+        throw new OAuthError(
+          errorCode,
+          `Failed to refresh ${serviceName} token: ${error.message}`,
+          error,
+        );
+      }
+
       throw error;
     }
   }
@@ -92,7 +108,10 @@ export class TokenRefreshService {
     const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
 
     if (!clientId || !clientSecret) {
-      throw new Error('Google OAuth credentials not configured');
+      throw new OAuthError(
+        OAuthErrorCode.CREDENTIALS_NOT_CONFIGURED,
+        'Google OAuth credentials not configured',
+      );
     }
 
     const response = await axios.post<{
@@ -129,7 +148,10 @@ export class TokenRefreshService {
     const clientSecret = this.configService.get<string>('GITHUB_CLIENT_SECRET');
 
     if (!clientId || !clientSecret) {
-      throw new Error('GitHub OAuth credentials not configured');
+      throw new OAuthError(
+        OAuthErrorCode.CREDENTIALS_NOT_CONFIGURED,
+        'GitHub OAuth credentials not configured',
+      );
     }
 
     const response = await axios.post<{
@@ -189,7 +211,8 @@ export class TokenRefreshService {
 
     // Token is expired, refresh it
     if (!userService.refresh_token) {
-      throw new Error(
+      throw new OAuthError(
+        OAuthErrorCode.REFRESH_NOT_SUPPORTED,
         `Access token expired but no refresh token available for service ${serviceName}`,
       );
     }
