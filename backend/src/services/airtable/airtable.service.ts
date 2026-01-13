@@ -58,8 +58,7 @@ async function oauth_callback(
   if (!authorizationCode)
     throw new BadRequestException('Authorization code is missing');
 
-  if (!state)
-    throw new BadRequestException('State parameter is missing');
+  if (!state) throw new BadRequestException('State parameter is missing');
 
   // Retrieve code_verifier from PKCE store
   const pkceData = pkceStore.get(state);

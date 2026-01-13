@@ -25,7 +25,7 @@ export class RecordUpdated extends ServiceActionDefinition {
   name = 'airtable.record_updated';
   label = 'On record updated';
   description = 'Triggered when a record is modified in a table';
-  poll_interval = 10; // Check every minute
+  poll_interval = 10; // Check every 10 seconds
   output_params: ParameterDefinition[] = [
     {
       name: 'record_id',

@@ -57,6 +57,8 @@ export class TokenRefreshService {
         tokenResponse = await this.refreshGoogleToken(refreshToken);
       } else if (serviceName === 'github') {
         tokenResponse = await this.refreshGithubToken(refreshToken);
+      } else if (serviceName === 'airtable') {
+        tokenResponse = await this.refreshAirtableToken(refreshToken);
       } else {
         throw new Error(
           `Token refresh not supported for service: ${serviceName}`,
@@ -170,6 +172,49 @@ export class TokenRefreshService {
         headers: { Accept: 'application/json' },
       },
     );
+
+    return {
+      access_token: response.data.access_token,
+      expires_in: response.data.expires_in,
+      refresh_token: response.data.refresh_token,
+    };
+  }
+
+  /**
+   * Refresh Airtable OAuth2 token
+   */
+  private async refreshAirtableToken(
+    refreshToken: string,
+  ): Promise<TokenRefreshResult> {
+    const clientId = this.configService.get<string>('AIRTABLE_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('AIRTABLE_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      throw new OAuthError(
+        OAuthErrorCode.CREDENTIALS_NOT_CONFIGURED,
+        'Airtable OAuth credentials not configured',
+      );
+    }
+
+    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    const formData = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    });
+
+    const response = await axios.post<{
+      access_token: string;
+      token_type: string;
+      refresh_token: string;
+      expires_in: number;
+      scope: string;
+    }>('https://airtable.com/oauth2/v1/token', formData, {
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
 
     return {
       access_token: response.data.access_token,
