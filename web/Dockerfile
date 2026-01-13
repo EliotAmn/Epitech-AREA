@@ -12,7 +12,7 @@ RUN npm ci
 FROM deps AS builder
 
 # Accept API URL as build argument
-ARG VITE_API_URL=http://localhost:8080
+ARG VITE_API_URL=https://area-backprod.eliotamanieu.fr
 ENV VITE_API_URL=${VITE_API_URL}
 
 COPY . .
