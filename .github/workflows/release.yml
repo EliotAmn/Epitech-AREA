@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
       - "*/cicd/*"
     tags:
       - 'v*'
@@ -36,6 +37,7 @@ jobs:
       frontend_changed: ${{ steps.set-outputs.outputs.frontend_changed }}
       backend_changed: ${{ steps.set-outputs.outputs.backend_changed }}
       mobile_changed: ${{ steps.set-outputs.outputs.mobile_changed }}
+      release_type: ${{ steps.set-outputs.outputs.release_type }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -63,6 +65,17 @@ jobs:
           echo "frontend_changed=$FRONT" >> $GITHUB_OUTPUT
           echo "backend_changed=$BACK" >> $GITHUB_OUTPUT
           echo "mobile_changed=$MOBILE" >> $GITHUB_OUTPUT
+          
+          # Determine release type
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            RELEASE_TYPE="${{ inputs.release_type }}"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ] || [ "${{ startsWith(github.ref, 'refs/tags/v') }}" == "true" ]; then
+            RELEASE_TYPE="production"
+          else
+            RELEASE_TYPE="development"
+          fi
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "🏷️ Release type: $RELEASE_TYPE" >> $GITHUB_STEP_SUMMARY
 
   # Mobile APK Build
   build_mobile_apk:
@@ -111,18 +124,25 @@ jobs:
         working-directory: ./mobile
         run: |
           VERSION=$(grep "version:" pubspec.yaml | head -1 | awk '{print $2}')
-          cp build/app/outputs/flutter-apk/app-release.apk \
-             build/app/outputs/flutter-apk/area-mobile-${VERSION}.apk
+          RELEASE_TYPE="${{ needs.detect_changes.outputs.release_type }}"
+          if [ "$RELEASE_TYPE" == "production" ]; then
+            cp build/app/outputs/flutter-apk/app-release.apk \
+               build/app/outputs/flutter-apk/area-mobile-${VERSION}.apk
+          else
+            cp build/app/outputs/flutter-apk/app-release.apk \
+               build/app/outputs/flutter-apk/area-mobile-${VERSION}-dev.apk
+          fi
           echo "APK_VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
       
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mobile-apk-release
+          name: mobile-apk-${{ needs.detect_changes.outputs.release_type }}
           path: |
             mobile/build/app/outputs/flutter-apk/app-release.apk
             mobile/build/app/outputs/flutter-apk/area-mobile-*.apk
-          retention-days: 90
+          retention-days: ${{ needs.detect_changes.outputs.release_type == 'production' && 90 || 30 }}
 
   # Docker Images Build
   build_docker_images:
@@ -170,7 +190,9 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ needs.detect_changes.outputs.release_type == 'production' }}
+            type=raw,value=latest-dev,enable=${{ needs.detect_changes.outputs.release_type == 'development' }}
+            type=raw,value=${{ needs.detect_changes.outputs.release_type }}
       
       - name: Build and push Docker image
         if: ${{ matrix.changed == 'true' }}
@@ -195,6 +217,7 @@ jobs:
   build_web_artifacts:
     name: "Build Web Artifacts"
     runs-on: ubuntu-latest
+    needs: [detect_changes]
     
     steps:
       - name: Checkout code
@@ -235,16 +258,16 @@ jobs:
       - name: Upload web artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: web-dist-release
+          name: web-dist-${{ needs.detect_changes.outputs.release_type }}
           path: web/web-dist.tar.gz
-          retention-days: 90
+          retention-days: ${{ needs.detect_changes.outputs.release_type == 'production' && 90 || 30 }}
 
   # Create GitHub Release
   create_release:
     name: "Create GitHub Release"
     runs-on: ubuntu-latest
-    needs: [build_mobile_apk, build_web_artifacts]
-    if: startsWith(github.ref, 'refs/tags/v') && needs.build_mobile_apk.result == 'success' && needs.build_web_artifacts.result == 'success'
+    needs: [build_mobile_apk, build_web_artifacts, detect_changes]
+    if: startsWith(github.ref, 'refs/tags/v') && needs.detect_changes.outputs.release_type == 'production' && needs.build_mobile_apk.result == 'success' && needs.build_web_artifacts.result == 'success'
     
     steps:
       - name: Checkout code
@@ -253,13 +276,13 @@ jobs:
       - name: Download APK
         uses: actions/download-artifact@v4
         with:
-          name: mobile-apk-release
+          name: mobile-apk-production
           path: ./release-assets
       
       - name: Download web artifacts
         uses: actions/download-artifact@v4
         with:
-          name: web-dist-release
+          name: web-dist-production
           path: ./release-assets
       
       - name: Generate release notes
