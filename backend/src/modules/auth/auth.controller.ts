@@ -346,7 +346,7 @@ export class AuthController {
 
     const frontend =
       this.configService.get<string>('FRONTEND_URL') ||
-      this.configService.get<string>('APP_URL') ||
+      this.configService.get<string>('MOBILE_URL') ||
       '*';
     const origin = frontend === '*' ? '*' : frontend.replace(/\/$/, '');
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/logout_page.dart';
 import 'package:mobile/pages/my_areas_page.dart';
 import 'pages/login_page.dart';
-import 'pages/create_area/create_page.dart';
+import 'pages/create_area/create_home_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'global/cache.dart' as cache;
@@ -62,7 +62,7 @@ class _MainNavigationState extends State<MainNavigation> {
   List<Widget> _getPages() {
     return [
       LogoutPage(onLogoutSuccess: _onLogoutSuccess),
-      const CreatePage(),
+      CreateHomePage(),
       MyAreasPage(),
     ];
   }
@@ -76,10 +76,21 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final bool showMainAppBar =
+        _selectedIndex != 1; // hide on Create page to let its own AppBar render
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('AREA', style: Theme.of(context).textTheme.displayLarge),
-      ),
+      extendBodyBehindAppBar: true,
+      appBar: showMainAppBar
+          ? AppBar(
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+                ),
+              ],
+            )
+          : null,
       body: getCurrentPage(),
       bottomNavigationBar: _isLogined
           ? BottomNavigationBar(

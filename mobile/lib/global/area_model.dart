@@ -1,5 +1,3 @@
-import '../utils/string_utils.dart';
-
 class Area {
   final String id;
   final String name;
@@ -29,20 +27,9 @@ class Area {
     final name = json['name'] as String? ?? '';
     String leftService = '';
     String rightService = '';
-    if (name.contains('→')) {
-      final parts = name.split('→');
-      if (parts.isNotEmpty) {
-        final left = parts.first.trim();
-        leftService = left.contains(':') ? left.split(':').first.trim() : '';
-      }
-      if (parts.length > 1) {
-        final right = parts.last.trim();
-        rightService = right.contains(':') ? right.split(':').first.trim() : '';
-      }
-    }
 
-    leftService = humanize(leftService);
-    rightService = humanize(rightService);
+    leftService = leftService;
+    rightService = rightService;
 
     final actions = (json['actions'] as List?) ?? const [];
     final firstAction = actions.isNotEmpty
@@ -55,14 +42,14 @@ class Area {
 
     final action = AreaAction(
       serviceName: leftService,
-      actionName: humanize((firstAction['action_name'] as String?) ?? ''),
+      actionName: (firstAction['action_name'] as String?) ?? '',
       actionDescription: '',
       inputValues: (firstAction['params'] as Map<String, dynamic>?) ?? {},
     );
 
     final reaction = AreaReaction(
       serviceName: rightService,
-      reactionName: humanize((firstReaction['reaction_name'] as String?) ?? ''),
+      reactionName: (firstReaction['reaction_name'] as String?) ?? '',
       reactionDescription: '',
       inputValues: (firstReaction['params'] as Map<String, dynamic>?) ?? {},
     );
