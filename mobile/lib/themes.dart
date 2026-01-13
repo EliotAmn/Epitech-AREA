@@ -12,7 +12,10 @@ class AppThemes {
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       elevation: 0,
-      titleTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      titleTextStyle: TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
       backgroundColor: Colors.transparent,
       shadowColor: Colors.transparent,
     ),
@@ -37,7 +40,10 @@ class AppThemes {
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       elevation: 0,
-      titleTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
       backgroundColor: Colors.transparent,
       shadowColor: Colors.transparent,
     ),
@@ -50,5 +56,4 @@ class AppThemes {
       bodyLarge: TextStyle(fontSize: 16),
     ),
   );
-
 }

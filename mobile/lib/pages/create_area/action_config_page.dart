@@ -76,43 +76,45 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                widget.action.name,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
+              widget.action.name,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.action.description,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            if (widget.action.inputParams.isNotEmpty) ...[
               Text(
-                widget.action.description,
-                style: Theme.of(context).textTheme.bodyMedium,
+                'Configure Parameters:',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 24),
-              if (widget.action.inputParams.isNotEmpty) ...[
-                Text(
-                  'Configure Parameters:',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 16),
-                ...widget.action.inputParams.map((param) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          param.label + (param.requiredParam ? ' *' : ''),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        if (param.type != 'select')
-                         TextField(
-                            controller: _controllers[param.name],
-                            decoration: AppInputDecorations.primary(
-                              context,
-                              param.description,
-                            ),
-                          )
-                        else
-                         DropdownButtonFormField<String>(
-                          initialValue: param.options!.isNotEmpty ? param.options![0].value : null,
+              const SizedBox(height: 16),
+              ...widget.action.inputParams.map((param) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        param.label + (param.requiredParam ? ' *' : ''),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      if (param.type != 'select')
+                        TextField(
+                          controller: _controllers[param.name],
+                          decoration: AppInputDecorations.primary(
+                            context,
+                            param.description,
+                          ),
+                        )
+                      else
+                        DropdownButtonFormField<String>(
+                          initialValue: param.options!.isNotEmpty
+                              ? param.options![0].value
+                              : null,
                           decoration: AppInputDecorations.primary(
                             context,
                             param.description,
@@ -127,32 +129,32 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                             _controllers[param.name]!.text = value ?? '';
                           },
                         ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _continue,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    ],
                   ),
-                  child: Text(
-                    'Next: Choose Reaction',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
+                );
+              }),
+            ],
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _continue,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Next: Choose Reaction',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }

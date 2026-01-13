@@ -47,40 +47,54 @@ class CardButton extends StatelessWidget {
             width: double.infinity,
             height: height,
             padding: const EdgeInsets.all(16),
-            child: isRow == true ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (icon != null) Image(image:  icon!, width: 40, height: 40, color: textColor),
-                const SizedBox(height: 0),
-                Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: textColor),
-                ),
-                if (children != null) ...[
-                  const SizedBox(height: 8),
-                  children,
-                ],
-              ],
-            ) : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (icon != null) Image(image:  icon!, width: 40, height: 40, color: textColor),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: textColor),
-                ),
-                if (children != null) ...[
-                  const SizedBox(height: 8),
-                  children,
-                ],
-              ],
-            ),
+            child: isRow == true
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icon != null)
+                        Image(
+                          image: icon!,
+                          width: 40,
+                          height: 40,
+                          color: textColor,
+                        ),
+                      const SizedBox(height: 0),
+                      Text(
+                        label,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyLarge?.copyWith(color: textColor),
+                      ),
+                      if (children != null) ...[
+                        const SizedBox(height: 8),
+                        children,
+                      ],
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icon != null)
+                        Image(
+                          image: icon!,
+                          width: 40,
+                          height: 40,
+                          color: textColor,
+                        ),
+                      const SizedBox(height: 8),
+                      Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyLarge?.copyWith(color: textColor),
+                      ),
+                      if (children != null) ...[
+                        const SizedBox(height: 8),
+                        children,
+                      ],
+                    ],
+                  ),
           ),
         ),
       ),

@@ -76,7 +76,8 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    final bool showMainAppBar = _selectedIndex != 1; // hide on Create page to let its own AppBar render
+    final bool showMainAppBar =
+        _selectedIndex != 1; // hide on Create page to let its own AppBar render
 
     return Scaffold(
       extendBodyBehindAppBar: true,

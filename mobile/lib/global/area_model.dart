@@ -1,4 +1,3 @@
-
 class Area {
   final String id;
   final String name;
@@ -28,7 +27,7 @@ class Area {
     final name = json['name'] as String? ?? '';
     String leftService = '';
     String rightService = '';
-    
+
     leftService = leftService;
     rightService = rightService;
 

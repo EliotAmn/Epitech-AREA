@@ -35,9 +35,9 @@ class _ActionPageState extends State<ActionPage> {
         backgroundColor: widget.color ?? const Color.fromARGB(255, 78, 78, 78),
         title: Text(
           'Select action',
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                color: Colors.white,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.displayLarge?.copyWith(color: Colors.white),
         ),
       ),
       body: Center(
@@ -51,21 +51,27 @@ class _ActionPageState extends State<ActionPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  Image(image:  widget.logo != null ? NetworkImage(widget.logo!) : const NetworkImage('https://via.placeholder.com/100'),
-                      width: 100, height: 100, color: Colors.white),
+                  Image(
+                    image: widget.logo != null
+                        ? NetworkImage(widget.logo!)
+                        : const NetworkImage('https://via.placeholder.com/100'),
+                    width: 100,
+                    height: 100,
+                    color: Colors.white,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     widget.serviceName,
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          color: Colors.white,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.displayLarge?.copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Choose an action to trigger your area',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.white,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.white),
                   ),
                   if (widget.oauthUrl != null) ...[
                     const SizedBox(height: 16),
@@ -73,14 +79,20 @@ class _ActionPageState extends State<ActionPage> {
                       onPressed: () {
                         // Handle OAuth flow here, e.g., open a webview or external browser
                         // same as login flow
-                        OAuthPage(oauthUrl: widget.oauthUrl!).initiateOAuthFlow(context);
+                        OAuthPage(
+                          oauthUrl: widget.oauthUrl!,
+                        ).initiateOAuthFlow(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                       ),
                       child: Text(
                         'Connect',
-                        style: TextStyle(color: widget.color ?? const Color.fromARGB(255, 78, 78, 78)),
+                        style: TextStyle(
+                          color:
+                              widget.color ??
+                              const Color.fromARGB(255, 78, 78, 78),
+                        ),
                       ),
                     ),
                   ],
@@ -113,7 +125,8 @@ class _ActionPageState extends State<ActionPage> {
                           ),
                         );
                       },
-                      color: widget.color ?? const Color.fromARGB(255, 78, 78, 78),
+                      color:
+                          widget.color ?? const Color.fromARGB(255, 78, 78, 78),
                       textColor: Colors.white,
                     ),
                   );
@@ -122,7 +135,7 @@ class _ActionPageState extends State<ActionPage> {
             ),
           ],
         ),
-        ),
+      ),
     );
   }
 }

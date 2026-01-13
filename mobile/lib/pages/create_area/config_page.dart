@@ -45,7 +45,6 @@ class _ConfigPageState extends State<ConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -54,85 +53,90 @@ class _ConfigPageState extends State<ConfigPage> {
         ),
       ),
       body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Action: ${widget.selectedAction.name}',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Reaction: ${widget.selectedReaction.name}',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Configure Reaction Parameters:',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 16),
-              ...widget.selectedReaction.inputParams.map((param) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        param.label + (param.requiredParam ? ' *' : ''),
-                        style: Theme.of(context).textTheme.bodyMedium,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Action: ${widget.selectedAction.name}',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Reaction: ${widget.selectedReaction.name}',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Configure Reaction Parameters:',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            ...widget.selectedReaction.inputParams.map((param) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      param.label + (param.requiredParam ? ' *' : ''),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    TextField(
+                      controller: _controllers[param.name],
+                      decoration: AppInputDecorations.primary(
+                        context,
+                        param.description,
                       ),
-                      const SizedBox(height: 4),
-                      TextField(
-                        controller: _controllers[param.name],
-                        decoration: AppInputDecorations.primary(
-                          context,
-                          param.description,
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreateHomePage(
+                      action: AreaAction(
+                        serviceName: widget.actionServiceName,
+                        actionName: widget.selectedAction.name,
+                        actionDescription: widget.selectedAction.description,
+                        inputValues: widget.actionInputValues,
+                      ),
+                      reaction: AreaReaction(
+                        serviceName: widget.reactionServiceName,
+                        reactionName: widget.selectedReaction.name,
+                        reactionDescription:
+                            widget.selectedReaction.description,
+                        inputValues: _controllers.map(
+                          (key, controller) => MapEntry(key, controller.text),
                         ),
                       ),
-                    ],
-                  ),
-                );
-              }),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () =>  Navigator.push(
-                      context, MaterialPageRoute(
-                        builder: (context) => CreateHomePage(
-                          action:  AreaAction(
-                            serviceName: widget.actionServiceName,
-                            actionName: widget.selectedAction.name,
-                            actionDescription: widget.selectedAction.description,
-                            inputValues: widget.actionInputValues,
-                          ),
-                          reaction: AreaReaction(
-                            serviceName: widget.reactionServiceName,
-                            reactionName: widget.selectedReaction.name,
-                            reactionDescription: widget.selectedReaction.description,
-                            inputValues: _controllers.map((key, controller) => MapEntry(key, controller.text)),
-                          ),
-                          selectedReaction: widget.selectedReaction,
-                          selectedAction: widget.selectedAction,
-                        ),
-                      )),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Text(
-                    'Create AREA',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                        ),
+                      selectedReaction: widget.selectedReaction,
+                      selectedAction: widget.selectedAction,
+                    ),
                   ),
                 ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Create AREA',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: Colors.white),
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }

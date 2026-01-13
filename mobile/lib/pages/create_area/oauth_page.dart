@@ -26,27 +26,32 @@ class OAuthPage {
         final fragmentParams = Uri.splitQueryString(uri.fragment);
         final oauthCode = fragmentParams['oauth_code'];
         // Handle the received authorization code
-        http.get(
-          Uri.parse('${dotenv.env['API_URL']}/auth/oauth/consume?code=$oauthCode'),
-          headers: {'Content-Type': 'application/json'},
-        ).then((resp) {
-          if (resp.statusCode == 200) {
-            // OAuth successful
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('OAuth successful!')),
-            );
-          } else {
-            // Handle error
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('OAuth failed: ${resp.body}')),
-            );
-          }
-        }).catchError((error) {
-          // Handle network error
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Network error: $error')),
-          );
-        });
+        http
+            .get(
+              Uri.parse(
+                '${dotenv.env['API_URL']}/auth/oauth/consume?code=$oauthCode',
+              ),
+              headers: {'Content-Type': 'application/json'},
+            )
+            .then((resp) {
+              if (resp.statusCode == 200) {
+                // OAuth successful
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('OAuth successful!')),
+                );
+              } else {
+                // Handle error
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('OAuth failed: ${resp.body}')),
+                );
+              }
+            })
+            .catchError((error) {
+              // Handle network error
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Network error: $error')));
+            });
         debugPrint('Received OAuth code: $oauthCode');
       }
     });

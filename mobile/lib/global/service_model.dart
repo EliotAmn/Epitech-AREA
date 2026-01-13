@@ -8,7 +8,14 @@ class Service {
   final String color;
   final String? oauthUrl;
 
-  Service({required this.name, required this.actions, required this.reactions, required this.logo, required this.color, this.oauthUrl});
+  Service({
+    required this.name,
+    required this.actions,
+    required this.reactions,
+    required this.logo,
+    required this.color,
+    this.oauthUrl,
+  });
 
   factory Service.fromJson(Map<String, dynamic> json) {
     final rawName = json['name'] ?? '';
@@ -125,21 +132,12 @@ class OptionParam {
   final String label;
   final String value;
 
-  OptionParam({
-    required this.label,
-    required this.value,
-  });
+  OptionParam({required this.label, required this.value});
   factory OptionParam.fromJson(Map<String, dynamic> json) {
-    return OptionParam(
-      label: json['label'] ?? '',
-      value: json['value'] ?? '',
-    );
+    return OptionParam(label: json['label'] ?? '', value: json['value'] ?? '');
   }
 
-  Map<String, dynamic> toJson() => {
-    'label': label,
-    'value': value,
-  };
+  Map<String, dynamic> toJson() => {'label': label, 'value': value};
 }
 
 class ActionParam {
@@ -149,7 +147,6 @@ class ActionParam {
   final String description;
   final bool requiredParam;
   final List<OptionParam>? options;
-  
 
   ActionParam({
     required this.name,
