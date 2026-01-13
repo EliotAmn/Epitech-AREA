@@ -219,7 +219,6 @@ export default function Edit({ area }: EditProps) {
             color={brandColor}
             onBack={() => navigate(-1)}
             backLabel="Cancel"
-            footer={false}
         >
             <div className="flex flex-col w-full max-w-md mx-auto">
                 <div className="text-center mb-10">

@@ -3,6 +3,7 @@ export interface CatalogItem {
     title: string;
     label: string;
     platform: string;
+    description?: string;
     reactionPlatform?: string;
     color?: string;
     path?: string;

@@ -17,6 +17,7 @@ type WidgetLocationState = {
     title?: string;
     color?: string;
     platform?: string;
+    description?: string;
     oauth_url?: string;
 };
 
@@ -33,6 +34,7 @@ export default function WidgetDetail() {
     const platform = state.platform ?? "unknown";
     const label = platform.charAt(0).toUpperCase() + platform.slice(1);
     const oauth_url = state.oauth_url;
+    const description = state.description ?? "";
 
     const [connected, setConnected] = useState<boolean | null>(null);
     const [filter, setFilter] = useState<"actions" | "reactions">("actions");
@@ -127,6 +129,11 @@ export default function WidgetDetail() {
                                 <h1 className="text-4xl font-black text-slate-900">
                                     {title}
                                 </h1>
+                                {description && (
+                                    <p className="text-slate-600 mt-2 max-w-2xl">
+                                        {description}
+                                    </p>
+                                )}
                                 <p className="text-slate-500 font-bold tracking-widest uppercase text-[10px] mt-1">
                                     {actions.length}{" "}
                                     {actions.length <= 1 ? "Action" : "Actions"}{" "}
@@ -212,21 +219,25 @@ export default function WidgetDetail() {
                                     </p>
                                 </div>
                             ) : (
-                                filtered.map((item) => (
-                                    <Widget
-                                        key={item.id}
-                                        title={item.label}
-                                        platform={item.platform}
-                                        color={item.color}
-                                        onClick={() =>
-                                            navigate(
-                                                item.path ??
-                                                    `/widget/${item.id}`,
-                                                { state: item }
-                                            )
-                                        }
-                                    />
-                                ))
+                                filtered.map(
+                                    (item) => (
+                                        (
+                                            <Widget
+                                                key={item.id}
+                                                title={item.label}
+                                                platform={item.platform}
+                                                color={item.color}
+                                                onClick={() =>
+                                                    navigate(
+                                                        item.path ??
+                                                            `/widget/${item.id}`,
+                                                        { state: item }
+                                                    )
+                                                }
+                                            />
+                                        )
+                                    )
+                                )
                             )}
                         </div>
                     </div>

@@ -105,6 +105,7 @@ export default function Explore() {
                                 color: item.color,
                                 platform: item.platform,
                                 oauth_url: item.oauth_url,
+                                description: item.description,
                             },
                         })
                     }

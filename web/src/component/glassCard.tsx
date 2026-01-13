@@ -3,7 +3,6 @@ interface GlassCardLayoutProps {
     color?: string | string[];
     backLabel?: string;
     onBack?: () => void;
-    footer?: boolean;
     maxWidthClass?: string;
 }
 
@@ -12,7 +11,6 @@ export default function GlassCardLayout({
     color,
     backLabel = "Back",
     onBack,
-    footer = true,
     maxWidthClass = "max-w-2xl",
 }: GlassCardLayoutProps) {
     const colors = Array.isArray(color) ? color : [color, color];
@@ -44,13 +42,6 @@ export default function GlassCardLayout({
             <div className={`relative z-10 w-full ${maxWidthClass} mx-4 my-8`}>
                 <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-4xl p-8 md:p-10 shadow-2xl flex flex-col items-center">
                     <div className="w-full">{children}</div>
-                    {footer && (
-                        <div className="mt-8 pt-6 border-t border-slate-200/50 w-full flex justify-center gap-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                            <span>🔒 Secure</span>
-                            <span>⚡ Instant</span>
-                            <span>🛠 No-code</span>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

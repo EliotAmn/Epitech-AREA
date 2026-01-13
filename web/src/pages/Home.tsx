@@ -20,6 +20,7 @@ function Home() {
             label: string;
             platform: string;
             color?: string;
+            description?: string;
             path?: string;
         }[]
     >([]);
@@ -79,6 +80,8 @@ function Home() {
                                     state: {
                                         title: act.label,
                                         color: act.color,
+                                        platform: act.platform,
+                                        description: act.description,
                                     },
                                 }
                             )

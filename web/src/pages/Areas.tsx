@@ -72,6 +72,7 @@ export default function Areas() {
                     id: a.id,
                     title: a.name,
                     label: a.name,
+                    description: a.name,
                     platform,
                     color,
                     reactionPlatform,

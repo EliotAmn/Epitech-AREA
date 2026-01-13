@@ -71,7 +71,6 @@ export default function ActionReactionDetail() {
                         (itm.platform || "").toLowerCase()
                     )
                         continue;
-
                     const list = svc.actions.concat(svc.reactions);
                     const found = list?.find(
                         (
@@ -117,6 +116,8 @@ export default function ActionReactionDetail() {
     const color = getPlatformColor(item?.platform || "");
     const icon = getPlatformIcon(item?.platform || "");
 
+    const displayTitle = item ? item.label || item.title : "Unknown Item";
+
     return (
         <div className="min-h-screen bg-slate-50 pb-12">
             <div className="max-w-4xl mx-auto mt-8">
@@ -132,16 +133,16 @@ export default function ActionReactionDetail() {
                             )}
                             <div>
                                 <h1 className="text-2xl font-extrabold">
-                                    {item?.title}
+                                    {displayTitle}
                                 </h1>
-                                <div className="text-sm text-slate-500">
-                                    Service: <strong>{item?.platform}</strong>
-                                </div>
-                                {item?.serviceName && (
-                                    <div className="text-sm text-slate-400">
-                                        Definition: {item.serviceName}
+                                {item?.description && (
+                                    <div className="text-sm text-slate-600 mt-2 max-w-prose">
+                                        {item.description}
                                     </div>
                                 )}
+                                <div className="text-sm text-slate-500 pt-2">
+                                    Service: <strong>{item?.platform}</strong>
+                                </div>
                             </div>
                         </div>
 

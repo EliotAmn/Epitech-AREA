@@ -47,11 +47,22 @@ export async function fetchCatalogFromAbout(): Promise<{
             name?: string;
             label?: string;
             title?: string;
+            description?: string;
             oauth_url?: string;
             color?: string;
             logo?: string;
-            actions?: { name?: string; title?: string; label?: string }[];
-            reactions?: { name?: string; title?: string; label?: string }[];
+            actions?: {
+                name?: string;
+                title?: string;
+                label?: string;
+                description?: string;
+            }[];
+            reactions?: {
+                name?: string;
+                title?: string;
+                label?: string;
+                description?: string;
+            }[];
         }[] = server && Array.isArray(server.services) ? server.services : [];
 
         for (const svc of rawServices) {
@@ -72,6 +83,7 @@ export async function fetchCatalogFromAbout(): Promise<{
                 id: `service::${svcName}`,
                 title: svcName,
                 label: svcLabel,
+                description: svc?.description,
                 platform: svcName,
                 color: svcColor,
                 path: `/service/${encodeURIComponent(svcName)}`,
@@ -86,6 +98,7 @@ export async function fetchCatalogFromAbout(): Promise<{
                         id: `action::${svcName}::${aname}`,
                         title: aname,
                         label: a.label,
+                        description: a?.description,
                         platform: svcName,
                         color: svcColor,
                         path: `/action/${encodeURIComponent(svcName)}-${encodeURIComponent(aname)}`,
@@ -103,6 +116,7 @@ export async function fetchCatalogFromAbout(): Promise<{
                         id: `reaction::${svcName}::${rname}`,
                         title: rname,
                         label: r.label,
+                        description: r?.description,
                         platform: svcName,
                         color: svcColor,
                         path: `/reaction/${encodeURIComponent(svcName)}-${encodeURIComponent(rname)}`,

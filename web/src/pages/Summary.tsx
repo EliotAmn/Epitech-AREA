@@ -73,7 +73,6 @@ export default function Summary({
             <GlassCardLayout
                 color={Array.isArray(colors) ? colors : [colors]}
                 onBack={onBack}
-                footer={false}
             >
                 <h2 className="text-5xl text-gray-700 font-bold mb-4">
                     Review and finish

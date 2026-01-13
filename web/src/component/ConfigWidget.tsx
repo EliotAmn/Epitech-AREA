@@ -84,7 +84,7 @@ export default function ConfigWidget({
     const platformIcon = getPlatformIcon(platform);
     return (
         <div>
-            <GlassCardLayout color={color} onBack={onClose} footer={false}>
+            <GlassCardLayout color={color} onBack={onClose}>
                 <div className="flex flex-col items-center">
                     <h3 className="text-[45px] font-semibold text-black mb-8 text-center shrink-0">
                         {title}
