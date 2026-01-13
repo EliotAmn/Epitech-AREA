@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../global/cache.dart' as cache;
 import 'dart:convert';
 import 'area_detail_page.dart';
+import 'package:mobile/component/card/card_button.dart';
 
 class MyAreasPage extends StatefulWidget {
   const MyAreasPage({super.key});
@@ -265,98 +266,67 @@ class _MyAreasPageState extends State<MyAreasPage> {
                       final area = _filteredAreas[index];
                       final subtitle =
                           '${area.action.serviceName} · ${area.reaction.serviceName}';
-                      return Card(
+                      return CardButton(
+                        label: area.name,
+                        height: MediaQuery.of(context).size.width * 0.4,
+
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AreaDetailPage(area: area),
+                            ),
+                          );
+                        },
                         color: Theme.of(
                           context,
                         ).colorScheme.surfaceContainerHighest,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AreaDetailPage(area: area),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            height: 160,
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Left: title and subtitle (IF -> THEN)
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // small header row (could include icons)
-                                      Row(
-                                        children: [
-                                          // placeholder for service icons
-                                          const SizedBox(width: 4),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        '${area.action.actionName} → ${area.reaction.reactionName}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        subtitle,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                // Right: controls
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
+                        children: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Left: title and subtitle (IF -> THEN)
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    // small header row (could include icons)
                                     Row(
-                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Switch(
-                                          value: area.isActive,
-                                          onChanged: (v) =>
-                                              _toggleAreaById(area.id, v),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete),
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.error,
-                                          tooltip: 'Delete area',
-                                          onPressed: () =>
-                                              _deleteAreaById(area.id),
-                                        ),
+                                        // placeholder for service icons
+                                        const SizedBox(width: 4),
                                       ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
+                              ),
+
+                              // Right: controls
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Switch(
+                                        value: area.isActive,
+                                        onChanged: (v) =>
+                                            _toggleAreaById(area.id, v),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
+                                        tooltip: 'Delete area',
+                                        onPressed: () =>
+                                            _deleteAreaById(area.id),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       );

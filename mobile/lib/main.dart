@@ -5,6 +5,7 @@ import 'pages/login_page.dart';
 import 'pages/create_area/create_home_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/pages/explore_area/explore_page.dart';
 import 'global/cache.dart' as cache;
 
 Future<void> main() async {
@@ -60,11 +61,7 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   List<Widget> _getPages() {
-    return [
-      LogoutPage(onLogoutSuccess: _onLogoutSuccess),
-      CreateHomePage(),
-      MyAreasPage(),
-    ];
+    return [ExplorePage(), CreateHomePage(), MyAreasPage()];
   }
 
   Widget getCurrentPage() {

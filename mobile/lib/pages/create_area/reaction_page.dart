@@ -4,6 +4,7 @@ import '../../global/service_model.dart';
 import 'config_page.dart';
 import 'package:mobile/utils/string_utils.dart';
 import 'oauth_page.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ReactionPage extends StatelessWidget {
   final String actionServiceName;
@@ -46,8 +47,8 @@ class ReactionPage extends StatelessWidget {
                       return SizedBox(
                         width: itemWidth,
                         child: CardButton(
-                          label: service.name,
-                          icon: NetworkImage(service.logo),
+                          label: service.label,
+                          iconUrl: service.logo,
                           color: Color(
                             int.parse('0xFF${service.color.substring(1)}'),
                           ),
@@ -98,7 +99,7 @@ class ReactionListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Select reactions',
+          'Select reaction',
           style: Theme.of(
             context,
           ).textTheme.displayLarge?.copyWith(color: Colors.white),
@@ -117,25 +118,36 @@ class ReactionListPage extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 16),
-                Image(
-                  image: NetworkImage(reactionService.logo),
-                  width: 100,
-                  height: 100,
-                  color: Colors.white,
-                ),
-                const SizedBox(height: 16),
+                reactionService.logo.toLowerCase().endsWith('.svg')
+                    ? SvgPicture.network(
+                        reactionService.logo,
+                        width: 100,
+                        height: 100,
+                      )
+                    : Image.network(
+                        reactionService.logo,
+                        width: 100,
+                        height: 100,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.error, size: 100),
+                      ),
+                const SizedBox(height: 24),
                 Text(
-                  reactionService.name,
+                  reactionService.label,
                   style: Theme.of(
                     context,
                   ).textTheme.displayLarge?.copyWith(color: Colors.white),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Choose an action to trigger your area',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    reactionService.description,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 if (reactionService.oauthUrl != null) ...[
                   const SizedBox(height: 16),
@@ -176,8 +188,8 @@ class ReactionListPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: CardButton(
                     isRow: true,
-                    height: 100,
-                    label: humanize(reaction.name),
+                    height: 60,
+                    label: reaction.label,
                     color: Color(
                       int.parse('0xFF${reactionService.color.substring(1)}'),
                     ),

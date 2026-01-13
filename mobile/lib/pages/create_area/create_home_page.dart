@@ -50,7 +50,7 @@ class _CreateHomePageState extends State<CreateHomePage> {
     final area = Area(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name:
-          '${CreateHomePage.action!.serviceName}:${CreateHomePage.selectedAction!.name} → ${CreateHomePage.reaction!.serviceName}:${CreateHomePage.selectedReaction!.name}',
+          'If ${CreateHomePage.selectedAction!.label} Then ${CreateHomePage.selectedReaction!.label}',
       action: CreateHomePage.action!,
       reaction: CreateHomePage.reaction!,
     );
@@ -150,7 +150,7 @@ class _CreateHomePageState extends State<CreateHomePage> {
                   child: CreateHomePage.selectedAction != null
                       ? Marquee(
                           text:
-                              '${CreateHomePage.action!.serviceName} → ${CreateHomePage.selectedAction!.name}',
+                              '${CreateHomePage.action!.serviceName} → ${CreateHomePage.selectedAction!.label}',
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: Colors.white70),
                           scrollAxis: Axis.horizontal,
@@ -248,7 +248,7 @@ class _CreateHomePageState extends State<CreateHomePage> {
                   label: 'Create AREA',
                   color: const Color.fromARGB(255, 255, 255, 255),
                   textColor: const Color.fromARGB(255, 0, 0, 0),
-                  height: 60,
+                  height: MediaQuery.of(context).size.width * 0.2,
                   onTap: () {
                     saveArea(context);
                   },

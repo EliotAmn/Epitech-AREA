@@ -178,56 +178,28 @@ class _LoginModalContentState extends State<_LoginModalContent> {
       return;
     }
 
+    final redirectUrl = '${dotenv.env['API_URL']}/auth/$provider';
+
+    if (!mounted) return;
+
+    if (redirectUrl.isEmpty) {
+      setState(() {
+        _errorMessage = 'Failed to get OAuth URL for $provider';
+      });
+      return;
+    }
+
     try {
-      final response = await http.get(
-        Uri.parse("${dotenv.env['API_URL']}/about.json"),
+      await launchUrl(
+        Uri.parse(redirectUrl),
+        mode: LaunchMode.externalApplication,
       );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final services = (data['server']['services'] as List)
-            .map((e) => e as Map<String, dynamic>)
-            .toList();
-        final service = services.firstWhere(
-          (svc) => (svc['name'] as String?) == provider,
-        );
-        final redirectUrl = service['oauth_url'] as String? ?? '';
-
-        if (!mounted) return;
-
-        if (redirectUrl.isEmpty) {
-          setState(() {
-            _errorMessage = 'Failed to get OAuth URL for $provider';
-          });
-          return;
-        }
-
-        try {
-          await launchUrl(
-            Uri.parse(redirectUrl),
-            mode: LaunchMode.externalApplication,
-          );
-        } catch (e) {
-          if (!mounted) return;
-          setState(() {
-            _errorMessage = 'Oauth sign-in failed: $e';
-          });
-          debugPrint('Oauth sign-in failed: $e');
-        }
-      } else {
-        debugPrint('Failed to fetch about.json: ${response.statusCode}');
-        if (mounted) {
-          setState(() {
-            _errorMessage = 'Failed to fetch OAuth URL for $provider';
-          });
-        }
-      }
-    } catch (error) {
-      debugPrint('Error fetching about.json: $error');
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Network error: $error';
-        });
-      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Oauth sign-in failed: $e';
+      });
+      debugPrint('Oauth sign-in failed: $e');
     }
   }
 
@@ -362,7 +334,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           ),
           TextButton(
             onPressed: () {
-              _loginWithOauth(context, 'gmail');
+              _loginWithOauth(context, 'google');
             },
             style: TextButton.styleFrom(
               backgroundColor: Colors.transparent,
