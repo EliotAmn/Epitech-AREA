@@ -103,8 +103,11 @@ export class OauthService {
         );
       } catch (error) {
         this.logger.error(
-          `Failed to store OAuth tokens for user ${user.id}:`,
+          `Failed to store OAuth tokens for user ${user.id} and provider ${provider}. Authentication will fail.`,
           error,
+        );
+        throw new Error(
+          `OAuth token storage failed for provider ${provider}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     }
