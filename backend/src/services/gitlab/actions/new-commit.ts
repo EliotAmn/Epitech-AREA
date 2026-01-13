@@ -98,7 +98,7 @@ export class GitlabNewCommit extends ServiceActionDefinition {
       if (resp.data && resp.data.length > 0) {
         return { lastCommitSha: resp.data[0].id };
       }
-    } catch (error) {
+    } catch {
       return { triggered: false, parameters: {} };
     }
     return { lastCommitSha: null };
@@ -169,7 +169,7 @@ export class GitlabNewCommit extends ServiceActionDefinition {
         },
         cache: { lastCommitSha: latestCommit.id },
       };
-    } catch (error) {
+    } catch {
       return { triggered: false, parameters: {} };
     }
   }

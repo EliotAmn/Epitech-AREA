@@ -15,7 +15,7 @@ interface GitLabIssueResponse {
 
 export class GitlabCreateIssue extends ServiceReactionDefinition {
   name = 'gitlab.create_issue';
-  label = 'Create Issue';  
+  label = 'Create Issue';
   description = 'Creates a new issue in a GitLab repository';
 
   input_params: ParameterDefinition[] = [
