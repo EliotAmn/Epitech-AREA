@@ -3,6 +3,7 @@ import GmailIcon from "../assets/gmail_icon.webp";
 import GoogleIcon from "../assets/logo_google.svg";
 import SpotifyIcon from "../assets/spotify_icon.webp";
 import NotionIcon from "../assets/notion-logo.svg";
+import SteamIcon from "../assets/steam-logo.svg";
 
 export const platforms: Record<string, { color: string; icon?: string }> = {
     discord: {
@@ -30,6 +31,10 @@ export const platforms: Record<string, { color: string; icon?: string }> = {
     notion: {
         color: "#000000",
         icon: NotionIcon,
+    },
+    steam: {
+        color: "#1b2838",
+        icon: SteamIcon,
     },
 };
 
