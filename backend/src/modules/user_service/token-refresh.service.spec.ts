@@ -39,7 +39,16 @@ describe('TokenRefreshService', () => {
           },
         },
       ],
-    }).compile();
+    })
+      .setLogger({
+        log: jest.fn(),
+        error: jest.fn(),
+        warn: jest.fn(),
+        debug: jest.fn(),
+        verbose: jest.fn(),
+        fatal: jest.fn(),
+      })
+      .compile();
 
     service = module.get<TokenRefreshService>(TokenRefreshService);
     userServiceRepository = module.get(UserServiceRepository);
@@ -102,16 +111,19 @@ describe('TokenRefreshService', () => {
         expect(result).toBe('new-access-token');
         expect(mockedAxios.post).toHaveBeenCalledWith(
           'https://oauth2.googleapis.com/token',
-          {
-            client_id: 'test-client-id',
-            client_secret: 'test-client-secret',
-            refresh_token: refreshToken,
-            grant_type: 'refresh_token',
-          },
+          expect.any(URLSearchParams),
           expect.objectContaining({
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           }),
         );
+        
+        // Verify the URLSearchParams content
+        const callArgs = mockedAxios.post.mock.calls[0];
+        const params = callArgs[1] as URLSearchParams;
+        expect(params.get('client_id')).toBe('test-client-id');
+        expect(params.get('client_secret')).toBe('test-client-secret');
+        expect(params.get('refresh_token')).toBe(refreshToken);
+        expect(params.get('grant_type')).toBe('refresh_token');
         expect(userServiceRepository.updateTokens).toHaveBeenCalledWith(
           userServiceId,
           expect.objectContaining({
