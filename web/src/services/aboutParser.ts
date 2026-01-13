@@ -1,3 +1,4 @@
+import { platforms } from "../config/platforms";
 import type { CatalogItem } from "../data/catalogData";
 import { aboutService, type AboutInfo } from "./api/aboutService";
 
@@ -20,7 +21,7 @@ const colorForService = (name: string) => {
     return map[key] || "#6b7280";
 };
 
-const humanize = (s: string) =>
+export const humanize = (s: string) =>
     (s || "")
         .toString()
         .replace(/_/g, " ")
@@ -56,13 +57,23 @@ export async function fetchCatalogFromAbout(): Promise<{
             name?: string;
             title?: string;
             oauth_url?: string;
+            color?: string;
+            logo?: string;
             actions?: { name?: string; title?: string }[];
             reactions?: { name?: string; title?: string }[];
         }[] = server && Array.isArray(server.services) ? server.services : [];
 
         for (const svc of rawServices) {
             const svcName: string = svc?.name || svc?.title || "Unknown";
-            const svcColor = colorForService(svcName);
+            const svcColor = svc?.color || colorForService(svcName);
+            const svcLogo = svc?.logo;
+
+            if (svcColor || svcLogo) {
+                platforms[svcName.toLowerCase()] = {
+                    color: svcColor || "#808080",
+                    icon: svcLogo,
+                };
+            }
             const svcSlug = slugify(svcName) || "service";
 
             // service entry
