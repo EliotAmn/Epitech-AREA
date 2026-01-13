@@ -154,7 +154,7 @@ export default class TwitchService implements ServiceDefinition {
   });
   oauth_callback = oauth_callback;
   description =
-    'Connect your Twitch account to monitor streams and get notified about followers.';
+    'Connect your Twitch account to monitor streams and get notified about new followers.';
   actions = [StreamStatusChanged, NewFollower];
   reactions = [];
 }
