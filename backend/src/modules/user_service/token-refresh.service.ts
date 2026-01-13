@@ -127,13 +127,9 @@ export class TokenRefreshService {
       access_token: string;
       expires_in?: number;
       refresh_token?: string;
-    }>(
-      'https://oauth2.googleapis.com/token',
-      params,
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      },
-    );
+    }>('https://oauth2.googleapis.com/token', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
 
     return {
       access_token: response.data.access_token,

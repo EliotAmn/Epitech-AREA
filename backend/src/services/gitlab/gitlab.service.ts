@@ -78,8 +78,7 @@ export default class GitlabService implements ServiceDefinition {
   name = 'gitlab';
   label = 'GitLab';
   color = '#FC6D26';
-  logo =
-    'https://about.gitlab.com/images/press/press-kit-icon.svg';
+  logo = 'https://about.gitlab.com/images/press/press-kit-icon.svg';
   mandatory_env_vars = ['GITLAB_CLIENT_ID', 'GITLAB_CLIENT_SECRET'];
   oauth_url = buildUrlParameters('https://gitlab.com/oauth/authorize', {
     client_id: process.env.GITLAB_CLIENT_ID!,

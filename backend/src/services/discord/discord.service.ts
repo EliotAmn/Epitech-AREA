@@ -10,7 +10,8 @@ export default class DiscordService implements ServiceDefinition {
   name = 'discord';
   label = 'Discord';
   color = '#5865F2';
-  logo = 'https://www.pngkey.com/png/full/19-199827_discord-logo-black-and-white-white-photo-for.png';
+  logo =
+    'https://www.pngkey.com/png/full/19-199827_discord-logo-black-and-white-white-photo-for.png';
   description =
     'Discord bot integration with OAuth for server management and automation';
 

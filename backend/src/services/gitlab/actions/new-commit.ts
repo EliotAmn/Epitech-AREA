@@ -173,7 +173,10 @@ export class GitlabNewCommit extends ServiceActionDefinition {
         cache: { lastCommitSha: latestCommit.id },
       };
     } catch (error) {
-      console.error(`[Gitlab] Error polling commits for project ${projectId}:`, error);
+      console.error(
+        `[Gitlab] Error polling commits for project ${projectId}:`,
+        error,
+      );
       return { triggered: false, parameters: {} };
     }
   }
