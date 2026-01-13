@@ -39,6 +39,7 @@ RUN npm ci --omit=dev --prefer-offline --no-audit
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/src/prisma ./src/prisma
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules/prisma ./node_modules/prisma
 
 # Install wget for healthcheck
 RUN apk add --no-cache wget
@@ -47,5 +48,5 @@ USER nestjs
 
 EXPOSE 8080
 
-# Run migrations and start the server
-CMD ["sh", "-c", "npx prisma generate --schema=src/prisma/schema.prisma && npx prisma migrate deploy --schema=src/prisma/schema.prisma && node dist/main"]
+# Run migrations and start the server (no need to generate again, already done in builder)
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=src/prisma/schema.prisma && node dist/main"]

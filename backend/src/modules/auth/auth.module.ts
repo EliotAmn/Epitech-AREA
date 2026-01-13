@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { AuthMiddleware } from '@/middleware/auth.middleware';
 import { PasswordModule } from '../common/password/password.module';
+import { UserServiceModule } from '../user_service/userservice.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -28,6 +29,7 @@ import { OauthService } from './oauth.service';
     }),
     UserModule,
     PasswordModule,
+    UserServiceModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, OauthService, OauthLinkRepository, AuthMiddleware],
