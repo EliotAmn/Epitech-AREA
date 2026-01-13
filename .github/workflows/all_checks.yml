@@ -63,8 +63,8 @@ jobs:
             web/**
             backend/**
             mobile/**
-          # For PRs, compare against the base branch; for pushes, compare against previous commit
-          base_sha: ${{ github.event.pull_request.base.sha || github.event.before }}
+          # For PRs, compare against base branch; for first push (null SHA), compare against main
+          base_sha: ${{ github.event.pull_request.base.sha || (github.event.before != '0000000000000000000000000000000000000000' && github.event.before || 'main') }}
 
       - name: Set outputs
         id: set-outputs
@@ -72,6 +72,11 @@ jobs:
           FRONT=false
           BACK=false
           MOBILE=false
+          
+          # Check if this is the first push (null SHA) - will compare against main
+          if [ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]; then
+            echo "⚠️ First push detected - comparing against main branch"
+          fi
           
           echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
           
