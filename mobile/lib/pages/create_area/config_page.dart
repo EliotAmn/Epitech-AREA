@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import '../../component/input/input_decorations.dart';
 import '../../global/service_model.dart';
 import '../../global/area_model.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:convert';
-import '../../global/cache.dart' as cache;
+import 'create_home_page.dart';
 
 class ConfigPage extends StatefulWidget {
   final String actionServiceName;
@@ -29,7 +26,6 @@ class ConfigPage extends StatefulWidget {
 
 class _ConfigPageState extends State<ConfigPage> {
   final Map<String, TextEditingController> _controllers = {};
-  final Map<String, dynamic> _reactionInputValues = {};
 
   @override
   void initState() {
@@ -45,67 +41,6 @@ class _ConfigPageState extends State<ConfigPage> {
       controller.dispose();
     }
     super.dispose();
-  }
-
-  void _saveArea(BuildContext context) {
-    // Collect reaction input values
-    for (var entry in _controllers.entries) {
-      _reactionInputValues[entry.key] = entry.value.text;
-    }
-
-    final area = Area(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name:
-          '${widget.actionServiceName}:${widget.selectedAction.name} → ${widget.reactionServiceName}:${widget.selectedReaction.name}',
-      action: AreaAction(
-        serviceName: widget.actionServiceName,
-        actionName: widget.selectedAction.name,
-        actionDescription: widget.selectedAction.description,
-        inputValues: widget.actionInputValues,
-      ),
-      reaction: AreaReaction(
-        serviceName: widget.reactionServiceName,
-        reactionName: widget.selectedReaction.name,
-        reactionDescription: widget.selectedReaction.description,
-        inputValues: _reactionInputValues,
-      ),
-    );
-
-    cache.AuthStore().loadToken().then((token) {
-      http
-          .post(
-            Uri.parse('${dotenv.env['API_URL']}/areas'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
-            body: jsonEncode(area.toJson()),
-          )
-          .then((response) {
-            if (response.statusCode == 201) {
-              debugPrint('Area created successfully on server');
-              if (context.mounted) {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('AREA created successfully!')),
-                );
-              }
-            } else {
-              debugPrint('Failed to create area: ${response.body}');
-              debugPrint('area data: ${jsonEncode(area.toJson())}');
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Failed to create AREA: ${response.statusCode}',
-                    ),
-                  ),
-                );
-              }
-            }
-          });
-    });
-    // Navigate back to home and show success
   }
 
   @override
@@ -158,22 +93,44 @@ class _ConfigPageState extends State<ConfigPage> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => _saveArea(context),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreateHomePage(
+                      action: AreaAction(
+                        serviceName: widget.actionServiceName,
+                        actionName: widget.selectedAction.name,
+                        actionDescription: widget.selectedAction.description,
+                        inputValues: widget.actionInputValues,
+                      ),
+                      reaction: AreaReaction(
+                        serviceName: widget.reactionServiceName,
+                        reactionName: widget.selectedReaction.name,
+                        reactionDescription:
+                            widget.selectedReaction.description,
+                        inputValues: _controllers.map(
+                          (key, controller) => MapEntry(key, controller.text),
+                        ),
+                      ),
+                      selectedReaction: widget.selectedReaction,
+                      selectedAction: widget.selectedAction,
+                    ),
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.inverseSurface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
                   'Create AREA',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: Colors.white),
                 ),
               ),
             ),

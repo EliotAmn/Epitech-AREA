@@ -1,7 +1,9 @@
 import { ServiceDefinition } from '@/common/service.types';
 import { SendEmailReaction } from './reactions/send-email.reaction';
+import { ConfigService } from '@nestjs/config';
 
 export default class GmailService implements ServiceDefinition {
+
   name = 'gmail';
   label = 'Gmail';
   color = '#EA4335';
@@ -12,4 +14,5 @@ export default class GmailService implements ServiceDefinition {
 
   actions = [];
   reactions = [SendEmailReaction];
+  oauth_url =  process.env.APP_URL ? process.env.APP_URL + '/auth/google' : '';
 }

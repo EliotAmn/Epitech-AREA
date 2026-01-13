@@ -19,7 +19,7 @@ captures/
 *.apk
 output.json
 
-# IntelliJ
+# IntelliJQ
 *.iml
 .idea/
 misc.xml

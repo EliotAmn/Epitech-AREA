@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { apiClient } from "@/services/api/apiClient";
 
 export default function OAuthServiceProxy() {
     const { service_name } = useParams<{ service_name: string }>();
     const [searchParams] = useSearchParams();
+    const location = useLocation();
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(true);
@@ -33,6 +34,17 @@ export default function OAuthServiceProxy() {
                     queryParams[key] = value;
                 });
 
+                // Also extract parameters from URL fragment/hash (for services like Trello that use client-side token flow)
+                // Fragment looks like: #token=xxxxx or #access_token=xxxxx&token_type=bearer
+                if (location.hash) {
+                    const hashParams = new URLSearchParams(location.hash.substring(1)); // Remove the leading #
+                    hashParams.forEach((value, key) => {
+                        queryParams[key] = value;
+                    });
+                }
+
+                console.log("OAuth params being sent:", queryParams);
+
                 // Send all query parameters to the backend
                 await apiClient.get(
                     `/services/${service_name}/redirect`,
@@ -56,7 +68,7 @@ export default function OAuthServiceProxy() {
         };
 
         handleOAuthCallback();
-    }, [service_name, searchParams, navigate]);
+    }, [service_name, searchParams, navigate, location.hash]);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">

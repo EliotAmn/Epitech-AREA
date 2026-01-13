@@ -106,7 +106,6 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(title: const Text('Sign Up')),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(

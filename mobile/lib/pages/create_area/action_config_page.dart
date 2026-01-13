@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/create_area/create_home_page.dart';
 import '../../component/input/input_decorations.dart';
 import '../../global/service_model.dart';
-import 'reaction_page.dart';
+import '../../global/area_model.dart';
 
 class ActionConfigPage extends StatefulWidget {
   final String serviceName;
@@ -47,11 +48,14 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ReactionPage(
-          actionServiceName: widget.serviceName,
+        builder: (context) => CreateHomePage(
+          action: AreaAction(
+            serviceName: widget.serviceName,
+            actionName: widget.action.name,
+            actionDescription: widget.action.description,
+            inputValues: inputValues,
+          ),
           selectedAction: widget.action,
-          actionInputValues: inputValues,
-          allServices: widget.allServices,
         ),
       ),
     );
@@ -98,17 +102,37 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 4),
-                      TextField(
-                        controller: _controllers[param.name],
-                        decoration: AppInputDecorations.primary(
-                          context,
-                          param.description,
+                      if (param.type != 'select')
+                        TextField(
+                          controller: _controllers[param.name],
+                          decoration: AppInputDecorations.primary(
+                            context,
+                            param.description,
+                          ),
+                        )
+                      else
+                        DropdownButtonFormField<String>(
+                          initialValue: param.options!.isNotEmpty
+                              ? param.options![0].value
+                              : null,
+                          decoration: AppInputDecorations.primary(
+                            context,
+                            param.description,
+                          ),
+                          items: param.options!.map((option) {
+                            return DropdownMenuItem<String>(
+                              value: option.value,
+                              child: Text(option.label),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            _controllers[param.name]!.text = value ?? '';
+                          },
                         ),
-                      ),
                     ],
                   ),
                 );
-              }).toList(),
+              }),
             ],
             const SizedBox(height: 24),
             SizedBox(

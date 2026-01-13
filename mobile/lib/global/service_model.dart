@@ -4,8 +4,18 @@ class Service {
   final String name;
   final List<ServiceAction> actions;
   final List<ServiceReaction> reactions;
+  final String logo;
+  final String color;
+  final String? oauthUrl;
 
-  Service({required this.name, required this.actions, required this.reactions});
+  Service({
+    required this.name,
+    required this.actions,
+    required this.reactions,
+    required this.logo,
+    required this.color,
+    this.oauthUrl,
+  });
 
   factory Service.fromJson(Map<String, dynamic> json) {
     final rawName = json['name'] ?? '';
@@ -20,7 +30,7 @@ class Service {
     final humanActions = actions
         .map(
           (a) => ServiceAction(
-            name: humanize(a.name),
+            name: a.name,
             description: a.description,
             outputParams: a.outputParams,
             inputParams: a.inputParams,
@@ -31,7 +41,7 @@ class Service {
     final humanReactions = reactions
         .map(
           (r) => ServiceReaction(
-            name: humanize(r.name),
+            name: r.name,
             description: r.description,
             inputParams: r.inputParams,
           ),
@@ -42,6 +52,9 @@ class Service {
       name: humanName,
       actions: humanActions,
       reactions: humanReactions,
+      oauthUrl: json['oauth_url'],
+      logo: json['logo'] ?? '',
+      color: json['color'] ?? '',
     );
   }
 
@@ -49,6 +62,7 @@ class Service {
     'name': name,
     'actions': actions.map((a) => a.toJson()).toList(),
     'reactions': reactions.map((r) => r.toJson()).toList(),
+    'oauth_url': oauthUrl,
   };
 }
 
@@ -114,12 +128,25 @@ class ServiceReaction {
   };
 }
 
+class OptionParam {
+  final String label;
+  final String value;
+
+  OptionParam({required this.label, required this.value});
+  factory OptionParam.fromJson(Map<String, dynamic> json) {
+    return OptionParam(label: json['label'] ?? '', value: json['value'] ?? '');
+  }
+
+  Map<String, dynamic> toJson() => {'label': label, 'value': value};
+}
+
 class ActionParam {
   final String name;
   final String type;
   final String label;
   final String description;
   final bool requiredParam;
+  final List<OptionParam>? options;
 
   ActionParam({
     required this.name,
@@ -127,6 +154,7 @@ class ActionParam {
     required this.label,
     required this.description,
     required this.requiredParam,
+    this.options,
   });
 
   factory ActionParam.fromJson(Map<String, dynamic> json) {
@@ -136,6 +164,9 @@ class ActionParam {
       label: json['label'] ?? '',
       description: json['description'] ?? '',
       requiredParam: json['required'] ?? false,
+      options: (json['options'] as List? ?? [])
+          .map((o) => OptionParam.fromJson(o as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -145,5 +176,6 @@ class ActionParam {
     'label': label,
     'description': description,
     'required': requiredParam,
+    'options': options?.map((o) => o.toJson()).toList(),
   };
 }
