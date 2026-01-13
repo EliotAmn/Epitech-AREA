@@ -242,14 +242,22 @@ export class AreaService {
 
       for (const area of userAreas) {
         // Check if any reaction in this area uses the problematic service
-        const usesService = (area.reactions || []).some((reaction: any) => {
+        const reactionUsesService = (area.reactions || []).some((reaction: any) => {
           const reactionDef = this.service_importer_service.getReactionByName(
             reaction.reaction_name,
           );
           return reactionDef?.service.name === serviceName;
         });
 
-        if (usesService) {
+        // Check if any action in this area uses the problematic service
+        const actionUsesService = (area.actions || []).some((action: any) => {
+          const actionDef = this.service_importer_service.getActionByName(
+            action.action_name,
+          );
+          return actionDef?.service.name === serviceName;
+        });
+
+        if (reactionUsesService || actionUsesService) {
           // Stop pollers for this area
           this.stopAreaPollers(area.id);
           
