@@ -99,10 +99,7 @@ export class GitlabNewCommit extends ServiceActionDefinition {
         return { lastCommitSha: resp.data[0].id };
       }
     } catch (error) {
-      console.warn(
-        `[Gitlab] Failed to fetch initial commit for project ${projectId}:`,
-        error,
-      );
+      return { triggered: false, parameters: {} };
     }
     return { lastCommitSha: null };
   }
@@ -173,10 +170,6 @@ export class GitlabNewCommit extends ServiceActionDefinition {
         cache: { lastCommitSha: latestCommit.id },
       };
     } catch (error) {
-      console.error(
-        `[Gitlab] Error polling commits for project ${projectId}:`,
-        error,
-      );
       return { triggered: false, parameters: {} };
     }
   }

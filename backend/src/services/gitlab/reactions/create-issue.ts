@@ -15,7 +15,7 @@ interface GitLabIssueResponse {
 
 export class GitlabCreateIssue extends ServiceReactionDefinition {
   name = 'gitlab.create_issue';
-  label = 'Create new issue';
+  label = 'Create Issue';  
   description = 'Creates a new issue in a GitLab repository';
 
   input_params: ParameterDefinition[] = [
@@ -59,9 +59,7 @@ export class GitlabCreateIssue extends ServiceReactionDefinition {
     }
 
     try {
-      console.log(`[GitLab] Creating issue in project ID: ${projectId}`);
-
-      const response = await axios.post<GitLabIssueResponse>(
+      await axios.post<GitLabIssueResponse>(
         `https://gitlab.com/api/v4/projects/${projectId}/issues`,
         {
           title: title,
@@ -73,20 +71,10 @@ export class GitlabCreateIssue extends ServiceReactionDefinition {
           },
         },
       );
-      console.log(
-        `[GitLab] Issue created successfully in project ${projectId}:`,
-        response.data.web_url,
-      );
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const errorData: unknown = error.response?.data;
-        console.error(`[GitLab] API error for project '${projectId}':`, {
-          status: error.response?.status,
-          data: errorData,
-          url: error.config?.url,
-        });
         throw new Error(
-          `GitLab API error: ${JSON.stringify(errorData || error.message)}`,
+          `GitLab API error: ${JSON.stringify(error.response?.data || error.message)}`,
         );
       }
       throw new Error(
