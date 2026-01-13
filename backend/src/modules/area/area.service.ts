@@ -72,7 +72,7 @@ export class AreaService {
           | { service: ServiceDefinition; reaction: ServiceReactionDefinition }
           | undefined;
         if (!defs) {
-          console.error(
+          this.logger.error(
             `Reaction definition not found: ${r_user.reaction_name}`,
           );
           continue;
@@ -149,7 +149,7 @@ export class AreaService {
           reaction_in_params[key].value = replaced;
         });
 
-        console.log(
+        this.logger.log(
           `Preparing to execute reaction ${r_user.reaction_name} for area ${area.id} with params:`,
           Object.keys(reaction_in_params),
         );
@@ -160,7 +160,7 @@ export class AreaService {
         );
 
         if (!is_valid) {
-          console.log(
+          this.logger.log(
             `Skipping reaction ${r_user.reaction_name} for area ${area.id} because parameters are invalid or missing`,
           );
           continue;
@@ -216,12 +216,12 @@ export class AreaService {
           config: { ...service_config, ...reaction_params },
         } as any;
 
-        console.log(
+        this.logger.log(
           `Executing reaction ${r_user.reaction_name} for area ${area.id}`,
         );
         await r_def.execute(sconf, reaction_in_params);
       } catch (err) {
-        console.error(
+        this.logger.error(
           `Error executing reaction ${r_user.reaction_name} for area ${area.id}:`,
           err,
         );
@@ -365,7 +365,7 @@ export class AreaService {
                 }
               })
               .catch((err: any) => {
-                console.error(
+                this.logger.error(
                   `Error polling action ${a.action_name} for area ${area.id}:`,
                   err,
                 );
@@ -373,10 +373,10 @@ export class AreaService {
           }, def_action.action.poll_interval * 1000);
           this.actionPollers.set(pollKey, timer);
         } catch (err) {
-          console.error('Failed to start poller for action:', err);
+          this.logger.error('Failed to start poller for action:', err);
         }
       } catch (e) {
-        console.error(
+        this.logger.error(
           'Failed to initialize action cache for area during startup:',
           e,
         );
@@ -405,7 +405,7 @@ export class AreaService {
         } as any;
         await def_reaction.reaction.reload_cache(sconf);
       } catch (e) {
-        console.error(
+        this.logger.error(
           'Failed to initialize reaction cache for area during startup:',
           e,
         );
@@ -450,7 +450,7 @@ export class AreaService {
     try {
       await this.initializeOne(created.id);
     } catch (err) {
-      console.error('Error during post-create area initialization:', err);
+      this.logger.error('Error during post-create area initialization:', err);
     }
     return created;
   }
