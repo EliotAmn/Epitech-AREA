@@ -138,11 +138,13 @@ export default function Create() {
     };
 
     const getActionOutputParams = () => {
-        if (!aboutData?.server?.services || !action) return [];
+        if (!aboutData?.server?.services || actionsList.length === 0) return [];
+        const action = actionsList[0]?.action;
+        const actionSvc = actionsList[0]?.service || actionService;
         const defName =
             (
                 parsedActions.find(
-                    (a) => a.label === action && a.platform === actionService
+                    (a) => a.label === action && a.platform === actionSvc
                 ) as (CatalogItem & { defName?: string }) | undefined
             )?.defName || action;
 
@@ -605,7 +607,7 @@ export default function Create() {
                             values={reactionParams}
                             onChange={setReactionParams}
                             // show action output params on the left when configuring a reaction
-                            showOutputCard={!!action}
+                            showOutputCard={actionsList.length > 0}
                             outputParams={getActionOutputParams()}
                         />
                     </div>
