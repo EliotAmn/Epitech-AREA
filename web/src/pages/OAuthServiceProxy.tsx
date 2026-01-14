@@ -78,7 +78,7 @@ export default function OAuthServiceProxy() {
     }, [service_name, searchParams, navigate, location.hash]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to from-blue-50 to-indigo-100">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
             <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
                 {isProcessing ? (
                     <>

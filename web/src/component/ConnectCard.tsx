@@ -13,10 +13,8 @@ const ConnectCard = ({
     onConnect: () => void;
     onBack?: () => void;
     onDiscard?: () => void;
-    onSkip?: () => void;
 }) => {
     const icon = getPlatformIcon(item.platform);
-    const connected = null;
     return (
         <div className="w-full flex-1 flex flex-col">
             <GlassCardLayout color={item.color} onBack={onBack}>
@@ -42,17 +40,10 @@ const ConnectCard = ({
 
                     <div className="mt-8 flex flex-col items-center gap-3 w-full max-w-md px-4">
                         <Button
-                            label={
-                                connected === null
-                                    ? "Connect"
-                                    : connected
-                                      ? "Connected"
-                                      : "Connect"
-                            }
+                            label="Connect"
                             onClick={onConnect}
                             mode="black"
                             className="w-full py-4"
-                            disabled={!!connected}
                         />
                         <button
                             onClick={() => onDiscard && onDiscard()}

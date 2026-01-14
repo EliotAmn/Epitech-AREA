@@ -272,12 +272,6 @@ export default function Create() {
                                     navigate("/create");
                                 }
                             }}
-                            onSkip={() => {
-                                // mark service selected and go to actions without connecting
-                                setActionService(selectedItem.platform);
-                                setStep(2);
-                                setSelectedItem(null);
-                            }}
                             onDiscard={() => {
                                 setActionService("");
                                 setStep(1);
@@ -358,12 +352,6 @@ export default function Create() {
                                 } else {
                                     navigate("/create");
                                 }
-                            }}
-                            onSkip={() => {
-                                // mark reaction service selected and go to reactions without connecting
-                                setReactionService(selectedItem.platform);
-                                setStep(4);
-                                setSelectedItem(null);
                             }}
                             onDiscard={() => {
                                 setReactionService("");

@@ -78,14 +78,13 @@ export class UserServiceController {
     );
 
     if (!userservice_instance) {
-      return { connected: false, config: {} };
+      return { connected: false };
     }
 
     const config = userservice_instance.service_config || {};
-    const connected =
-      Object.keys(config).length > 0 && config !== null && config !== undefined;
+    const connected = Object.keys(config).length > 0;
 
-    return { connected, config };
+    return { connected };
   }
 
   @Delete('/:service_name')

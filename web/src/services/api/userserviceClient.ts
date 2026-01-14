@@ -1,19 +1,12 @@
 import { apiClient } from "./apiClient";
 
-export type UserServiceStatus = {
-    connected: boolean;
-    config?: Record<string, unknown>;
-};
-
 export async function getUserServiceStatus(
     serviceName: string
-): Promise<UserServiceStatus> {
-    return apiClient.get<UserServiceStatus>(
+): Promise<{ connected: boolean }> {
+    return apiClient.get<{ connected: boolean }>(
         `/services/${encodeURIComponent(serviceName)}/status`
     );
 }
-
-export default { getUserServiceStatus };
 
 export async function disconnectUserService(
     serviceName: string
