@@ -116,6 +116,7 @@ export default function Areas() {
                 description="My Areas"
                 items={items}
                 onSelect={(item) => handleSelect(item)}
+                showPlatform={false}
                 noButton={true}
             />
         </div>

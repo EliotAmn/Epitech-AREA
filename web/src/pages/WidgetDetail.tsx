@@ -144,34 +144,41 @@ export default function WidgetDetail() {
                                 </p>
                             </div>
                         </div>
-                        <Button
-                            label={
-                                connected === null
-                                    ? "Loading..."
-                                    : connected
-                                      ? "Disconnect"
-                                      : `Connect ${label} Account`
-                            }
-                            onClick={async () => {
-                                if (connected) {
-                                    try {
-                                        await disconnectUserService(platform);
-                                        setConnected(false);
-                                    } catch (err) {
-                                        console.error("Disconnect failed", err);
+                        {(connected === true || oauth_url) && (
+                            <Button
+                                label={
+                                    connected === null
+                                        ? "Loading..."
+                                        : connected
+                                          ? "Disconnect"
+                                          : `Connect ${label} Account`
+                                }
+                                onClick={async () => {
+                                    if (connected) {
+                                        try {
+                                            await disconnectUserService(
+                                                platform
+                                            );
+                                            setConnected(false);
+                                        } catch (err) {
+                                            console.error(
+                                                "Disconnect failed",
+                                                err
+                                            );
+                                        }
+                                        return;
                                     }
-                                    return;
-                                }
-                                if (oauth_url) {
-                                    window.location.href = oauth_url;
-                                } else {
-                                    navigate("/create");
-                                }
-                            }}
-                            disabled={connected === null}
-                            mode="black"
-                            className="shadow-xl shadow-slate-200"
-                        />
+                                    if (oauth_url) {
+                                        window.location.href = oauth_url;
+                                    } else {
+                                        navigate("/create");
+                                    }
+                                }}
+                                disabled={connected === null}
+                                mode="black"
+                                className="shadow-xl shadow-slate-200"
+                            />
+                        )}
                     </div>
                 </div>
             </div>
@@ -214,7 +221,7 @@ export default function WidgetDetail() {
                                 <div className="col-span-full text-center text-slate-400 py-20 bg-white/40 rounded-4xl border border-dashed border-slate-200">
                                     <p className="font-bold italic">
                                         {query
-                                            ? `No results found for "${query}"`
+                                            ? `No results found.`
                                             : `No ${filter} available`}
                                     </p>
                                 </div>
