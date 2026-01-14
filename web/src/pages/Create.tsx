@@ -228,7 +228,7 @@ export default function Create() {
     return (
         <div
             key={location.key}
-            className="h-[calc(100vh-80px)] flex flex-col overflow-y-auto text-center"
+            className="h-[calc(100vh-80px)] flex flex-col text-center"
         >
             <h1 className="text-5xl font-bold m-2 shrink-0">
                 Create your own area

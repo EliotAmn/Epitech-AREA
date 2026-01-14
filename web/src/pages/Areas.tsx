@@ -111,7 +111,7 @@ export default function Areas() {
     }
 
     return (
-        <div className="h-full w-full overflow-y-auto">
+        <div className="h-full w-full">
             <CatalogPage
                 description="My Areas"
                 items={items}
