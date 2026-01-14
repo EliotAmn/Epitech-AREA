@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/component/card/card_button.dart';
 import '../../global/area_model.dart';
+import 'edit_area_page.dart';
 
 class AreaDetailPage extends StatelessWidget {
   final Area area;
@@ -84,7 +85,12 @@ class AreaDetailPage extends StatelessWidget {
             CardButton(
               label: 'Edit Area',
               onTap: () {
-                // Navigate to edit area page (to be implemented)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditAreaPage(area: area),
+                  ),
+                );
               },
               color: Theme.of(context).colorScheme.primary,
               textColor: Colors.white,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../component/input/input_decorations.dart';
-import '../global/area_model.dart';
+import '../../component/input/input_decorations.dart';
+import '../../global/area_model.dart';
 import 'package:http/http.dart' as http;
-import '../global/cache.dart' as cache;
+import '../../global/cache.dart' as cache;
 import 'dart:convert';
 import 'area_detail_page.dart';
 import 'package:mobile/component/card/card_button.dart';

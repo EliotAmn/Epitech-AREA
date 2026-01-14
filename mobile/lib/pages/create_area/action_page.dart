@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../component/card/card_button.dart';
 import '../../global/service_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile/global/cache.dart' as cache;
 import 'action_config_page.dart';
+import 'dart:convert';
 import 'oauth_page.dart';
 
 class ActionPage extends StatefulWidget {
@@ -20,6 +23,39 @@ class ActionPage extends StatefulWidget {
 }
 
 class _ActionPageState extends State<ActionPage> {
+
+  var isConnected = false;
+
+  void _getConnectionStatus() async {
+    http.Response response = await http.get(
+      Uri.parse(
+        '${await cache.ApiSettingsStore().loadApiUrl()}/services/${widget.service.name}/status',
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${await cache.AuthStore().loadToken()}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = response.body;
+      final decoded = jsonDecode(data);
+      setState(() {
+        isConnected = decoded['connected'] as bool;
+       });
+    } else {
+      debugPrint(
+        'Failed to load connection status: ${response.statusCode}',
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getConnectionStatus();
+  }
+
   Widget _buildLogo() {
     final logoUrl = widget.service.logo.isNotEmpty
         ? widget.service.logo
@@ -86,7 +122,7 @@ class _ActionPageState extends State<ActionPage> {
                     ),
                     if (widget.service.oauthUrl != null) ...[
                       const SizedBox(height: 16),
-                      ElevatedButton(
+                      (!isConnected) ? ElevatedButton(
                         onPressed: () async {
                           final success = await OAuthPage(
                             oauthUrl: widget.service.oauthUrl!,
@@ -109,6 +145,17 @@ class _ActionPageState extends State<ActionPage> {
                                 '0xFF${widget.service.color.substring(1)}',
                               ),
                             ),
+                          ),
+                        ),
+                      ) : ElevatedButton(
+                        onPressed: null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                        ),
+                        child: Text(
+                          'Connected',
+                          style: TextStyle(
+                            color: Colors.white,
                           ),
                         ),
                       ),

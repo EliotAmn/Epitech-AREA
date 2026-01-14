@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/my_areas_page.dart';
+import 'package:mobile/pages/my_areas/my_areas_page.dart';
 import 'pages/login_page.dart';
 import 'pages/create_area/create_home_page.dart';
 import 'themes.dart';

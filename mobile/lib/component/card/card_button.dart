@@ -34,6 +34,7 @@ class CardButton extends StatelessWidget {
     final isSvg = iconUrl!.toLowerCase().endsWith('.svg');
 
     if (isSvg) {
+      debugPrint('Loading SVG icon from $iconUrl');
       return SvgPicture.network(iconUrl!, width: 40, height: 40);
     } else {
       return Image.network(
