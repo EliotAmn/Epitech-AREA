@@ -443,14 +443,14 @@ export class AreaService {
         actions: {
           create: actionsWithDefaults.map((a) => ({
             action_name: a.action_name,
-            service: (a as any).service,
+            service: a.service,
             params: a.params as Prisma.InputJsonValue,
           })),
         },
         reactions: {
           create: dto.reactions.map((r) => ({
             reaction_name: r.reaction_name,
-            service: (r as any).service,
+            service: r.service,
             params: r.params as Prisma.InputJsonValue,
           })),
         },
