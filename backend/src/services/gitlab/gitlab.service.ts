@@ -4,10 +4,10 @@ import axios, { AxiosError } from 'axios';
 
 import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
-import { GithubNewCommit } from './actions/new-commit';
-import { GithubCreateIssue } from './reactions/create-issue'; // Import reaction
+import { GitlabNewCommit } from './actions/new-commit';
+import { GitlabCreateIssue } from './reactions/create-issue'; // Import reaction
 
-interface GithubTokenResponse {
+interface GitlabTokenResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
@@ -15,7 +15,7 @@ interface GithubTokenResponse {
   scope: string;
 }
 
-interface GithubErrorResponse {
+interface GitlabErrorResponse {
   error: string;
   error_description?: string;
 }
@@ -28,17 +28,18 @@ async function oauth_callback(
   if (!authorizationCode)
     throw new BadRequestException('Authorization code is missing');
 
-  const redirectUri = buildServiceRedirectUrl('github');
+  const redirectUri = buildServiceRedirectUrl('gitlab');
 
   const formData = new URLSearchParams();
   formData.append('code', authorizationCode);
   formData.append('redirect_uri', redirectUri);
-  formData.append('client_id', process.env.GITHUB_CLIENT_ID!);
-  formData.append('client_secret', process.env.GITHUB_CLIENT_SECRET!);
+  formData.append('client_id', process.env.GITLAB_CLIENT_ID!);
+  formData.append('client_secret', process.env.GITLAB_CLIENT_SECRET!);
+  formData.append('grant_type', 'authorization_code');
 
   try {
-    const res = await axios.post<GithubTokenResponse>(
-      'https://github.com/login/oauth/access_token',
+    const res = await axios.post<GitlabTokenResponse>(
+      'https://gitlab.com/oauth/token',
       formData,
       {
         headers: {
@@ -63,31 +64,31 @@ async function oauth_callback(
       refresh_token: refreshToken,
     };
   } catch (err) {
-    const axiosError = err as AxiosError<GithubErrorResponse>;
+    const axiosError = err as AxiosError<GitlabErrorResponse>;
     const errorMessage =
       axiosError.response?.data.error_description ||
-      'Unknown error during GitHub OAuth';
+      'Unknown error during GitLab OAuth';
     throw new Error(errorMessage);
   }
 
   return true;
 }
 
-export default class GithubService implements ServiceDefinition {
-  name = 'github';
-  label = 'GitHub';
-  color = '#4493F8';
-  logo =
-    'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/github-white-icon.png';
-  mandatory_env_vars = ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'];
-  oauth_url = buildUrlParameters('https://github.com/login/oauth/authorize', {
-    client_id: process.env.GITHUB_CLIENT_ID!,
-    redirect_uri: buildServiceRedirectUrl('github'),
-    scope: 'admin:repo_hook repo user',
+export default class GitlabService implements ServiceDefinition {
+  name = 'gitlab';
+  label = 'GitLab';
+  color = '#FC6D26';
+  logo = 'https://about.gitlab.com/images/press/press-kit-icon.svg';
+  mandatory_env_vars = ['GITLAB_CLIENT_ID', 'GITLAB_CLIENT_SECRET'];
+  oauth_url = buildUrlParameters('https://gitlab.com/oauth/authorize', {
+    client_id: process.env.GITLAB_CLIENT_ID!,
+    redirect_uri: buildServiceRedirectUrl('gitlab'),
+    response_type: 'code',
+    scope: 'api read_api write_repository',
   });
   oauth_callback = oauth_callback;
   description =
-    'GitHub is a development platform inspired by the way you work. From open source to business, you can host and review code, manage projects, and build software alongside millions of developers.';
-  actions = [GithubNewCommit];
-  reactions = [GithubCreateIssue];
+    'GitLab is a complete DevOps platform delivered as a single application. It provides everything you need to manage, plan, create, verify, package, secure, release, configure, monitor, and defend your projects.';
+  actions = [GitlabNewCommit];
+  reactions = [GitlabCreateIssue];
 }

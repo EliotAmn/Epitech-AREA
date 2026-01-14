@@ -9,7 +9,8 @@ import {
 import { getDiscordClient } from '../discord.client';
 
 export class AddRoleToUserReaction extends ServiceReactionDefinition {
-  name = 'add_role_to_user';
+  name = 'discord.add_role_to_user';
+  label = 'Add Role to User';
   description = 'Adds a role to a specific Discord user';
   input_params: ParameterDefinition[] = [
     {

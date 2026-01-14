@@ -14,7 +14,7 @@ import {
 
 const logger = new Logger('NotionArchivePageReaction');
 export class ArchivePageReaction extends ServiceReactionDefinition {
-  name = 'archive_page';
+  name = 'notion.archive_page';
   label = 'Archive Page';
   description = 'Archives (soft deletes) a page in Notion';
   input_params: ParameterDefinition[] = [
