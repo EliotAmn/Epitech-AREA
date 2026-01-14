@@ -43,4 +43,11 @@ export class UserServiceService {
       data: { service_config: config },
     });
   }
+
+  update(id: string, data: Partial<UserService>) {
+    return this.userServiceRepository.update({
+      where: { id },
+      data,
+    });
+  }
 }

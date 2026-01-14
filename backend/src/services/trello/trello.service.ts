@@ -62,6 +62,7 @@ async function oauth_callback(
     ...((userService.service_config as object) || {}),
     access_token: token,
   };
+  userService.access_token = token;
 
   return true;
 }

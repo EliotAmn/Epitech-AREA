@@ -150,7 +150,12 @@ export class OauthService {
         if (existing) {
           await this.prisma.userService.update({
             where: { id: existing.id },
-            data: { service_config: newConfig as Prisma.JsonObject },
+            data: {
+              service_config: newConfig as Prisma.JsonObject,
+              ...(maybeAccess ? { access_token: maybeAccess } : {}),
+              ...(maybeRefresh ? { refresh_token: maybeRefresh } : {}),
+              ...(expiryDate ? { token_expires_at: new Date(expiryDate) } : {}),
+            },
           });
         } else {
           await this.prisma.userService.create({
@@ -158,6 +163,9 @@ export class OauthService {
               user_id: user.id,
               service_name: 'gmail',
               service_config: newConfig as Prisma.JsonObject,
+              access_token: maybeAccess,
+              refresh_token: maybeRefresh,
+              token_expires_at: expiryDate ? new Date(expiryDate) : null,
             },
           });
         }
