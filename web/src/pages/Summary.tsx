@@ -73,7 +73,6 @@ export default function Summary({
             <GlassCardLayout
                 color={Array.isArray(colors) ? colors : [colors]}
                 onBack={onBack}
-                footer={false}
             >
                 <h2 className="text-5xl text-gray-700 font-bold mb-4">
                     Review and finish
@@ -140,7 +139,7 @@ export default function Summary({
 
                     <div>
                         <h4 className="font-bold text-lg border-b border-gray-300 mb-2 pb-1 text-gray-700">
-                            {reaction}  
+                            {reaction}
                         </h4>
                         {Object.keys(reactionParams).length > 0 ? (
                             <ul className="space-y-1">

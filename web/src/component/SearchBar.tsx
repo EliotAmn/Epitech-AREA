@@ -27,7 +27,6 @@ export default function SearchBar({
                 placeholder={placeholder}
                 className="w-full h-[50px] pl-12 pr-12 text-[#A7A7A7] font-bold py-2 border-gray-200 border-2 rounded-xl text-[18px] focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-           
         </div>
     );
 }

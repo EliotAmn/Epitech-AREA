@@ -15,7 +15,7 @@ import {
 const logger = new Logger('NotionUpdatePageReaction');
 
 export class UpdatePageReaction extends ServiceReactionDefinition {
-  name = 'update_page';
+  name = 'notion.update_page';
   label = 'Update Page';
   description = 'Updates an existing page title or adds content';
   input_params: ParameterDefinition[] = [

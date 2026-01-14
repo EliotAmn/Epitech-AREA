@@ -14,7 +14,7 @@ import {
 
 const logger = new Logger('NotionAddCommentReaction');
 export class AddCommentReaction extends ServiceReactionDefinition {
-  name = 'add_comment';
+  name = 'notion.add_comment';
   label = 'Add Comment';
   description = 'Adds a comment to a page in Notion';
   input_params: ParameterDefinition[] = [

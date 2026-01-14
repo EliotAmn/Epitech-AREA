@@ -7,7 +7,7 @@ import type {
 import { DiscordClientManager } from '../discord.client';
 
 export class MessageContainsKeywordAction extends ServiceActionDefinition {
-  name = 'message_contains_keyword';
+  name = 'discord.message_contains_keyword';
   label = 'Message Contains Keyword';
   description = 'Triggers when a message contains a specific keyword';
   poll_interval = 2;

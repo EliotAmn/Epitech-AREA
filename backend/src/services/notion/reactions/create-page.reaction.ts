@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+
 import {
   ParameterDefinition,
   ParameterType,
@@ -48,7 +49,7 @@ interface NotionPageCreateBody {
 }
 
 export class CreatePageReaction extends ServiceReactionDefinition {
-  name = 'create_page';
+  name = 'notion.create_page';
   label = 'Create Page';
   description =
     'Creates a new page in your Notion workspace with the specified title and content';
