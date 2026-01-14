@@ -11,6 +11,7 @@ import { getDiscordClient } from '../discord.client';
 
 export class SendMessageToChannelReaction extends ServiceReactionDefinition {
   name = 'discord.send_message_to_channel';
+  label = 'Send Message to Channel';
   description = 'Sends a message to a specific Discord channel';
   input_params: ParameterDefinition[] = [
     {

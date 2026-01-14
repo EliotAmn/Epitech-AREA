@@ -2,108 +2,23 @@ import { useEffect, useState } from "react";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from "@/component/button";
+import ConnectCard from "@/component/ConnectCard";
 import GlassCardLayout from "@/component/glassCard";
-import { getPlatformColor, getPlatformIcon } from "@/config/platforms";
-import { fetchCatalogFromAbout } from "@/services/aboutParser";
+import { getPlatformColor } from "@/config/platforms";
+import {
+    fetchCatalogFromAbout,
+    sortCatalogItemsByLabel,
+} from "@/services/aboutParser";
 import { aboutService } from "@/services/api/aboutService";
+import { getUserServiceStatus } from "@/services/api/userserviceClient";
+import type { AboutData } from "@/services/types/aboutTypes";
 import ConfigWidget from "../component/ConfigWidget";
-import type { ParameterDefinition } from "../component/ConfigWidget";
 import ProgressBar from "../component/ProgressBar";
 import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
 import Summary from "./Summary";
 
-type ServiceActionReaction = {
-    name: string;
-    description: string;
-    input_params?: ParameterDefinition[];
-};
-
-type ServiceDefinition = {
-    name: string;
-    actions: ServiceActionReaction[];
-    reactions: ServiceActionReaction[];
-};
-
-type AboutData = {
-    client: { host: string };
-    server: {
-        current_time: number;
-        services: ServiceDefinition[];
-    };
-};
-
-const ConnectCard = ({
-    item,
-    onConnect,
-    onBack,
-    onDiscard,
-    onSkip,
-}: {
-    item: CatalogItem;
-    onConnect: () => void;
-    onBack?: () => void;
-    onDiscard?: () => void;
-    onSkip?: () => void;
-}) => {
-    const icon = getPlatformIcon(item.platform);
-    const connected = null;
-    return (
-        <div className="w-full flex-1 flex flex-col">
-            <GlassCardLayout color={item.color} onBack={onBack}>
-                <div className="flex flex-col w-full max-w-md mx-auto items-center">
-                    <div className="text-center mb-10">
-                        <h1 className="text-3xl font-black text-slate-900 leading-tight">
-                            Connect your {item.platform} account
-                        </h1>
-                    </div>
-                    <div className="relative mb-8">
-                        <div
-                            className="absolute inset-0 blur-2xl opacity-30 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                        />
-                        {icon && (
-                            <img
-                                src={icon}
-                                alt={item.platform}
-                                className="relative w-32 h-32 object-contain transition-transform hover:scale-110 duration-300"
-                            />
-                        )}
-                    </div>
-
-                    <div className="mt-8 flex flex-col items-center gap-3 w-full max-w-md px-4">
-                        <Button
-                            label={
-                                connected === null
-                                    ? "Connect"
-                                    : connected
-                                      ? "Connected"
-                                      : "Connect"
-                            }
-                            onClick={onConnect}
-                            mode="black"
-                            className="w-full py-4"
-                            disabled={!!connected}
-                        />
-                        <button
-                            onClick={() => onSkip && onSkip()}
-                            className="w-full py-3 rounded-lg text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700"
-                        >
-                            Skip (Proceed without connecting)
-                        </button>
-                        <button
-                            onClick={() => onDiscard && onDiscard()}
-                            className="text-slate-400 text-xs font-bold uppercase hover:text-slate-600 transition-colors py-2 text-center"
-                        >
-                            Discard
-                        </button>
-                    </div>
-                </div>
-            </GlassCardLayout>
-        </div>
-    );
-};
+// `ConnectCard` extracted to `@/component/ConnectCard`
 
 export default function Create() {
     const location = useLocation();
@@ -171,10 +86,12 @@ export default function Create() {
             if (!mounted) return;
 
             const applyColors = (items: CatalogItem[]) =>
-                items.map((item) => ({
-                    ...item,
-                    color: getPlatformColor(item.platform),
-                }));
+                sortCatalogItemsByLabel(
+                    items.map((item) => ({
+                        ...item,
+                        color: getPlatformColor(item.platform),
+                    }))
+                );
 
             setParsedActions(applyColors(parsed.actions));
             setParsedServices(applyColors(parsed.services));
@@ -208,17 +125,88 @@ export default function Create() {
     };
     const navigate = useNavigate();
 
+    const [selectedServiceConnected, setSelectedServiceConnected] = useState<
+        boolean | null
+    >(null);
+
+    useEffect(() => {
+        let mounted = true;
+        let timer: number | null = null;
+
+        if (!selectedItem) {
+            timer = window.setTimeout(() => {
+                if (mounted) setSelectedServiceConnected(null);
+            }, 0);
+
+            return () => {
+                mounted = false;
+                if (timer !== null) window.clearTimeout(timer);
+            };
+        }
+
+        (async () => {
+            try {
+                const res = await getUserServiceStatus(selectedItem.platform);
+                if (!mounted) return;
+                setSelectedServiceConnected(!!res.connected);
+            } catch {
+                if (!mounted) return;
+                setSelectedServiceConnected(false);
+            }
+        })();
+
+        return () => {
+            mounted = false;
+            if (timer !== null) window.clearTimeout(timer);
+        };
+    }, [selectedItem]);
+
+    useEffect(() => {
+        if (!selectedItem) return () => {};
+
+        let timer: number | null = null;
+
+        const scheduleAdvance = () => {
+            timer = window.setTimeout(() => {
+                if (step === 1) {
+                    setActionService(selectedItem.platform);
+                    setStep(2);
+                    setSelectedItem(null);
+                } else if (step === 3) {
+                    setReactionService(selectedItem.platform);
+                    setStep(4);
+                    setSelectedItem(null);
+                }
+            }, 0);
+        };
+
+        // If service has no oauth_url, no connection step is required — auto-advance
+        if (!selectedItem.oauth_url) {
+            scheduleAdvance();
+            return () => {
+                if (timer !== null) window.clearTimeout(timer);
+            };
+        }
+
+        if (selectedServiceConnected !== true) return () => {};
+
+        scheduleAdvance();
+        return () => {
+            if (timer !== null) window.clearTimeout(timer);
+        };
+    }, [selectedServiceConnected, selectedItem, step]);
+
     // compute selected colors for action/reaction to pass to Summary
     const actionColor =
         parsedActions.find(
-            (a) => a.title === action && a.platform === actionService
+            (a) => a.label === action && a.platform === actionService
         )?.color ||
         parsedServices.find((s) => s.platform === actionService)?.color ||
         "#000000";
 
     const reactionColor =
         parsedReactions.find(
-            (r) => r.title === reaction && r.platform === reactionService
+            (r) => r.label === reaction && r.platform === reactionService
         )?.color ||
         parsedServices.find((s) => s.platform === reactionService)?.color ||
         "#282322";
@@ -257,33 +245,40 @@ export default function Create() {
                         noButton={true}
                     />
                 )}
-                {step === 1 && selectedItem && (
-                    <ConnectCard
-                        item={selectedItem}
-                        onBack={handleCloseWidget}
-                        onConnect={() => {
-                            setActionService(selectedItem.platform);
-                            setStep(2);
-                            setSelectedItem(null);
-                            if (selectedItem.oauth_url) {
-                                window.location.href = selectedItem.oauth_url;
-                            } else {
-                                navigate("/create");
-                            }
-                        }}
-                        onSkip={() => {
-                            // mark service selected and go to actions without connecting
-                            setActionService(selectedItem.platform);
-                            setStep(2);
-                            setSelectedItem(null);
-                        }}
-                        onDiscard={() => {
-                            setActionService("");
-                            setStep(1);
-                            setSelectedItem(null);
-                        }}
-                    />
-                )}
+                {step === 1 &&
+                    selectedItem &&
+                    (selectedServiceConnected === null ? (
+                        <GlassCardLayout
+                            color={selectedItem.color}
+                            onBack={handleCloseWidget}
+                        >
+                            <div className="flex flex-col w-full max-w-md mx-auto items-center py-12">
+                                <div className="animate-spin w-12 h-12 border-4 border-gray-200 border-t-gray-600 rounded-full mb-4" />
+                                <div>Checking connection status...</div>
+                            </div>
+                        </GlassCardLayout>
+                    ) : selectedServiceConnected === false ? (
+                        <ConnectCard
+                            item={selectedItem}
+                            onBack={handleCloseWidget}
+                            onConnect={() => {
+                                setActionService(selectedItem.platform);
+                                setStep(2);
+                                setSelectedItem(null);
+                                if (selectedItem.oauth_url) {
+                                    window.location.href =
+                                        selectedItem.oauth_url;
+                                } else {
+                                    navigate("/create");
+                                }
+                            }}
+                            onDiscard={() => {
+                                setActionService("");
+                                setStep(1);
+                                setSelectedItem(null);
+                            }}
+                        />
+                    ) : null)}
 
                 {/* STEP 2: Action */}
                 {step === 2 && !selectedItem && actionService && (
@@ -303,7 +298,7 @@ export default function Create() {
                             color={selectedItem.color}
                             platform={selectedItem.platform}
                             onConnect={() => {
-                                setAction(selectedItem.title);
+                                setAction(selectedItem.label);
                                 setStep(3);
                                 setSelectedItem(null);
                             }}
@@ -331,33 +326,40 @@ export default function Create() {
                         noButton={true}
                     />
                 )}
-                {step === 3 && selectedItem && (
-                    <ConnectCard
-                        item={selectedItem}
-                        onBack={handleCloseWidget}
-                        onConnect={() => {
-                            setReactionService(selectedItem.platform);
-                            setStep(4);
-                            setSelectedItem(null);
-                            if (selectedItem.oauth_url) {
-                                window.location.href = selectedItem.oauth_url;
-                            } else {
-                                navigate("/create");
-                            }
-                        }}
-                        onSkip={() => {
-                            // mark reaction service selected and go to reactions without connecting
-                            setReactionService(selectedItem.platform);
-                            setStep(4);
-                            setSelectedItem(null);
-                        }}
-                        onDiscard={() => {
-                            setReactionService("");
-                            setStep(3);
-                            setSelectedItem(null);
-                        }}
-                    />
-                )}
+                {step === 3 &&
+                    selectedItem &&
+                    (selectedServiceConnected === null ? (
+                        <GlassCardLayout
+                            color={selectedItem.color}
+                            onBack={handleCloseWidget}
+                        >
+                            <div className="flex flex-col w-full max-w-md mx-auto items-center py-12">
+                                <div className="animate-spin w-12 h-12 border-4 border-gray-200 border-t-gray-600 rounded-full mb-4" />
+                                <div>Checking connection status...</div>
+                            </div>
+                        </GlassCardLayout>
+                    ) : selectedServiceConnected === false ? (
+                        <ConnectCard
+                            item={selectedItem}
+                            onBack={handleCloseWidget}
+                            onConnect={() => {
+                                setReactionService(selectedItem.platform);
+                                setStep(4);
+                                setSelectedItem(null);
+                                if (selectedItem.oauth_url) {
+                                    window.location.href =
+                                        selectedItem.oauth_url;
+                                } else {
+                                    navigate("/create");
+                                }
+                            }}
+                            onDiscard={() => {
+                                setReactionService("");
+                                setStep(3);
+                                setSelectedItem(null);
+                            }}
+                        />
+                    ) : null)}
 
                 {/* STEP 4: Reaction */}
                 {step === 4 && !selectedItem && !reaction && (
@@ -381,7 +383,7 @@ export default function Create() {
                             color={selectedItem.color}
                             platform={selectedItem.platform}
                             onConnect={() => {
-                                setReaction(selectedItem.title);
+                                setReaction(selectedItem.label);
                                 setSelectedItem(null);
                             }}
                             onClose={handleCloseWidget}
@@ -404,7 +406,7 @@ export default function Create() {
                                 (
                                     parsedActions.find(
                                         (a) =>
-                                            a.title === action &&
+                                            a.label === action &&
                                             a.platform === actionService
                                     ) as
                                         | (CatalogItem & { defName?: string })
@@ -415,7 +417,7 @@ export default function Create() {
                                 (
                                     parsedReactions.find(
                                         (r) =>
-                                            r.title === reaction &&
+                                            r.label === reaction &&
                                             r.platform === reactionService
                                     ) as
                                         | (CatalogItem & { defName?: string })

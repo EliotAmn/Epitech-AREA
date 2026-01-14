@@ -3,15 +3,19 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getPlatformColor } from "@/config/platforms";
-import { fetchCatalogFromAbout } from "@/services/aboutParser";
+import {
+    fetchCatalogFromAbout,
+    sortCatalogItemsByLabel,
+} from "@/services/aboutParser";
 import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
 
 export default function Explore() {
     const navigate = useNavigate();
-    const [filter, setFilter] = useState<"all" | "reactions" | "services">(
-        "all"
-    );
+    const [filter, setFilter] = useState<
+        "all" | "actions" | "reactions" | "services"
+    >("all");
+    const [parsedActions, setParsedActions] = useState<CatalogItem[]>([]);
     const [parsedReactions, setParsedReactions] = useState<CatalogItem[]>([]);
     const [parsedServices, setParsedServices] = useState<CatalogItem[]>([]);
 
@@ -23,11 +27,14 @@ export default function Explore() {
             if (!mounted) return;
 
             const applyColors = (items: CatalogItem[]) =>
-                items.map((item) => ({
-                    ...item,
-                    color: getPlatformColor(item.platform),
-                }));
+                sortCatalogItemsByLabel(
+                    items.map((item) => ({
+                        ...item,
+                        color: getPlatformColor(item.platform),
+                    }))
+                );
 
+            setParsedActions(applyColors(parsed.actions));
             setParsedReactions(applyColors(parsed.reactions));
             setParsedServices(applyColors(parsed.services));
         };
@@ -40,13 +47,22 @@ export default function Explore() {
 
     const itemsToShow =
         filter === "all"
-            ? [...parsedReactions, ...parsedServices]
-            : filter === "reactions"
-              ? parsedReactions
-              : parsedServices;
+            ? [...parsedActions, ...parsedReactions, ...parsedServices].sort(
+                  (a, b) =>
+                      (a.label || a.title || "")
+                          .toLowerCase()
+                          .localeCompare(
+                              (b.label || b.title || "").toLowerCase()
+                          )
+              )
+            : filter === "actions"
+              ? parsedActions
+              : filter === "reactions"
+                ? parsedReactions
+                : parsedServices;
 
     return (
-        <div className="h-screen flex flex-col items-center justify-start overflow-hidden">
+        <div className="h-screen flex flex-col items-center justify-start overflow-auto">
             <h1 className="text-5xl text-black font-bold m-5 shrink-0">
                 Explore
             </h1>
@@ -57,6 +73,12 @@ export default function Explore() {
                         onClick={() => setFilter("all")}
                     >
                         All
+                    </button>
+                    <button
+                        className={`cursor-pointer text-2xl font-semibold text-center ${filter === "actions" ? "underline" : "text-black"}`}
+                        onClick={() => setFilter("actions")}
+                    >
+                        Actions
                     </button>
                     <button
                         className={`cursor-pointer text-2xl font-semibold text-center ${filter === "reactions" ? "underline" : "text-black"}`}
@@ -77,9 +99,15 @@ export default function Explore() {
                 <CatalogPage
                     items={itemsToShow}
                     onSelect={(item) =>
-                        navigate(item.path ?? `/widget/${item.id}`,
-                            { state: { title: item.title, color: item.color, platform: item.platform, oauth_url: item.oauth_url } }
-                        )
+                        navigate(item.path ?? `/widget/${item.id}`, {
+                            state: {
+                                title: item.label,
+                                color: item.color,
+                                platform: item.platform,
+                                oauth_url: item.oauth_url,
+                                description: item.description,
+                            },
+                        })
                     }
                 />
             </div>
