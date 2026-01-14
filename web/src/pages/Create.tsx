@@ -254,91 +254,93 @@ export default function Create() {
         >
             {step === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-0 pb-12">
-                    <h1 className="text-6xl font-bold mb-8 shrink-0">
+                    <h1 className="text-7xl font-bold mb-8 shrink-0">
                         Create your own area
                     </h1>
-                    <div
-                        className="bg-black text-white rounded-2xl w-[600px] p-8 relative z-10 shadow-xl transition-transform hover:scale-[1.01]"
-                        onClick={() => setStep(1)}
-                    >
-                        <div className="relative flex items-center justify-center m-2">
-                            <h2 className="text-5xl font-black tracking-tighter">
-                                If This
-                            </h2>
-                            <button className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors">
-                                Add
-                            </button>
-                        </div>
-
-                        {actionsList.length > 0 && (
-                            <div className="flex flex-col gap-3">
-                                {actionsList.map((act, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="bg-gray-900 rounded-xl p-4 flex items-center justify-between group cursor-pointer border border-gray-800 hover:border-gray-600 transition-all"
-                                        onClick={() => editAction(idx)}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="bg-white/10 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
-                                                {idx + 1}
-                                            </div>
-                                            <span className="font-semibold text-lg">
-                                                {act.action}
-                                            </span>
-                                        </div>
-                                        <span className="text-gray-500 text-sm group-hover:text-white transition-colors">
-                                            Edit
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 w-2 h-16 bg-[#EEEEEE] -z-10"></div>
-                    </div>
-
-                    <div
-                        className={`rounded-2xl w-[600px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2]`}
-                    >
-                        <div className="relative flex items-center justify-center m-2">
-                            <h2 className="text-5xl font-black tracking-tighter text-white">
-                                Then That
-                            </h2>
-
-                            {actionsList.length !== 0 && (
-                                <button
-                                    onClick={() => setStep(3)}
-                                    className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors"
-                                    disabled={actionsList.length === 0}
-                                >
+                    <div className="flex flex-col items-center justify-center mt-24">
+                        <div
+                            className="bg-black text-white rounded-2xl w-[500px] p-8 relative z-10 shadow-xl transition-transform hover:scale-[1.01]"
+                            onClick={() => setStep(1)}
+                        >
+                            <div className="relative flex items-center justify-center m-2">
+                                <h2 className="text-5xl font-black tracking-tighter">
+                                    If This
+                                </h2>
+                                <button className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors">
                                     Add
                                 </button>
-                            )}
-                        </div>
+                            </div>
 
-                        {reactionsList.length > 0 && (
-                            <div className="flex flex-col gap-3">
-                                {reactionsList.map((react, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="bg-white rounded-xl p-4 flex items-center justify-between border border-gray-300 group cursor-pointer hover:border-gray-500 transition-all"
-                                        onClick={() => editReaction(idx)}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="bg-gray-200 text-gray-800 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
-                                                {idx + 1}
+                            {actionsList.length > 0 && (
+                                <div className="flex flex-col gap-3">
+                                    {actionsList.map((act, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="bg-gray-900 rounded-xl p-4 flex items-center justify-between group cursor-pointer border border-gray-800 hover:border-gray-600 transition-all"
+                                            onClick={() => editAction(idx)}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="bg-white/10 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                                    {idx + 1}
+                                                </div>
+                                                <span className="font-semibold text-lg">
+                                                    {act.action}
+                                                </span>
                                             </div>
-                                            <span className="font-semibold text-lg text-gray-800">
-                                                {react.reaction}
+                                            <span className="text-gray-500 text-sm group-hover:text-white transition-colors">
+                                                Edit
                                             </span>
                                         </div>
-                                        <span className="text-gray-400 text-sm group-hover:text-gray-600 transition-colors">
-                                            Edit
-                                        </span>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 w-2 h-16 bg-[#EEEEEE] -z-10"></div>
+                        </div>
+
+                        <div
+                            className={`rounded-2xl w-[500px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2]`}
+                        >
+                            <div className="relative flex items-center justify-center m-2">
+                                <h2 className="text-5xl font-black tracking-tighter text-white">
+                                    Then That
+                                </h2>
+
+                                {actionsList.length !== 0 && (
+                                    <button
+                                        onClick={() => setStep(3)}
+                                        className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors"
+                                        disabled={actionsList.length === 0}
+                                    >
+                                        Add
+                                    </button>
+                                )}
                             </div>
-                        )}
+
+                            {reactionsList.length > 0 && (
+                                <div className="flex flex-col gap-3">
+                                    {reactionsList.map((react, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="bg-white rounded-xl p-4 flex items-center justify-between border border-gray-300 group cursor-pointer hover:border-gray-500 transition-all"
+                                            onClick={() => editReaction(idx)}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="bg-gray-200 text-gray-800 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                                    {idx + 1}
+                                                </div>
+                                                <span className="font-semibold text-lg text-gray-800">
+                                                    {react.reaction}
+                                                </span>
+                                            </div>
+                                            <span className="text-gray-400 text-sm group-hover:text-gray-600 transition-colors">
+                                                Edit
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                     {actionsList.length > 0 && reactionsList.length > 0 && (
                         <div className="mt-8">
