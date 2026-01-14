@@ -37,6 +37,7 @@ interface WidgetProps {
     reactionPlatform?: string;
     color?: string;
     onClick?: () => void;
+    showPlatform?: boolean;
 }
 
 export default function Widget({
@@ -45,6 +46,7 @@ export default function Widget({
     platform,
     reactionPlatform,
     onClick,
+    showPlatform = true,
 }: WidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const iconSrc = getPlatformIcon(platform);
@@ -111,12 +113,14 @@ export default function Widget({
                 <h2 className="w-full text-3xl text-center text-[#ffffff] font-semibold mb-2">
                     {title}
                 </h2>
-                <p className="w-full text-center text-sm sm:text-md text-[#ffffff]">
-                    {platform}{" "}
-                    {reactionPlatform && !samePlatform
-                        ? `& ${reactionPlatform}`
-                        : ""}
-                </p>
+                {showPlatform ? (
+                    <p className="w-full text-center text-sm sm:text-md text-[#ffffff]">
+                        {platform}{" "}
+                        {reactionPlatform && !samePlatform
+                            ? `& ${reactionPlatform}`
+                            : ""}
+                    </p>
+                ) : null}
             </div>
         </div>
     );

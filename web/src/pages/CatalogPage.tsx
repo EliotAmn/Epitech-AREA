@@ -12,6 +12,7 @@ interface CatalogPageProps {
     description?: string;
     onSelect?: (item: CatalogItem) => void;
     noButton?: boolean;
+    showPlatform?: boolean;
 }
 
 export default function CatalogPage({
@@ -19,6 +20,7 @@ export default function CatalogPage({
     description,
     onSelect,
     noButton = false,
+    showPlatform = true,
 }: CatalogPageProps) {
     const [query, setQuery] = useState("");
     const navigate = useNavigate();
@@ -97,7 +99,7 @@ export default function CatalogPage({
                         {filtered.length === 0 ? (
                             <div className="col-span-full text-center text-slate-400 py-20 bg-white/40 rounded-4xl border border-dashed border-slate-200">
                                 <p className="font-bold italic">
-                                    No results found for "{query}"
+                                    No results found.
                                 </p>
                             </div>
                         ) : (
@@ -108,6 +110,7 @@ export default function CatalogPage({
                                     platform={item.platform}
                                     reactionPlatform={item.reactionPlatform}
                                     color={item.color}
+                                    showPlatform={showPlatform}
                                     onClick={() => onSelect && onSelect(item)}
                                 />
                             ))

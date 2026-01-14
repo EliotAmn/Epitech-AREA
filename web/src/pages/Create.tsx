@@ -18,8 +18,6 @@ import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
 import Summary from "./Summary";
 
-// `ConnectCard` extracted to `@/component/ConnectCard`
-
 export default function Create() {
     const location = useLocation();
     const [step, setStep] = useState<number>(location.state?.step ?? 1);
@@ -112,6 +110,22 @@ export default function Create() {
             const list = type === "action" ? svc.actions : svc.reactions;
             const found = list?.find((x) => x.name === defName);
             if (found) return found.input_params || [];
+        }
+        return [];
+    };
+
+    const getActionOutputParams = () => {
+        if (!aboutData?.server?.services || !action) return [];
+        const defName =
+            (
+                parsedActions.find(
+                    (a) => a.label === action && a.platform === actionService
+                ) as (CatalogItem & { defName?: string }) | undefined
+            )?.defName || action;
+
+        for (const svc of aboutData.server.services) {
+            const found = svc.actions?.find((x) => x.name === defName);
+            if (found) return found.output_params || [];
         }
         return [];
     };
@@ -390,6 +404,9 @@ export default function Create() {
                             params={getParams(selectedItem, "reaction")}
                             values={reactionParams}
                             onChange={setReactionParams}
+                            // show action output params on the left when configuring a reaction
+                            showOutputCard={!!action}
+                            outputParams={getActionOutputParams()}
                         />
                     </div>
                 )}
