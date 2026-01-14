@@ -367,11 +367,13 @@ export default function Create() {
                                         name: `If ${actionsList[0].action} then ${reactionsList[0].reaction}`,
                                         actions: actionsList.map((a) => ({
                                             action_name: a.defName || a.action,
+                                            service: a.service,
                                             params: a.params,
                                         })),
                                         reactions: reactionsList.map((r) => ({
                                             reaction_name:
                                                 r.defName || r.reaction,
+                                            service: r.service,
                                             params: r.params,
                                         })),
                                     };
