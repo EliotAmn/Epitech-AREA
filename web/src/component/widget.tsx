@@ -67,7 +67,7 @@ export default function Widget({
 
     return (
         <div
-            className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-start shrink-0`}
+            className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-between shrink-0`}
             style={{
                 ...backgroundStyle,
             }}
@@ -76,7 +76,7 @@ export default function Widget({
             onMouseLeave={() => setIsHovered(false)}
         >
             <div
-                className="flex-1 w-full flex items-center justify-center gap-4 mb-4"
+                className="w-full flex-none flex items-center justify-center gap-4 mb h-64"
                 role="img"
                 aria-label={`Action ${platform}${!samePlatform ? ` and reaction ${platform[1]}` : ""}`}
             >
@@ -107,15 +107,17 @@ export default function Widget({
                     </>
                 ) : null}
             </div>
-            <h2 className="w-full text-3xl text-center text-[#ffffff] font-semibold mb-2">
-                {title}
-            </h2>
-            <p className="w-full text-center text-sm sm:text-md text-[#ffffff]">
-                {platform}{" "}
-                {reactionPlatform && !samePlatform
-                    ? `& ${reactionPlatform}`
-                    : ""}
-            </p>
+            <div className="w-full">
+                <h2 className="w-full text-3xl text-center text-[#ffffff] font-semibold mb-2">
+                    {title}
+                </h2>
+                <p className="w-full text-center text-sm sm:text-md text-[#ffffff]">
+                    {platform}{" "}
+                    {reactionPlatform && !samePlatform
+                        ? `& ${reactionPlatform}`
+                        : ""}
+                </p>
+            </div>
         </div>
     );
 }

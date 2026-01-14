@@ -8,7 +8,7 @@ import {
 
 // build raw RFC2822 message and send to Gmail API via fetch
 export class SendEmailReaction extends ServiceReactionDefinition {
-  name = 'send_email';
+  name = 'gmail.send_email';
   label = 'Send Email';
   description =
     'Sends an email via the connected Google account (requires google_access_token in service config)';

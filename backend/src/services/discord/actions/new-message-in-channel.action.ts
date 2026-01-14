@@ -8,7 +8,7 @@ import {
 import { DiscordClientManager } from '../discord.client';
 
 export class NewMessageInChannelAction extends ServiceActionDefinition {
-  name = 'new_message_in_channel';
+  name = 'discord.new_message_in_channel';
   label = 'New Message in Channel';
   poll_interval = 2;
   description = 'Triggers when a new message is posted in a specific channel';
