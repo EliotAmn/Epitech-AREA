@@ -2,7 +2,11 @@ import { apiClient } from "./apiClient";
 
 export type CreateAreaPayload = {
     name: string;
-    actions: Array<{ action_name: string; service: string; params?: Record<string, unknown> }>;
+    actions: Array<{
+        action_name: string;
+        service: string;
+        params?: Record<string, unknown>;
+    }>;
     reactions: Array<{
         reaction_name: string;
         service: string;
