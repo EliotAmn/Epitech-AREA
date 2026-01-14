@@ -18,7 +18,7 @@ const EditArea = lazy(() => import("./pages/EditArea"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
-
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const WidgetDetail = lazy(() => import("./pages/WidgetDetail"));
@@ -80,6 +80,14 @@ function App() {
                                 <PublicOnlyRoute>
                                     <Login />
                                 </PublicOnlyRoute>
+                            }
+                        />
+                        <Route
+                            path="/dashboard"
+                            element={
+                                <ProtectedRoute>
+                                    <Dashboard />
+                                </ProtectedRoute>
                             }
                         />
                         <Route

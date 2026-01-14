@@ -9,6 +9,10 @@ class UserService {
         return getCurrentUserId();
     }
 
+    async getAllUsers(): Promise<User[]> {
+        return apiClient.get<User[]>(this.basePath);
+    }
+
     async getUser(userId: string): Promise<User> {
         return apiClient.get<User>(`${this.basePath}/${userId}`);
     }
@@ -31,6 +35,10 @@ class UserService {
             throw new Error("No user ID found in token");
         }
         return this.updateUser(userId, data);
+    }
+
+    async deleteUser(userId: string): Promise<void> {
+        await apiClient.delete(`${this.basePath}/${userId}`);
     }
 
     async changePassword(data: ChangePasswordDto): Promise<void> {

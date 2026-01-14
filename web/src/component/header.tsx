@@ -312,6 +312,16 @@ export default function Header({
                                         className={`my-1 ${appliedTheme === "dark" ? "border-zinc-700" : "border-gray-200"}`}
                                     />
                                     <button
+                                        className={`block w-full text-left px-4 py-2 text-sm ${hoverTextClass}`}
+                                        onClick={() => {
+                                            navigate("/dashboard");
+                                            setShowProfileMenu(false);
+                                        }}
+                                        type="button"
+                                    >
+                                        Dashboard
+                                    </button>
+                                    <button
                                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:text-red-700"
                                         onClick={handleLogout}
                                         type="button"
