@@ -87,13 +87,16 @@ class _ActionPageState extends State<ActionPage> {
                     if (widget.service.oauthUrl != null) ...[
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () {
-                          // Handle OAuth flow here, e.g., open a webview or external browser
-                          // same as login flow
-                          OAuthPage(
+                        onPressed: () async {
+                          final success = await OAuthPage(
                             oauthUrl: widget.service.oauthUrl!,
                             serviceName: widget.service.name,
                           ).initiateOAuthFlow(context);
+
+                          if (success && mounted) {
+                            // Optionally refresh the page or update UI
+                            setState(() {});
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
