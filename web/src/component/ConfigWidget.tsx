@@ -31,6 +31,8 @@ interface ConfigWidgetProps {
     params?: ParameterDefinition[];
     values?: Record<string, unknown>;
     onChange?: (values: Record<string, unknown>) => void;
+    isAction?: boolean;
+    onAddAnother?: () => void;
 }
 
 export default function ConfigWidget({
@@ -42,6 +44,8 @@ export default function ConfigWidget({
     params,
     values = {},
     onChange,
+    isAction = false,
+    onAddAnother,
 }: ConfigWidgetProps) {
     const navigate = useNavigate();
     const [connected, setConnected] = useState<boolean | null>(null);
@@ -253,9 +257,27 @@ export default function ConfigWidget({
                                     onClick={handleConnect}
                                 />
                             ) : (
-                                <Button label="Save" onClick={handleConnect} />
+                                <div className="flex flex-col gap-2 w-full">
+                                    <Button
+                                        label="Save & Continue"
+                                        onClick={handleConnect}
+                                    />
+                                </div>
                             )}
                         </div>
+                        {isAction ? (
+                            <div className="text-sm text-gray-500 italic text-center px-4">
+                                <button
+                                    className="underline hover:text-gray-700 transition-colors"
+                                    onClick={() => {
+                                        if (onAddAnother) onAddAnother();
+                                        else navigate("/actions");
+                                    }}
+                                >
+                                    + save & add new action
+                                </button>
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             </GlassCardLayout>

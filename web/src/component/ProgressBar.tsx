@@ -12,7 +12,7 @@ export default function ProgressBar({
     steps,
     current,
     onStepClick,
-    labels = ["Service", "Action", "Reaction", "Finalize"],
+    labels = ["Service", "Action(s)", "Reaction", "Finalize"],
     completedSteps,
 }: ProgressBarProps) {
     const denom = Math.max(1, steps - 1);

@@ -10,12 +10,22 @@ import Button from "../component/button";
 
 interface SummaryProps {
     actionService: string;
+    // Single action props (legacy/fallback)
     action: string | null;
+    actionDefName?: string | null;
+    actionParams?: Record<string, unknown>;
+
+    // New multi-action prop
+    actionsList?: {
+        service: string;
+        action: string;
+        defName?: string;
+        params: Record<string, unknown>;
+    }[];
+
     reactionService: string;
     reaction: string | null;
-    actionDefName?: string | null;
     reactionDefName?: string | null;
-    actionParams?: Record<string, unknown>;
     reactionParams?: Record<string, unknown>;
     onBack?: () => void;
     colors?: string | string[];
@@ -24,11 +34,12 @@ interface SummaryProps {
 export default function Summary({
     actionService,
     action,
+    actionDefName,
+    actionParams = {},
+    actionsList = [],
     reactionService,
     reaction,
-    actionDefName,
     reactionDefName,
-    actionParams = {},
     reactionParams = {},
     onBack,
     colors = "rgba(99, 102, 241, 0.7)",
@@ -39,17 +50,30 @@ export default function Summary({
     const reactionIcon = getPlatformIcon(reactionService);
     const samePlatform = actionService === reactionService;
 
+    // effective actions list
+    const effectiveActions =
+        actionsList.length > 0
+            ? actionsList
+            : action
+              ? [
+                    {
+                        service: actionService,
+                        action: action,
+                        defName: actionDefName,
+                        params: actionParams,
+                    },
+                ]
+              : [];
+
     const handleConfirm = async () => {
         setLoading(true);
 
         const payload = {
-            name: `If ${action} then ${reaction}`,
-            actions: [
-                {
-                    action_name: actionDefName ?? action ?? "",
-                    params: actionParams,
-                },
-            ],
+            name: `If ${effectiveActions.map((a) => a.action).join(" + ")} then ${reaction}`,
+            actions: effectiveActions.map((a) => ({
+                action_name: a.defName ?? a.action ?? "",
+                params: a.params,
+            })),
             reactions: [
                 {
                     reaction_name: reactionDefName ?? reaction ?? "",
@@ -103,38 +127,47 @@ export default function Summary({
                     <h3 className="text-xl text-gray-700 font-semibold mb-2 text-left">
                         Area Title
                     </h3>
-                    <div className="w-[600px] h-[100px] p-6 bg-white rounded-lg shadow-md flex flex-col text-2xl font-semibold justify-center items-center">
-                        If {action} then {reaction}
+                    <div className="w-[600px] min-h-[100px] p-6 bg-white rounded-lg shadow-md flex flex-col text-2xl font-semibold justify-center items-center break-words text-center">
+                        If {effectiveActions.map((a) => a.action).join(" + ")}{" "}
+                        then {reaction}
                     </div>
                     <div className="text-xl font-bold text-gray-700 mt-4">
                         Area params
                     </div>
 
-                    <div className="mb-4">
-                        <h4 className="font-bold text-lg border-b border-gray-300 mb-2 pb-1 text-gray-700">
-                            {action}
-                        </h4>
-                        {Object.keys(actionParams).length > 0 ? (
-                            <ul className="space-y-1">
-                                {Object.entries(actionParams).map(
-                                    ([key, value]) => (
-                                        <li
-                                            key={key}
-                                            className="text-sm text-gray-700"
-                                        >
-                                            <span className="font-semibold">
-                                                {key.replace(/_/g, " ")}:
-                                            </span>{" "}
-                                            {String(value)}
-                                        </li>
-                                    )
+                    <div className="mb-4 max-h-[300px] overflow-y-auto w-full px-4">
+                        {effectiveActions.map((act, idx) => (
+                            <div key={idx} className="mb-4">
+                                <h4 className="font-bold text-lg border-b border-gray-300 mb-2 pb-1 text-gray-700 sticky top-0 bg-white/80 backdrop-blur-sm">
+                                    {effectiveActions.length > 1
+                                        ? `Action ${idx + 1}: `
+                                        : ""}
+                                    {act.action}
+                                </h4>
+                                {Object.keys(act.params).length > 0 ? (
+                                    <ul className="space-y-1">
+                                        {Object.entries(act.params).map(
+                                            ([key, value]) => (
+                                                <li
+                                                    key={key}
+                                                    className="text-sm text-gray-700"
+                                                >
+                                                    <span className="font-semibold">
+                                                        {key.replace(/_/g, " ")}
+                                                        :
+                                                    </span>{" "}
+                                                    {String(value)}
+                                                </li>
+                                            )
+                                        )}
+                                    </ul>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic">
+                                        No parameters
+                                    </p>
                                 )}
-                            </ul>
-                        ) : (
-                            <p className="text-sm text-gray-500 italic">
-                                No parameters
-                            </p>
-                        )}
+                            </div>
+                        ))}
                     </div>
 
                     <div>

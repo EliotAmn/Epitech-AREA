@@ -27,32 +27,103 @@ export default function Create() {
     const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
 
     const [actionService, setActionService] = useState<string>("");
+    // Current action being configured
     const [action, setAction] = useState<string | null>(null);
-    const [reactionService, setReactionService] = useState<string>("");
-    const [reaction, setReaction] = useState<string | null>(null);
-
     const [actionParams, setActionParams] = useState<Record<string, unknown>>(
         {}
     );
+
+    // List of configured actions
+    const [actionsList, setActionsList] = useState<
+        {
+            service: string;
+            action: string;
+            params: Record<string, unknown>;
+            defName?: string;
+        }[]
+    >([]);
+
+    // Index of the action currently being edited (null if creating new)
+    const [editingActionIndex, setEditingActionIndex] = useState<number | null>(null);
+
+    const [reactionService, setReactionService] = useState<string>("");
+    const [reaction, setReaction] = useState<string | null>(null);
+
     const [reactionParams, setReactionParams] = useState<
         Record<string, unknown>
     >({});
     const [aboutData, setAboutData] = useState<AboutData | null>(null);
 
     const goToStep = (s: number) => {
-        if (s === 2 && !actionService) s = 1;
-        if (s === 3 && !action) s = actionService ? 2 : 1;
-        if (s === 4 && !reactionService) s = action ? 3 : actionService ? 2 : 1;
+        // Intercept Back button logic (from Step 2 to Step 1)
+        if (step === 2 && s === 1) {
+            // If editing, cancel edit
+            if (editingActionIndex !== null) {
+                setEditingActionIndex(null);
+                setSelectedItem(null);
+                setActionParams({});
+                setActionService(""); // Go back to overview/add new
+                return;
+            }
+
+            // If we have actions in the list...
+            if (actionsList.length > 0) {
+                // If we are currently "in a flow" (actionService is selected, trying to add a NEW action),
+                // "Back" should cancel this attempt and return to Service Selection,
+                // INSTEAD of undoing the previously committed action.
+                if (actionService) {
+                    setActionService("");
+                    setSelectedItem(null);
+                    setActionParams({});
+                    return;
+                }
+
+                // Otherwise, if we are at the root (Service Selection), "Back" means "Undo last action"
+                const lastAction = actionsList[actionsList.length - 1];
+                const newActionList = actionsList.slice(0, -1);
+
+                setActionsList(newActionList);
+
+                // Restore context for the popped action
+                setActionService(lastAction.service);
+                setActionParams(lastAction.params);
+
+                const item = parsedActions.find(
+                    (a) =>
+                        a.platform === lastAction.service &&
+                        a.label === lastAction.action
+                );
+                if (item) {
+                    setSelectedItem(item);
+                }
+                // Stay on Step 2
+                return;
+            }
+        }
+
+        if (s === 2 && !actionService && actionsList.length === 0) s = 1;
+
+        // Step 2 is valid if we have at least one action configured OR if we are currently configuring one?
+        // Actually goToStep logic usually checks if previous step is complete to allow jumping.
+        // If s=3, Step 2 must be complete (at least one action).
+        if (s === 3 && actionsList.length === 0 && !action) s = actionService ? 2 : 1;
+        if (s === 4 && !reactionService)
+            s = actionsList.length > 0 ? 3 : actionService ? 2 : 1;
 
         if (s <= 1) {
             setActionService("");
             setAction(null);
+            setActionsList([]);
+            setEditingActionIndex(null);
             setReactionService("");
             setReaction(null);
             setActionParams({});
             setReactionParams({});
         } else if (s === 2) {
+            // When going back to step 2, we might want to edit?
+            // For now, let's just keep the list.
             setAction(null);
+            setEditingActionIndex(null);
             setReactionService("");
             setReaction(null);
             setActionParams({});
@@ -69,7 +140,7 @@ export default function Create() {
 
     const completedSteps = [
         !!actionService,
-        !!action,
+        actionsList.length > 0,
         !!reactionService,
         !!reaction,
     ];
@@ -122,6 +193,8 @@ export default function Create() {
 
     const handleCloseWidget = () => {
         setSelectedItem(null);
+        setEditingActionIndex(null);
+        setActionParams({});
     };
     const navigate = useNavigate();
 
@@ -171,6 +244,10 @@ export default function Create() {
                 if (step === 1) {
                     setActionService(selectedItem.platform);
                     setStep(2);
+                    setSelectedItem(null);
+                } else if (step === 2 && !actionService) {
+                    setActionService(selectedItem.platform);
+                    // Stay on Step 2 to pick action
                     setSelectedItem(null);
                 } else if (step === 3) {
                     setReactionService(selectedItem.platform);
@@ -227,7 +304,7 @@ export default function Create() {
                     onStepClick={(n) => goToStep(n)}
                     labels={[
                         "Service (action)",
-                        "Action",
+                        "Actions",
                         "Service (reaction)",
                         "Reaction",
                     ]}
@@ -236,6 +313,37 @@ export default function Create() {
             </div>
 
             <div className="flex-1 w-full mt-2 flex flex-col">
+                {/* STEP 2: Action - Sub Navigation (Always visible in step 2) */}
+                {step === 2 && actionsList.length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-2 mb-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                        {actionsList.map((act, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => {
+                                    // Find CatalogItem to populate widget
+                                    const item = parsedActions.find(
+                                        (a) =>
+                                            a.platform === act.service &&
+                                            a.label === act.action
+                                    );
+                                    if (item) {
+                                        setActionService(act.service);
+                                        setSelectedItem(item);
+                                        setActionParams(act.params);
+                                        setEditingActionIndex(idx);
+                                    }
+                                }}
+                                className="bg-white/80 px-4 py-2 rounded-full border border-slate-200 text-sm font-semibold text-slate-700 shadow-sm flex items-center gap-2 hover:bg-slate-50 transition-colors"
+                            >
+                                <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                                    {idx + 1}
+                                </span>
+                                {act.action}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 {/* STEP 1: Service Action */}
                 {step === 1 && !selectedItem && (
                     <CatalogPage
@@ -245,7 +353,29 @@ export default function Create() {
                         noButton={true}
                     />
                 )}
-                {step === 1 &&
+                {/* STEP 2: Choose Service (if needed) */}
+                {step === 2 && !selectedItem && !actionService && (
+                    <div className="flex flex-col items-center">
+                        <CatalogPage
+                            items={parsedServices}
+                            description="Choose service for your next action"
+                            onSelect={handleSelect}
+                            noButton={true}
+                        />
+                        {actionsList.length > 0 && (
+                            <div className="mt-4">
+                                <button
+                                    onClick={() => setStep(3)}
+                                    className="mb-4 bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-green-700 transition transform hover:scale-105"
+                                >
+                                    Done & Continue to Reactions
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {(step === 1 || (step === 2 && !actionService && !!selectedItem)) &&
                     selectedItem &&
                     (selectedServiceConnected === null ? (
                         <GlassCardLayout
@@ -262,8 +392,13 @@ export default function Create() {
                             item={selectedItem}
                             onBack={handleCloseWidget}
                             onConnect={() => {
-                                setActionService(selectedItem.platform);
-                                setStep(2);
+                                if (step === 1) {
+                                    setActionService(selectedItem.platform);
+                                    setStep(2);
+                                } else {
+                                    // Step 2 service selection
+                                    setActionService(selectedItem.platform);
+                                }
                                 setSelectedItem(null);
                                 if (selectedItem.oauth_url) {
                                     window.location.href =
@@ -273,39 +408,106 @@ export default function Create() {
                                 }
                             }}
                             onDiscard={() => {
-                                setActionService("");
-                                setStep(1);
+                                if (step === 1) {
+                                    setActionService("");
+                                    setStep(1);
+                                }
+                                // If step 2, we just clear service/item and return to service list
                                 setSelectedItem(null);
                             }}
                         />
                     ) : null)}
 
-                {/* STEP 2: Action */}
+                {/* STEP 2: Action Content */}
                 {step === 2 && !selectedItem && actionService && (
-                    <CatalogPage
-                        items={parsedActions.filter(
-                            (a) => a.platform === actionService
+                    <div className="flex flex-col items-center">
+                        <CatalogPage
+                            items={parsedActions.filter(
+                                (a) => a.platform === actionService
+                            )}
+                            description={
+                                actionsList.length > 0
+                                    ? "Add another action or continue"
+                                    : `Choose an action for ${actionService}`
+                            }
+                            onSelect={handleSelect}
+                            noButton={true}
+                        />
+                        {actionsList.length > 0 && (
+                            <div className="mt-4">
+                                <button
+                                    onClick={() => setStep(3)}
+                                    className="bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-green-700 transition transform hover:scale-105"
+                                >
+                                    Done & Continue to Reactions
+                                </button>
+                            </div>
                         )}
-                        description={`Choose an action for ${actionService}`}
-                        onSelect={handleSelect}
-                        noButton={true}
-                    />
+                    </div>
                 )}
-                {step === 2 && selectedItem && (
+                {step === 2 && selectedItem && actionService && (
                     <div>
                         <ConfigWidget
                             state="config"
                             color={selectedItem.color}
                             platform={selectedItem.platform}
                             onConnect={() => {
+                                const defName =
+                                    (selectedItem as any).defName ||
+                                    selectedItem.label;
+                                const newAction = {
+                                    service: selectedItem.platform,
+                                    action: selectedItem.label,
+                                    defName: defName,
+                                    params: actionParams,
+                                };
+
+                                if (editingActionIndex !== null) {
+                                    const updated = [...actionsList];
+                                    updated[editingActionIndex] = newAction;
+                                    setActionsList(updated);
+                                    setEditingActionIndex(null);
+                                } else {
+                                    setActionsList([...actionsList, newAction]);
+                                }
+
+                                // Set the single 'action' for compatibility
                                 setAction(selectedItem.label);
+
+                                setActionParams({});
                                 setStep(3);
                                 setSelectedItem(null);
+                            }}
+                            onAddAnother={() => {
+                                const defName =
+                                    (selectedItem as any).defName ||
+                                    selectedItem.label;
+                                const newAction = {
+                                    service: selectedItem.platform,
+                                    action: selectedItem.label,
+                                    defName: defName,
+                                    params: actionParams,
+                                };
+
+                                if (editingActionIndex !== null) {
+                                    const updated = [...actionsList];
+                                    updated[editingActionIndex] = newAction;
+                                    setActionsList(updated);
+                                    setEditingActionIndex(null);
+                                } else {
+                                    setActionsList([...actionsList, newAction]);
+                                }
+
+                                setActionParams({});
+                                setSelectedItem(null);
+                                setActionService(""); // Clear service to allow choosing a new one
+                                // Stay on Step 2
                             }}
                             onClose={handleCloseWidget}
                             params={getParams(selectedItem, "action")}
                             values={actionParams}
                             onChange={setActionParams}
+                            isAction={true}
                         />
                     </div>
                 )}
@@ -400,19 +602,10 @@ export default function Create() {
                         <Summary
                             actionService={actionService}
                             action={action}
+                            actionsList={actionsList}
                             reactionService={reactionService}
                             reaction={reaction}
-                            actionDefName={
-                                (
-                                    parsedActions.find(
-                                        (a) =>
-                                            a.label === action &&
-                                            a.platform === actionService
-                                    ) as
-                                        | (CatalogItem & { defName?: string })
-                                        | undefined
-                                )?.defName
-                            }
+                            actionDefName={null} // Handled via actionsList
                             reactionDefName={
                                 (
                                     parsedReactions.find(
