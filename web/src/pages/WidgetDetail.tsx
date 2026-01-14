@@ -214,7 +214,7 @@ export default function WidgetDetail() {
                 </div>
 
                 {/* Grid of widgets */}
-                <div className="flex-1 w-full overflow-y-auto">
+                <div className="flex-1 w-full">
                     <div className="max-w-7xl mx-auto px-8 py-8">
                         <div className="responsiveGrid">
                             {filtered.length === 0 ? (

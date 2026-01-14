@@ -48,6 +48,32 @@ export class UserService {
     return this.repository.update(id, dto);
   }
 
+  async changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.findOne(id);
+    if (!user.password_hash) {
+      // User doesn't have a password (likely OAuth-only account)
+      throw new Error('Password change not supported for this account');
+    }
+
+    const ok = await this.passwordService.compare(
+      currentPassword,
+      user.password_hash,
+    );
+
+    if (!ok) {
+      const err: any = new Error('Current password is incorrect');
+      err.status = 401;
+      throw err;
+    }
+
+    const newHash = await this.passwordService.hash(newPassword);
+    return this.repository.update(id, { password_hash: newHash });
+  }
+
   async remove(id: string) {
     await this.findOne(id);
     return this.repository.delete(id);

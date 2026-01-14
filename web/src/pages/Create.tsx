@@ -266,7 +266,7 @@ export default function Create() {
     return (
         <div
             key={location.key}
-            className="h-[calc(100vh-80px)] flex flex-col overflow-y-auto text-center"
+            className="h-[calc(100vh-80px)] flex flex-col text-center"
         >
             {step === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-0 pb-12">
