@@ -92,6 +92,7 @@ class _ActionPageState extends State<ActionPage> {
                           // same as login flow
                           OAuthPage(
                             oauthUrl: widget.service.oauthUrl!,
+                            serviceName: widget.service.name,
                           ).initiateOAuthFlow(context);
                         },
                         style: ElevatedButton.styleFrom(

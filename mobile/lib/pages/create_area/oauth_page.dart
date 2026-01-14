@@ -6,12 +6,14 @@ import 'package:mobile/global/cache.dart' as cache;
 
 class OAuthPage {
   final String oauthUrl;
+  final String serviceName;
 
-  OAuthPage({required this.oauthUrl});
+  OAuthPage({required this.oauthUrl, required this.serviceName});
 
   Future<void> initiateOAuthFlow(BuildContext context) async {
     final Uri oauthUri = Uri.parse(oauthUrl);
     final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
+    final String? toggleToken = await cache.AuthStore().loadToken();
 
     // Launch the OAuth URL in an external browser
     if (await canLaunchUrl(oauthUri)) {
@@ -23,14 +25,32 @@ class OAuthPage {
     // Listen for the redirect URI
     final AppLinks appLinks = AppLinks();
     appLinks.uriLinkStream.listen((Uri uri) {
+      // Collect all parameters from both query and fragment
+      final Map<String, String> allParams = {};
+
+      // Add query parameters
+      allParams.addAll(uri.queryParameters);
+
+      // Add fragment parameters
       if (uri.fragment.isNotEmpty) {
         final fragmentParams = Uri.splitQueryString(uri.fragment);
-        final oauthCode = fragmentParams['oauth_code'];
-        // Handle the received authorization code
+        allParams.addAll(fragmentParams);
+      }
+
+      if (allParams.isNotEmpty) {
+        // Build URI with all parameters
+        final consumeUri = Uri.parse(
+          '$apiSettingsUrl/services/$serviceName/redirect',
+        ).replace(queryParameters: allParams);
+
+        // Handle the received parameters
         http
             .get(
-              Uri.parse('$apiSettingsUrl/auth/oauth/consume?code=$oauthCode'),
-              headers: {'Content-Type': 'application/json'},
+              consumeUri,
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $toggleToken',
+              },
             )
             .then((resp) {
               if (resp.statusCode == 200) {
@@ -51,7 +71,9 @@ class OAuthPage {
                 context,
               ).showSnackBar(SnackBar(content: Text('Network error: $error')));
             });
-        debugPrint('Received OAuth code: $oauthCode');
+        debugPrint('Received OAuth params: $allParams');
+      } else {
+        debugPrint('No parameters found in URI: $uri');
       }
     });
   }

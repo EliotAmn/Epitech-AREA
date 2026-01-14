@@ -157,6 +157,7 @@ class ReactionListPage extends StatelessWidget {
                       // same as login flow
                       OAuthPage(
                         oauthUrl: reactionService.oauthUrl!,
+                        serviceName: reactionService.name,
                       ).initiateOAuthFlow(context);
                     },
                     style: ElevatedButton.styleFrom(
