@@ -1,10 +1,11 @@
-import { useEffect, useState, lazy } from "react";
+import {useEffect, useState, lazy} from "react";
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 import Header from "./component/header";
-import { ProtectedRoute, PublicOnlyRoute } from "./component/ProtectedRoute";
+import {ProtectedRoute, PublicOnlyRoute} from "./component/ProtectedRoute";
 import ThemeProvider from "./context/ThemeContext";
+
 const AreaDetail = lazy(() => import('./pages/AreaDetail'));
 const Areas = lazy(() => import('./pages/Areas'));
 const ChangePassword = lazy(() => import('./pages/ChangePassword'));
@@ -14,10 +15,11 @@ const Explore = lazy(() => import('./pages/Explore'));
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 import OAuthServiceProxy from "./pages/OAuthServiceProxy";
+
 const Profile = lazy(() => import('./pages/Profile'));
 const SignUp = lazy(() => import('./pages/SignUp'));
 const WidgetDetail = lazy(() => import('./pages/WidgetDetail'));
-import { AuthService } from "./services/api";
+import {AuthService} from "./services/api";
 import "./styles/responsiveGrids.css";
 
 
@@ -50,24 +52,22 @@ function App() {
         <ThemeProvider>
             <BrowserRouter>
                 <div className="flex flex-col h-screen overflow-hidden">
-                    <Header isLoggedIn={isLoggedIn} />
+                    <Header isLoggedIn={isLoggedIn}/>
                     <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/explore" element={<Explore />} />
-                        <Route path="/widget/:id" element={<WidgetDetail />} />
+                        <Route path="/" element={<Home/>}/>
+                        <Route path="/explore" element={<Explore/>}/>
+                        <Route path="/widget/:id" element={<WidgetDetail/>}/>
                         <Route
                             path="/oauth-service-proxy/:service_name"
                             element={
-                                <ProtectedRoute>
-                                    <OAuthServiceProxy />
-                                </ProtectedRoute>
+                                <OAuthServiceProxy/>
                             }
                         />
                         <Route
                             path="/signup"
                             element={
                                 <PublicOnlyRoute>
-                                    <SignUp />
+                                    <SignUp/>
                                 </PublicOnlyRoute>
                             }
                         />
@@ -75,7 +75,7 @@ function App() {
                             path="/login"
                             element={
                                 <PublicOnlyRoute>
-                                    <Login />
+                                    <Login/>
                                 </PublicOnlyRoute>
                             }
                         />
@@ -83,7 +83,7 @@ function App() {
                             path="/my-areas"
                             element={
                                 <ProtectedRoute>
-                                    <Areas />
+                                    <Areas/>
                                 </ProtectedRoute>
                             }
                         />
@@ -91,7 +91,7 @@ function App() {
                             path="/area/:id"
                             element={
                                 <ProtectedRoute>
-                                    <AreaDetail />
+                                    <AreaDetail/>
                                 </ProtectedRoute>
                             }
                         />
@@ -99,7 +99,7 @@ function App() {
                             path="/my-areas/edit"
                             element={
                                 <ProtectedRoute>
-                                    <EditArea />
+                                    <EditArea/>
                                 </ProtectedRoute>
                             }
                         />
@@ -107,7 +107,7 @@ function App() {
                             path="/create"
                             element={
                                 <ProtectedRoute>
-                                    <Create />
+                                    <Create/>
                                 </ProtectedRoute>
                             }
                         />
@@ -115,7 +115,7 @@ function App() {
                             path="/profile"
                             element={
                                 <ProtectedRoute>
-                                    <Profile />
+                                    <Profile/>
                                 </ProtectedRoute>
                             }
                         />
@@ -123,7 +123,7 @@ function App() {
                             path="/change-password"
                             element={
                                 <ProtectedRoute>
-                                    <ChangePassword />
+                                    <ChangePassword/>
                                 </ProtectedRoute>
                             }
                         />
@@ -131,7 +131,7 @@ function App() {
                             path="/reaction/:name"
                             element={
                                 <ProtectedRoute>
-                                    <WidgetDetail />
+                                    <WidgetDetail/>
                                 </ProtectedRoute>
                             }
                         />
@@ -139,7 +139,7 @@ function App() {
                             path="/service/:name"
                             element={
                                 <ProtectedRoute>
-                                    <WidgetDetail />
+                                    <WidgetDetail/>
                                 </ProtectedRoute>
                             }
                         />
