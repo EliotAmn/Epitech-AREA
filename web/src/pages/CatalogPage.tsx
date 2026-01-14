@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import Button from "@/component/button";
@@ -12,6 +13,8 @@ interface CatalogPageProps {
     description?: string;
     onSelect?: (item: CatalogItem) => void;
     noButton?: boolean;
+    backButton?: boolean;
+    onBack?: () => void;
     showPlatform?: boolean;
 }
 
@@ -20,6 +23,8 @@ export default function CatalogPage({
     description,
     onSelect,
     noButton = false,
+    backButton,
+    onBack,
     showPlatform = true,
 }: CatalogPageProps) {
     const [query, setQuery] = useState("");
@@ -58,16 +63,26 @@ export default function CatalogPage({
                     <div
                         className={`flex flex-col md:flex-row  ${description ? "md:items-end" : "md:items-start"} justify-between gap-6`}
                     >
-                        <div className="text-left">
-                            <h1
-                                className={`text-6xl font-black text-slate-900 mb-2 ${description ? "-mt-8" : "mt-0"}`}
-                            >
-                                {description}
-                            </h1>
-                            <p className="text-slate-500 font-bold tracking-widest uppercase text-[10px] ml-1">
-                                {items.length} {itemLabel}
-                                {items.length <= 1 ? "" : "s"}
-                            </p>
+                        <div className="flex items-center gap-6">
+                            {backButton && (
+                                <button
+                                    onClick={onBack}
+                                    className="bg-white p-3 rounded-full shadow-lg border border-slate-100 hover:bg-slate-100 transition-colors"
+                                >
+                                    <ArrowLeft className="w-6 h-6 text-slate-900" />
+                                </button>
+                            )}
+                            <div className="text-left">
+                                <h1
+                                    className={`text-6xl font-black text-slate-900 mb-2 ${description ? "-mt-8" : "mt-0"}`}
+                                >
+                                    {description}
+                                </h1>
+                                <p className="text-slate-500 font-bold tracking-widest uppercase text-[10px] ml-1">
+                                    {items.length} {itemLabel}
+                                    {items.length <= 1 ? "" : "s"}
+                                </p>
+                            </div>
                         </div>
                         {noButton ? null : (
                             <Button
