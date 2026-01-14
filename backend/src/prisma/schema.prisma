@@ -62,6 +62,7 @@ model Area {
 model AreaAction {
   id          String   @id @default(uuid()) @db.Uuid
   action_name String
+  service     String   @default("")
   area_id     String   @db.Uuid
   area        Area     @relation(fields: [area_id], references: [id], onDelete: Cascade)
   params      Json     @default("{}")
@@ -77,6 +78,7 @@ model AreaAction {
 model AreaReaction {
   id            String   @id @default(uuid()) @db.Uuid
   reaction_name String
+  service       String   @default("")
   area_id       String   @db.Uuid
   area          Area     @relation(fields: [area_id], references: [id], onDelete: Cascade)
   params        Json     @default("{}")

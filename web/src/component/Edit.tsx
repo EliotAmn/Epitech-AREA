@@ -18,10 +18,12 @@ interface Area {
     name: string;
     actions: {
         action_name: string;
+        service: string;
         params?: Record<string, unknown>;
     }[];
     reactions: {
         reaction_name: string;
+        service: string;
         params?: Record<string, unknown>;
     }[];
 }
@@ -81,12 +83,14 @@ export default function Edit({ area }: EditProps) {
                 actions: [
                     {
                         action_name: area.actions[0].action_name,
+                        service: area.actions[0].service || "",
                         params: actionParams,
                     },
                 ],
                 reactions: [
                     {
                         reaction_name: area.reactions[0].reaction_name,
+                        service: area.reactions[0].service || "",
                         params: reactionParams,
                     },
                 ],
