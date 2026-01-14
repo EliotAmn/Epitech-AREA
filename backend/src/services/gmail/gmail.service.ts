@@ -60,8 +60,12 @@ async function oauth_callback(
 
     return true;
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+
     throw new UnauthorizedException(
       'Failed to exchange authorization code for tokens',
+      errorMessage,
     );
   }
 }

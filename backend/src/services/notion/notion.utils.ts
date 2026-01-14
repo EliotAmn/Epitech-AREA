@@ -27,7 +27,9 @@ export function validatePageId(pageId: string): void {
 /**
  * Builds standard headers for Notion API requests
  */
-export function buildNotionHeaders(accessToken: string): Record<string, string> {
+export function buildNotionHeaders(
+  accessToken: string,
+): Record<string, string> {
   return {
     Authorization: `Bearer ${accessToken}`,
     'Notion-Version': NOTION_API_VERSION,
