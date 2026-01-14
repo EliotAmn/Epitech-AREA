@@ -28,6 +28,26 @@ class AreaService {
     async deleteArea(id: string) {
         return apiClient.delete(`${this.endpoint}/${encodeURIComponent(id)}`);
     }
+
+    async updateArea(id: string, dto: { name?: string }) {
+        return apiClient.patch(
+            `${this.endpoint}/${encodeURIComponent(id)}`,
+            dto
+        );
+    }
+
+    async updateParams(
+        id: string,
+        dto: {
+            actions?: Array<{ id: string; params?: Record<string, unknown> }>;
+            reactions?: Array<{ id: string; params?: Record<string, unknown> }>;
+        }
+    ) {
+        return apiClient.patch(
+            `${this.endpoint}/${encodeURIComponent(id)}`,
+            dto
+        );
+    }
 }
 
 export const areaService = new AreaService();

@@ -49,6 +49,7 @@ export default function Widget({
     showPlatform = true,
 }: WidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
+    const [isPressed, setIsPressed] = useState(false);
     const iconSrc = getPlatformIcon(platform);
     const samePlatform = !reactionPlatform || platform === reactionPlatform;
 
@@ -60,22 +61,67 @@ export default function Widget({
     const reactionHover = reactionColor
         ? lightenColor(reactionColor, 5)
         : undefined;
+
+    const primaryClicked = lightenColor(primaryColor, 20);
+    const reactionClicked = reactionColor
+        ? lightenColor(reactionColor, 20)
+        : undefined;
     const backgroundStyle =
         !reactionColor || samePlatform
-            ? { backgroundColor: isHovered ? primaryHover : primaryColor }
+            ? {
+                  backgroundColor: isPressed
+                      ? primaryClicked
+                      : isHovered
+                        ? primaryHover
+                        : primaryColor,
+              }
             : {
-                  backgroundImage: `linear-gradient(135deg, ${isHovered ? primaryHover : primaryColor} 0%, ${isHovered ? reactionHover : reactionColor} 100%)`,
+                  backgroundImage: `linear-gradient(135deg, ${isPressed ? primaryClicked : isHovered ? primaryHover : primaryColor} 0%, ${isPressed ? reactionClicked : isHovered ? reactionHover : reactionColor} 100%)`,
               };
 
     return (
         <div
-            className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-between shrink-0`}
+            role="button"
+            tabIndex={0}
+            aria-pressed={isPressed}
+            className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-between shrink-0 ${onClick ? "cursor-pointer" : ""}`}
             style={{
                 ...backgroundStyle,
             }}
-            onClick={onClick}
+            onMouseDown={() => setIsPressed(true)}
+            onMouseUp={() => {
+                if (isPressed) {
+                    setIsPressed(false);
+                    onClick?.();
+                }
+            }}
+            onTouchStart={() => setIsPressed(true)}
+            onTouchEnd={() => {
+                if (isPressed) {
+                    setIsPressed(false);
+                    onClick?.();
+                }
+            }}
+            onKeyDown={(e) => {
+                if ((e.key === "Enter" || e.key === " ") && !e.repeat) {
+                    e.preventDefault();
+                    setIsPressed(true);
+                }
+            }}
+            onKeyUp={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    if (isPressed) {
+                        setIsPressed(false);
+                        onClick?.();
+                    }
+                }
+            }}
             onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onMouseLeave={() => {
+                setIsHovered(false);
+                if (isPressed) setIsPressed(false);
+            }}
         >
             <div
                 className="w-full flex-none flex items-center justify-center gap-4 mb h-64"

@@ -59,12 +59,13 @@ export class AreaController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update parameters of an area by its ID' })
-  @ApiResponse({ status: 200, description: 'Area parameters updated' })
+  @ApiOperation({ summary: 'Update an area (name, or params) by its ID' })
+  @ApiResponse({ status: 200, description: 'Area updated' })
   async updateParams(
     @Param('id') id: string,
     @Body()
     dto: {
+      name?: string;
       actions?: Array<{ id: string; params?: Record<string, unknown> }>;
       reactions?: Array<{ id: string; params?: Record<string, unknown> }>;
     },

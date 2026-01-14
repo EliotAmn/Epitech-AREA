@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import GlassCardLayout from "@/component/glassCard";
+import Toast from "@/component/Toast";
 import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { aboutService } from "@/services/api/aboutService";
@@ -17,11 +18,13 @@ interface Area {
     id: string;
     name: string;
     actions: {
+        id?: string;
         action_name: string;
         service: string;
         params?: Record<string, unknown>;
     }[];
     reactions: {
+        id?: string;
         reaction_name: string;
         service: string;
         params?: Record<string, unknown>;
@@ -30,6 +33,12 @@ interface Area {
 
 interface EditProps {
     area: Area;
+}
+
+interface UpdateAreaDTO {
+    name?: string;
+    actions?: { id: string; params?: Record<string, unknown> }[];
+    reactions?: { id: string; params?: Record<string, unknown> }[];
 }
 
 export default function Edit({ area }: EditProps) {
@@ -41,12 +50,29 @@ export default function Edit({ area }: EditProps) {
         reactions: CatalogItem[];
     } | null>(null);
 
+    const [name, setName] = useState(area?.name || "");
     const [actionParams, setActionParams] = useState<Record<string, unknown>>(
         area?.actions?.[0]?.params || {}
     );
     const [reactionParams, setReactionParams] = useState<
         Record<string, unknown>
     >(area?.reactions?.[0]?.params || {});
+
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
+    const confirmDelete = async () => {
+        setDeleting(true);
+        try {
+            await areaService.deleteArea(area.id);
+            navigate("/my-areas");
+        } catch (err) {
+            console.error(err);
+            setDeleting(false);
+        } finally {
+            setShowConfirmDelete(false);
+        }
+    };
 
     useEffect(() => {
         const load = async () => {
@@ -77,25 +103,36 @@ export default function Edit({ area }: EditProps) {
     const handleSave = async () => {
         setLoading(true);
         try {
-            await areaService.deleteArea(area.id);
-            const payload = {
-                name: area.name,
-                actions: [
+            const dto: UpdateAreaDTO = {};
+
+            if (name !== area.name) dto.name = name;
+
+            const actionId = area.actions?.[0]?.id;
+            const reactionId = area.reactions?.[0]?.id;
+
+            if (actionId) {
+                dto.actions = [
                     {
-                        action_name: area.actions[0].action_name,
-                        service: area.actions[0].service || "",
+                        id: actionId,
                         params: actionParams,
                     },
-                ],
-                reactions: [
+                ];
+            }
+
+            if (reactionId) {
+                dto.reactions = [
                     {
-                        reaction_name: area.reactions[0].reaction_name,
-                        service: area.reactions[0].service || "",
+                        id: reactionId,
                         params: reactionParams,
                     },
-                ],
-            };
-            await areaService.createArea(payload);
+                ];
+            }
+
+            // Send a single PATCH request to update name and/or params
+            if (Object.keys(dto).length > 0) {
+                await areaService.updateParams(area.id, dto);
+            }
+
             navigate("/my-areas");
         } catch (err) {
             console.error(err);
@@ -126,7 +163,7 @@ export default function Edit({ area }: EditProps) {
             <div className="space-y-4 w-full">
                 {params.map((p) => (
                     <div key={p.name} className="flex flex-col">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1">
+                        <label className="text-xs font-bold uppercase tracking-wider mb-1 ml-1">
                             {p.label || p.name}
                         </label>
                         {p.type === "string" && (
@@ -134,6 +171,7 @@ export default function Edit({ area }: EditProps) {
                                 value={(values[p.name] as string) ?? ""}
                                 onChange={(val) => handleChange(p.name, val)}
                                 placeholder={p.description || ""}
+                                className="text-black border-gray-400"
                             />
                         )}
                         {p.type === "number" && (
@@ -145,6 +183,7 @@ export default function Edit({ area }: EditProps) {
                                     handleChange(p.name, Number(val))
                                 }
                                 placeholder={p.description || ""}
+                                className="text-black border-gray-400"
                             />
                         )}
                         {p.type === "boolean" && (
@@ -214,7 +253,8 @@ export default function Edit({ area }: EditProps) {
         : "#5865F2";
 
     const formatName = (name: string) => {
-        const withSpaces = name.replace(/_/g, " ");
+        const withoutService = name.split(".")[1] || name;
+        const withSpaces = withoutService.replace(/_/g, " ");
         return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
     };
 
@@ -225,7 +265,7 @@ export default function Edit({ area }: EditProps) {
             backLabel="Cancel"
         >
             <div className="flex flex-col w-full max-w-md mx-auto">
-                <div className="text-center mb-10">
+                <div className="text-center mb-6">
                     <h1 className="text-3xl font-black text-slate-900 leading-tight">
                         Edit Area
                     </h1>
@@ -234,12 +274,24 @@ export default function Edit({ area }: EditProps) {
                     </p>
                 </div>
 
+                <div className="mb-6 max-w-md mx-auto w-full">
+                    <label className="text-xs font-bold uppercase tracking-wide mb-1 ml-1 block">
+                        Area name
+                    </label>
+                    <Input
+                        value={name}
+                        onChange={(v) => setName(v)}
+                        placeholder="Area name"
+                        className="text-black border-gray-400"
+                    />
+                </div>
+
                 <div className="space-y-10">
                     <div
                         className="relative pl-6 border-l-4"
                         style={{ borderColor: brandColor }}
                     >
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">
+                        <span className="text-[10px] uppercase tracking-widest font-bold block mb-1">
                             Trigger
                         </span>
                         <h3 className="text-xl font-bold text-slate-800 mb-4">
@@ -256,7 +308,7 @@ export default function Edit({ area }: EditProps) {
                         className="relative pl-6 border-l-4"
                         style={{ borderColor: brandColor }}
                     >
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block mb-1">
+                        <span className="text-[10px] uppercase tracking-widest font-bold block mb-1">
                             Reaction
                         </span>
                         <h3 className="text-xl font-bold text-slate-800 mb-4">
@@ -285,12 +337,23 @@ export default function Edit({ area }: EditProps) {
                         Discard
                     </button>
                     <button
-                        onClick={() => navigate("/my-areas")}
+                        onClick={() => setShowConfirmDelete(true)}
                         className="text-red-500 text-xs font-bold uppercase hover:text-red-700 transition-colors py-2 text-center"
                     >
-                        Skip
+                        Delete Area
                     </button>
                 </div>
+
+                <Toast
+                    visible={showConfirmDelete}
+                    title={`Are you sure you want to delete "${area.name}" ?`}
+                    subtitle="This action is irreversible"
+                    loading={deleting}
+                    onConfirm={confirmDelete}
+                    onCancel={() => setShowConfirmDelete(false)}
+                    confirmLabel={deleting ? "Deletion..." : "Confirm"}
+                    cancelLabel="Cancel"
+                />
             </div>
         </GlassCardLayout>
     );
