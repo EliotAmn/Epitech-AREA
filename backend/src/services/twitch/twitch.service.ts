@@ -121,6 +121,15 @@ async function oauth_callback(
       twitch_user_id: twitchUserId,
       twitch_login: twitchLogin,
     };
+    userService.access_token = accessToken;
+    if (refreshToken) {
+      userService.refresh_token = refreshToken;
+    }
+    if (tokens.expires_in) {
+      userService.token_expires_at = new Date(
+        Date.now() + tokens.expires_in * 1000,
+      );
+    }
   } catch (error: unknown) {
     const axiosError = error as AxiosError<TwitchErrorResponse>;
     logger.error('OAuth token exchange failed');
