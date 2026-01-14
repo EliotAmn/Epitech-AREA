@@ -27,6 +27,16 @@ export default function OAuthServiceProxy() {
                 return;
             }
 
+
+            // If user is not connected, redirect the url to the mobile app url
+            if (!localStorage.getItem("authToken")) {
+                // Front url: https://areafront.eliotamanieu.fr/oauth-service-proxy/spotify?code=xxxx
+                // Mobile app url: com.example.app://?code=xxxx
+                // So without the pathname /oauth-service-proxy/spotify
+                window.location.href = "com.example.app://" + location.search;
+                return;
+            }
+
             try {
                 // Convert URLSearchParams to plain object
                 const queryParams: Record<string, string> = {};
