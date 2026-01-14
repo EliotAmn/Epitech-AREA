@@ -22,7 +22,7 @@ import CatalogPage from "./CatalogPage";
 
 export default function Create() {
     const location = useLocation();
-    const [step, setStep] = useState<number>(0);
+    const [step, setStep] = useState<number>(location.state?.step ?? 0);
 
     const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
 
@@ -61,12 +61,6 @@ export default function Create() {
         Record<string, unknown>
     >({});
     const [aboutData, setAboutData] = useState<AboutData | null>(null);
-
-    useEffect(() => {
-        if (location.state?.step) {
-            setStep(location.state.step);
-        }
-    }, [location.state]);
 
     const handleBack = () => {
         if (step === 1) {
@@ -449,8 +443,11 @@ export default function Create() {
                             platform={selectedItem.platform}
                             onConnect={() => {
                                 const defName =
-                                    (selectedItem as any).defName ||
-                                    selectedItem.label;
+                                    (
+                                        selectedItem as CatalogItem & {
+                                            defName?: string;
+                                        }
+                                    ).defName || selectedItem.label;
                                 const newAction = {
                                     service: selectedItem.platform,
                                     action: selectedItem.label,
@@ -560,8 +557,11 @@ export default function Create() {
                             platform={selectedItem.platform}
                             onConnect={() => {
                                 const defName =
-                                    (selectedItem as any).defName ||
-                                    selectedItem.label;
+                                    (
+                                        selectedItem as CatalogItem & {
+                                            defName?: string;
+                                        }
+                                    ).defName || selectedItem.label;
                                 const newReaction = {
                                     service: selectedItem.platform,
                                     reaction: selectedItem.label,
