@@ -473,7 +473,6 @@ export default function Create() {
                             params={getParams(selectedItem, "action")}
                             values={actionParams}
                             onChange={setActionParams}
-                            isAction={true}
                         />
                     </div>
                 )}
