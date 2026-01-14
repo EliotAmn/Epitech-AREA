@@ -115,6 +115,7 @@ export class OauthService {
     const token = this.jwtService.sign({
       sub: user.id,
       email: user.email,
+      admin: user.admin,
     });
 
     const safeUser: Partial<User & Record<string, any>> = { ...user };

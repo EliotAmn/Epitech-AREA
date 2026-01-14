@@ -15,6 +15,7 @@ model User {
   auth_id       String?
   password_hash String?
   created_at    DateTime      @default(now())
+  admin         Boolean       @default(false)
   area          Area[]
   user_service  UserService[]
   oauth_link    OauthLink[]

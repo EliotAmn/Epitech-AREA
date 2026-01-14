@@ -33,7 +33,7 @@ export class AuthService {
     const ok = await this.passwordService.compare(password, user.password_hash);
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, admin: user.admin };
     return { access_token: this.jwtService.sign(payload) };
   }
 
@@ -58,6 +58,7 @@ export class AuthService {
       const token = this.jwtService.sign({
         sub: createdUser.id,
         email: createdUser.email,
+        admin: createdUser.admin,
       });
       return { user: safeUser, access_token: token };
     } catch (e) {

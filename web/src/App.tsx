@@ -3,7 +3,11 @@ import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Header from "./component/header";
-import { ProtectedRoute, PublicOnlyRoute } from "./component/ProtectedRoute";
+import {
+    AdminRoute,
+    ProtectedRoute,
+    PublicOnlyRoute,
+} from "./component/ProtectedRoute";
 import ThemeProvider from "./context/ThemeContext";
 import OAuthServiceProxy from "./pages/OAuthServiceProxy";
 import { AuthService } from "./services/api";
@@ -85,9 +89,9 @@ function App() {
                         <Route
                             path="/dashboard"
                             element={
-                                <ProtectedRoute>
+                                <AdminRoute>
                                     <Dashboard />
-                                </ProtectedRoute>
+                                </AdminRoute>
                             }
                         />
                         <Route
