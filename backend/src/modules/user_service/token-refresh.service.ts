@@ -53,7 +53,7 @@ export class TokenRefreshService {
       let tokenResponse: TokenRefreshResult;
 
       // Handle different OAuth providers
-      if (serviceName === 'google') {
+      if (serviceName === 'google' || serviceName === 'gmail') {
         tokenResponse = await this.refreshGoogleToken(refreshToken);
       } else if (serviceName === 'github') {
         tokenResponse = await this.refreshGithubToken(refreshToken);
@@ -127,13 +127,9 @@ export class TokenRefreshService {
       access_token: string;
       expires_in?: number;
       refresh_token?: string;
-    }>(
-      'https://oauth2.googleapis.com/token',
-      params,
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      },
-    );
+    }>('https://oauth2.googleapis.com/token', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
 
     return {
       access_token: response.data.access_token,
@@ -216,9 +212,9 @@ export class TokenRefreshService {
       );
 
     if (!userService) {
-      this.logger.warn(
-        `No user service found for user ${userId} and service ${serviceName}`,
-      );
+      // this.logger.warn(
+      //   `No user service found for user ${userId} and service ${serviceName}`,
+      // );
       return null;
     }
 

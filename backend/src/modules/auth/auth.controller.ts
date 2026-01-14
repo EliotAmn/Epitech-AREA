@@ -79,7 +79,7 @@ export class AuthController {
 
     const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/google/redirect`;
     const scope = encodeURIComponent(
-      'email profile https://www.googleapis.com/auth/gmail.send',
+      'email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly',
     );
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
       clientID,
@@ -174,6 +174,7 @@ export class AuthController {
     if (!clientID) throw new BadRequestException('GitHub OAuth not configured');
 
     const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/github/redirect`;
+    console.log('----------------------callbackURL:', callbackURL);
     const scope = encodeURIComponent('read:user user:email');
     const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
       clientID,
