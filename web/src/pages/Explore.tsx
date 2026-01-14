@@ -109,6 +109,7 @@ export default function Explore() {
                             },
                         })
                     }
+                    showPlatform={filter !== "services"}
                 />
             </div>
         </div>
