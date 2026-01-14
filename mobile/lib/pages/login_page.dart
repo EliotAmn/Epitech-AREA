@@ -6,7 +6,6 @@ import 'signup_page.dart';
 import '../component/input/input_decorations.dart';
 import 'package:http/http.dart' as http;
 import '../global/cache.dart' as cache;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -142,7 +141,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
 
   Future<bool> _oauth2Token(String oauthCode) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/auth/oauth/consume?code=$oauthCode'),
+      Uri.parse(
+        '${await cache.ApiSettingsStore().loadApiUrl()}/auth/oauth/consume?code=$oauthCode',
+      ),
       headers: {'Content-Type': 'application/json'},
     );
     debugPrint('OAuth token response status: ${response.statusCode}');
@@ -171,14 +172,8 @@ class _LoginModalContentState extends State<_LoginModalContent> {
     BuildContext modalContext,
     String provider,
   ) async {
-    if (dotenv.env['API_URL'] == null) {
-      setState(() {
-        _errorMessage = 'API_URL is not configured';
-      });
-      return;
-    }
-
-    final redirectUrl = '${dotenv.env['API_URL']}/auth/$provider';
+    final redirectUrl =
+        '${await cache.ApiSettingsStore().loadApiUrl()}/auth/$provider';
 
     if (!mounted) return;
 
@@ -203,7 +198,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
     }
   }
 
-  void _login(BuildContext modalContext) {
+  void _login(BuildContext modalContext) async {
     String email = _emailController.text.trim();
     String password = _passwordController.text;
 
@@ -228,7 +223,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
 
     http
         .post(
-          Uri.parse('${dotenv.env['API_URL']}/auth/login'),
+          Uri.parse(
+            '${await cache.ApiSettingsStore().loadApiUrl()}/auth/login',
+          ),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': email, 'password': password}),
         )

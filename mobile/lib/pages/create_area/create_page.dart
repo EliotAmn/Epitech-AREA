@@ -3,7 +3,6 @@ import 'package:marquee/marquee.dart';
 import '../../component/card/card_button.dart';
 import 'action_page.dart';
 import '../../global/service_model.dart';
-import 'package:mobile/utils/string_utils.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({super.key, required this.services});
@@ -63,6 +62,7 @@ class _CreatePageState extends State<CreatePage> {
                               iconUrl: service.logo.isNotEmpty
                                   ? service.logo
                                   : 'https://via.placeholder.com/100',
+                              height: itemWidth,
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(

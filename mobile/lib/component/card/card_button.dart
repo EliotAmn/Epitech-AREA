@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marquee/marquee.dart';
@@ -23,7 +21,7 @@ class CardButton extends StatelessWidget {
     required this.onTap,
     required this.color,
     this.textColor,
-    this.height = 150,
+    this.height = 0,
     this.elevation = 4,
     this.children,
     this.isRow = false,
@@ -100,6 +98,7 @@ class CardButton extends StatelessWidget {
       ),
       color: Colors.transparent,
       child: Container(
+        height: (height) > 0 ? height : null,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(radius ?? 12),
           gradient: LinearGradient(
@@ -113,7 +112,6 @@ class CardButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(radius ?? 12),
           child: Container(
             width: double.infinity,
-            height: height,
             padding: const EdgeInsets.all(16),
             child: isRow == true
                 ? Row(
@@ -131,9 +129,11 @@ class CardButton extends StatelessWidget {
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (_buildIcon() != null) _buildIcon()!,
-                      const SizedBox(height: 8),
-                      _buildText(context),
+                      if (_buildIcon() != null)
+                        Column(
+                          children: [_buildIcon()!, const SizedBox(height: 8)],
+                        ),
+                      if (label.isNotEmpty) _buildText(context),
                       if (children != null) ...[
                         const SizedBox(height: 8),
                         children,

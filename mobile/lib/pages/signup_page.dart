@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../component/input/input_decorations.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/global/cache.dart' as cache;
 import 'dart:convert';
 
 class SignUpPage extends StatefulWidget {
@@ -32,7 +32,7 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  void signUp(BuildContext context) {
+  void signUp(BuildContext context) async {
     String email = _emailController.text.trim();
     String username = _usernameController.text.trim();
     String password = _passwordController.text;
@@ -55,7 +55,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
     http
         .post(
-          Uri.parse('${dotenv.env['API_URL']}/auth/register'),
+          Uri.parse(
+            '${await cache.ApiSettingsStore().loadApiUrl()}/auth/register',
+          ),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': email,

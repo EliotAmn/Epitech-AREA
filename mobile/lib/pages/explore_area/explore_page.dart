@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/global/service_model.dart';
 import 'package:mobile/component/card/card_button.dart';
 import 'package:mobile/pages/explore_area/service_details_page.dart';
+import 'package:mobile/global/cache.dart' as cache;
 import 'dart:convert';
 
 class ExplorePage extends StatefulWidget {
@@ -73,10 +73,12 @@ class _ExplorePageState extends State<ExplorePage> {
     return const SizedBox.shrink();
   }
 
-  void getServices() {
+  void getServices() async {
     http
         .get(
-          Uri.parse('${dotenv.env['API_URL']}/about.json'),
+          Uri.parse(
+            '${await cache.ApiSettingsStore().loadApiUrl()}/about.json',
+          ),
           headers: {'Content-Type': 'application/json'},
         )
         .then((response) {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/logout_page.dart';
 import 'package:mobile/pages/my_areas_page.dart';
 import 'pages/login_page.dart';
 import 'pages/create_area/create_home_page.dart';
 import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/pages/settings_area/settings_page.dart';
 import 'package:mobile/pages/explore_area/explore_page.dart';
 import 'global/cache.dart' as cache;
 
@@ -83,7 +83,25 @@ class _MainNavigationState extends State<MainNavigation> {
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
-                  child: LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SettingsPage(onLogoutSuccess: _onLogoutSuccess),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Theme.of(context).iconTheme.color,
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(40, 40),
+                    ),
+                    child: const Icon(Icons.settings),
+                  ),
                 ),
               ],
             )

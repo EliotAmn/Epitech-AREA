@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../component/input/input_decorations.dart';
 import '../global/area_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../global/cache.dart' as cache;
 import 'dart:convert';
 import 'area_detail_page.dart';
@@ -54,7 +53,7 @@ class _MyAreasPageState extends State<MyAreasPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('${dotenv.env['API_URL']}/areas'),
+        Uri.parse('${await cache.ApiSettingsStore().loadApiUrl()}/areas'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -147,7 +146,9 @@ class _MyAreasPageState extends State<MyAreasPage> {
 
     try {
       final response = await http.patch(
-        Uri.parse('${dotenv.env['API_URL']}/areas/${area.id}'),
+        Uri.parse(
+          '${await cache.ApiSettingsStore().loadApiUrl()}/areas/${area.id}',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -206,7 +207,9 @@ class _MyAreasPageState extends State<MyAreasPage> {
 
     try {
       final response = await http.delete(
-        Uri.parse('${dotenv.env['API_URL']}/areas/${area.id}'),
+        Uri.parse(
+          '${await cache.ApiSettingsStore().loadApiUrl()}/areas/${area.id}',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -231,109 +234,112 @@ class _MyAreasPageState extends State<MyAreasPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
-          ),
-          Text('My AREAs', style: Theme.of(context).textTheme.displayLarge),
-          SizedBox(
-            height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-          ),
-          SizedBox(
-            width: 300,
-            child: TextField(
-              controller: _searchController,
-              decoration: AppInputDecorations.primary(context, 'Filter'),
-              textInputAction: TextInputAction.search,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(
+              height:
+                  (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
             ),
-          ),
-          SizedBox(
-            height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-          ),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                ? Center(child: Text(_error!))
-                : _filteredAreas.isEmpty
-                ? const Center(child: Text('No areas yet'))
-                : ListView.builder(
-                    itemCount: _filteredAreas.length,
-                    itemBuilder: (context, index) {
-                      final area = _filteredAreas[index];
-                      final subtitle =
-                          '${area.action.serviceName} · ${area.reaction.serviceName}';
-                      return CardButton(
-                        label: area.name,
-                        height: MediaQuery.of(context).size.width * 0.4,
+            Text('My AREAs', style: Theme.of(context).textTheme.displayLarge),
+            SizedBox(
+              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+            ),
+            SizedBox(
+              width: 300,
+              child: TextField(
+                controller: _searchController,
+                decoration: AppInputDecorations.primary(context, 'Filter'),
+                textInputAction: TextInputAction.search,
+              ),
+            ),
+            SizedBox(
+              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
+            ),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                  ? Center(child: Text(_error!))
+                  : _filteredAreas.isEmpty
+                  ? const Center(child: Text('No areas yet'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      itemCount: _filteredAreas.length,
+                      itemBuilder: (context, index) {
+                        final area = _filteredAreas[index];
+                        return CardButton(
+                          label: area.name,
+                          height: MediaQuery.of(context).size.width * 0.4,
 
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => AreaDetailPage(area: area),
-                            ),
-                          );
-                        },
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        children: Container(
-                          padding: const EdgeInsets.all(8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Left: title and subtitle (IF -> THEN)
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AreaDetailPage(area: area),
+                              ),
+                            );
+                          },
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          children: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Left: title and subtitle (IF -> THEN)
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // small header row (could include icons)
+                                      Row(
+                                        children: [
+                                          // placeholder for service icons
+                                          const SizedBox(width: 4),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Right: controls
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // small header row (could include icons)
                                     Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        // placeholder for service icons
-                                        const SizedBox(width: 4),
+                                        Switch(
+                                          value: area.isActive,
+                                          onChanged: (v) =>
+                                              _toggleAreaById(area.id, v),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete),
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
+                                          tooltip: 'Delete area',
+                                          onPressed: () =>
+                                              _deleteAreaById(area.id),
+                                        ),
                                       ],
                                     ),
                                   ],
                                 ),
-                              ),
-
-                              // Right: controls
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Switch(
-                                        value: area.isActive,
-                                        onChanged: (v) =>
-                                            _toggleAreaById(area.id, v),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete),
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.error,
-                                        tooltip: 'Delete area',
-                                        onPressed: () =>
-                                            _deleteAreaById(area.id),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/component/card/card_button.dart';
 import '../global/area_model.dart';
 
 class AreaDetailPage extends StatelessWidget {
@@ -47,7 +48,7 @@ class AreaDetailPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Action Section
-            _buildSectionHeader(context, 'IF (Trigger)', Icons.flash_on),
+            _buildSectionHeader(context, 'If', Icons.arrow_back),
             const SizedBox(height: 12),
             _buildInfoCard(
               context,
@@ -109,25 +110,28 @@ class AreaDetailPage extends StatelessWidget {
     required String description,
     required Map<String, dynamic> params,
   }) {
-    return Card(
-      elevation: 2,
-      child: Padding(
+    return CardButton(
+      label: service,
+      onTap: () {},
+      color: const Color.fromARGB(255, 255, 255, 255),
+      textColor: Colors.black,
+      children: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Service name
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
                 service,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(color: Colors.white),
               ),
             ),
             const SizedBox(height: 12),
@@ -135,14 +139,20 @@ class AreaDetailPage extends StatelessWidget {
             // Action / Reaction name
             Text(
               actionName,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
 
             if (description.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text(description, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                description,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.blue),
+              ),
             ],
 
             // Parameters
@@ -150,9 +160,10 @@ class AreaDetailPage extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'Parameters:',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
               const SizedBox(height: 8),
               ...params.entries.map((entry) {
@@ -166,7 +177,10 @@ class AreaDetailPage extends StatelessWidget {
                         child: Text(
                           '${entry.key}:',
                           style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
+                              ?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.blue,
+                              ),
                         ),
                       ),
                       Expanded(

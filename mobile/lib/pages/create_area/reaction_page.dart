@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../component/card/card_button.dart';
 import '../../global/service_model.dart';
 import 'config_page.dart';
-import 'package:mobile/utils/string_utils.dart';
 import 'oauth_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -49,6 +48,7 @@ class ReactionPage extends StatelessWidget {
                         child: CardButton(
                           label: service.label,
                           iconUrl: service.logo,
+                          height: itemWidth,
                           color: Color(
                             int.parse('0xFF${service.color.substring(1)}'),
                           ),
@@ -173,8 +173,8 @@ class ReactionListPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
                 ],
+                const SizedBox(height: 16),
               ],
             ),
           ),

@@ -2,7 +2,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/global/cache.dart' as cache;
 
 class OAuthPage {
   final String oauthUrl;
@@ -11,6 +11,7 @@ class OAuthPage {
 
   Future<void> initiateOAuthFlow(BuildContext context) async {
     final Uri oauthUri = Uri.parse(oauthUrl);
+    final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
 
     // Launch the OAuth URL in an external browser
     if (await canLaunchUrl(oauthUri)) {
@@ -28,9 +29,7 @@ class OAuthPage {
         // Handle the received authorization code
         http
             .get(
-              Uri.parse(
-                '${dotenv.env['API_URL']}/auth/oauth/consume?code=$oauthCode',
-              ),
+              Uri.parse('$apiSettingsUrl/auth/oauth/consume?code=$oauthCode'),
               headers: {'Content-Type': 'application/json'},
             )
             .then((resp) {

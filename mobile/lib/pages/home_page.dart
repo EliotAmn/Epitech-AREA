@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../component/input/input_decorations.dart';
 import '../global/area_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../global/cache.dart' as cache;
 import 'dart:convert';
 
@@ -35,7 +34,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('${dotenv.env['API_URL']}/areas'),
+        Uri.parse('${await cache.ApiSettingsStore().loadApiUrl()}/areas'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -102,7 +101,9 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.patch(
-        Uri.parse('${dotenv.env['API_URL']}/areas/${area.id}'),
+        Uri.parse(
+          '${await cache.ApiSettingsStore().loadApiUrl()}/areas/${area.id}',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -158,7 +159,9 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.delete(
-        Uri.parse('${dotenv.env['API_URL']}/areas/${area.id}'),
+        Uri.parse(
+          '${await cache.ApiSettingsStore().loadApiUrl()}/areas/${area.id}',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

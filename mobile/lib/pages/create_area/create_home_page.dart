@@ -6,7 +6,6 @@ import '../../global/area_model.dart';
 import 'reaction_page.dart';
 import '../../global/service_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import '../../global/cache.dart' as cache;
 
@@ -46,7 +45,7 @@ class _CreateHomePageState extends State<CreateHomePage> {
     getServices();
   }
 
-  void saveArea(BuildContext context) {
+  void saveArea(BuildContext context) async {
     final area = Area(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name:
@@ -54,11 +53,12 @@ class _CreateHomePageState extends State<CreateHomePage> {
       action: CreateHomePage.action!,
       reaction: CreateHomePage.reaction!,
     );
+    final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
 
     cache.AuthStore().loadToken().then((token) {
       http
           .post(
-            Uri.parse('${dotenv.env['API_URL']}/areas'),
+            Uri.parse('$apiSettingsUrl/areas'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
@@ -92,10 +92,12 @@ class _CreateHomePageState extends State<CreateHomePage> {
     });
   }
 
-  void getServices() {
+  void getServices() async {
     http
         .get(
-          Uri.parse('${dotenv.env['API_URL']}/about.json'),
+          Uri.parse(
+            '${await cache.ApiSettingsStore().loadApiUrl()}/about.json',
+          ),
           headers: {'Content-Type': 'application/json'},
         )
         .then((response) {
