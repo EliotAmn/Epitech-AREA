@@ -174,7 +174,6 @@ export class AuthController {
     if (!clientID) throw new BadRequestException('GitHub OAuth not configured');
 
     const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/github/redirect`;
-    console.log('----------------------callbackURL:', callbackURL);
     const scope = encodeURIComponent('read:user user:email');
     const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
       clientID,
