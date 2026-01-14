@@ -10,69 +10,98 @@ import {
     sortCatalogItemsByLabel,
 } from "@/services/aboutParser";
 import { aboutService } from "@/services/api/aboutService";
+import { areaService } from "@/services/api/areaService";
 import { getUserServiceStatus } from "@/services/api/userserviceClient";
 import type { AboutData } from "@/services/types/aboutTypes";
+import Button from "../component/button";
 import ConfigWidget from "../component/ConfigWidget";
-import ProgressBar from "../component/ProgressBar";
 import type { CatalogItem } from "../data/catalogData";
 import CatalogPage from "./CatalogPage";
-import Summary from "./Summary";
 
 // `ConnectCard` extracted to `@/component/ConnectCard`
 
 export default function Create() {
     const location = useLocation();
-    const [step, setStep] = useState<number>(location.state?.step ?? 1);
+    const [step, setStep] = useState<number>(0);
 
     const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
 
     const [actionService, setActionService] = useState<string>("");
-    const [action, setAction] = useState<string | null>(null);
-    const [reactionService, setReactionService] = useState<string>("");
-    const [reaction, setReaction] = useState<string | null>(null);
-
     const [actionParams, setActionParams] = useState<Record<string, unknown>>(
         {}
     );
+
+    const [actionsList, setActionsList] = useState<
+        {
+            service: string;
+            action: string;
+            params: Record<string, unknown>;
+            defName?: string;
+        }[]
+    >([]);
+    const [editingActionIndex, setEditingActionIndex] = useState<number | null>(
+        null
+    );
+
+    const [reactionService, setReactionService] = useState<string>("");
+
+    const [reactionsList, setReactionsList] = useState<
+        {
+            service: string;
+            reaction: string;
+            params: Record<string, unknown>;
+            defName?: string;
+        }[]
+    >([]);
+    const [editingReactionIndex, setEditingReactionIndex] = useState<
+        number | null
+    >(null);
+
     const [reactionParams, setReactionParams] = useState<
         Record<string, unknown>
     >({});
     const [aboutData, setAboutData] = useState<AboutData | null>(null);
 
-    const goToStep = (s: number) => {
-        if (s === 2 && !actionService) s = 1;
-        if (s === 3 && !action) s = actionService ? 2 : 1;
-        if (s === 4 && !reactionService) s = action ? 3 : actionService ? 2 : 1;
+    useEffect(() => {
+        if (location.state?.step) {
+            setStep(location.state.step);
+        }
+    }, [location.state]);
 
-        if (s <= 1) {
+    const handleBack = () => {
+        if (step === 1) {
+            setStep(0);
             setActionService("");
-            setAction(null);
-            setReactionService("");
-            setReaction(null);
+            setSelectedItem(null);
+        } else if (step === 2) {
+            setStep(1);
+            if (editingActionIndex !== null) {
+                setEditingActionIndex(null);
+                setStep(0);
+            } else {
+                setStep(1);
+                setActionService("");
+                setSelectedServiceConnected(null);
+            }
+            setSelectedItem(null);
             setActionParams({});
-            setReactionParams({});
-        } else if (s === 2) {
-            setAction(null);
+        } else if (step === 3) {
+            setStep(0);
             setReactionService("");
-            setReaction(null);
-            setActionParams({});
-            setReactionParams({});
-        } else if (s === 3) {
-            setReactionService("");
-            setReaction(null);
+            setSelectedItem(null);
+        } else if (step === 4) {
+            setStep(3);
+            if (editingReactionIndex !== null) {
+                setEditingReactionIndex(null);
+                setStep(0);
+            } else {
+                setStep(3);
+                setSelectedServiceConnected(null);
+            }
+            setSelectedItem(null);
             setReactionParams({});
         }
-
-        setStep(s);
-        setSelectedItem(null);
     };
-
-    const completedSteps = [
-        !!actionService,
-        !!action,
-        !!reactionService,
-        !!reaction,
-    ];
 
     const [parsedActions, setParsedActions] = useState<CatalogItem[]>([]);
     const [parsedServices, setParsedServices] = useState<CatalogItem[]>([]);
@@ -196,44 +225,157 @@ export default function Create() {
         };
     }, [selectedServiceConnected, selectedItem, step]);
 
-    // compute selected colors for action/reaction to pass to Summary
-    const actionColor =
-        parsedActions.find(
-            (a) => a.label === action && a.platform === actionService
-        )?.color ||
-        parsedServices.find((s) => s.platform === actionService)?.color ||
-        "#000000";
+    const editAction = (index: number) => {
+        const item = actionsList[index];
+        const catalogItem = parsedActions.find(
+            (a) => a.platform === item.service && a.label === item.action
+        );
+        if (catalogItem) {
+            setSelectedItem(catalogItem);
+            setActionService(item.service);
+            setActionParams(item.params);
+            setEditingActionIndex(index);
+            setStep(2);
+        }
+    };
 
-    const reactionColor =
-        parsedReactions.find(
-            (r) => r.label === reaction && r.platform === reactionService
-        )?.color ||
-        parsedServices.find((s) => s.platform === reactionService)?.color ||
-        "#282322";
+    const editReaction = (index: number) => {
+        const item = reactionsList[index];
+        const catalogItem = parsedReactions.find(
+            (r) => r.platform === item.service && r.label === item.reaction
+        );
+        if (catalogItem) {
+            setSelectedItem(catalogItem);
+            setReactionService(item.service);
+            setReactionParams(item.params);
+            setEditingReactionIndex(index);
+            setStep(4);
+        }
+    };
 
     return (
         <div
             key={location.key}
             className="h-[calc(100vh-80px)] flex flex-col overflow-y-auto text-center"
         >
-            <h1 className="text-5xl font-bold m-2 shrink-0">
-                Create your own area
-            </h1>
+            {step === 0 && (
+                <div className="flex-1 flex flex-col items-center justify-center gap-0 pb-12">
+                    <h1 className="text-6xl font-bold mb-8 shrink-0">
+                        Create your own area
+                    </h1>
+                    <div
+                        className="bg-black text-white rounded-2xl w-[600px] p-8 relative z-10 shadow-xl transition-transform hover:scale-[1.01]"
+                        onClick={() => setStep(1)}
+                    >
+                        <div className="relative flex items-center justify-center m-2">
+                            <h2 className="text-5xl font-black tracking-tighter">
+                                If This
+                            </h2>
+                            <button className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors">
+                                Add
+                            </button>
+                        </div>
 
-            <div className="shrink-0 w-full flex justify-center">
-                <ProgressBar
-                    steps={4}
-                    current={step}
-                    onStepClick={(n) => goToStep(n)}
-                    labels={[
-                        "Service (action)",
-                        "Action",
-                        "Service (reaction)",
-                        "Reaction",
-                    ]}
-                    completedSteps={completedSteps}
-                />
-            </div>
+                        {actionsList.length > 0 && (
+                            <div className="flex flex-col gap-3">
+                                {actionsList.map((act, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="bg-gray-900 rounded-xl p-4 flex items-center justify-between group cursor-pointer border border-gray-800 hover:border-gray-600 transition-all"
+                                        onClick={() => editAction(idx)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-white/10 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                                {idx + 1}
+                                            </div>
+                                            <span className="font-semibold text-lg">
+                                                {act.action}
+                                            </span>
+                                        </div>
+                                        <span className="text-gray-500 text-sm group-hover:text-white transition-colors">
+                                            Edit
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 w-2 h-16 bg-[#EEEEEE] -z-10"></div>
+                    </div>
+
+                    <div
+                        className={`rounded-2xl w-[600px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2]`}
+                    >
+                        <div className="relative flex items-center justify-center m-2">
+                            <h2 className="text-5xl font-black tracking-tighter text-white">
+                                Then That
+                            </h2>
+
+                            {actionsList.length !== 0 && (
+                                <button
+                                    onClick={() => setStep(3)}
+                                    className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors"
+                                    disabled={actionsList.length === 0}
+                                >
+                                    Add
+                                </button>
+                            )}
+                        </div>
+
+                        {reactionsList.length > 0 && (
+                            <div className="flex flex-col gap-3">
+                                {reactionsList.map((react, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="bg-white rounded-xl p-4 flex items-center justify-between border border-gray-300 group cursor-pointer hover:border-gray-500 transition-all"
+                                        onClick={() => editReaction(idx)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-gray-200 text-gray-800 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                                {idx + 1}
+                                            </div>
+                                            <span className="font-semibold text-lg text-gray-800">
+                                                {react.reaction}
+                                            </span>
+                                        </div>
+                                        <span className="text-gray-400 text-sm group-hover:text-gray-600 transition-colors">
+                                            Edit
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {actionsList.length > 0 && reactionsList.length > 0 && (
+                        <div className="mt-8">
+                            <Button
+                                label="Continue"
+                                onClick={async () => {
+                                    const payload = {
+                                        name: `If ${actionsList[0].action} then ${reactionsList[0].reaction}`,
+                                        actions: actionsList.map((a) => ({
+                                            action_name: a.defName || a.action,
+                                            params: a.params,
+                                        })),
+                                        reactions: reactionsList.map((r) => ({
+                                            reaction_name:
+                                                r.defName || r.reaction,
+                                            params: r.params,
+                                        })),
+                                    };
+                                    try {
+                                        await areaService.createArea(payload);
+                                        navigate("/my-areas");
+                                    } catch (err) {
+                                        console.error(err);
+                                    }
+                                }}
+                                mode="black"
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div className="flex-1 w-full mt-2 flex flex-col">
                 {/* STEP 1: Service Action */}
@@ -243,6 +385,10 @@ export default function Create() {
                         description="Choose service for your action"
                         onSelect={handleSelect}
                         noButton={true}
+                        onBack={() => {
+                            setStep(0);
+                        }}
+                        backButton={true}
                     />
                 )}
                 {step === 1 &&
@@ -269,7 +415,7 @@ export default function Create() {
                                     window.location.href =
                                         selectedItem.oauth_url;
                                 } else {
-                                    navigate("/create");
+                                    navigate("/create", { state: { step: 2 } });
                                 }
                             }}
                             onDiscard={() => {
@@ -289,6 +435,10 @@ export default function Create() {
                         description={`Choose an action for ${actionService}`}
                         onSelect={handleSelect}
                         noButton={true}
+                        onBack={() => {
+                            setStep(1);
+                        }}
+                        backButton={true}
                     />
                 )}
                 {step === 2 && selectedItem && (
@@ -298,14 +448,35 @@ export default function Create() {
                             color={selectedItem.color}
                             platform={selectedItem.platform}
                             onConnect={() => {
-                                setAction(selectedItem.label);
-                                setStep(3);
+                                const defName =
+                                    (selectedItem as any).defName ||
+                                    selectedItem.label;
+                                const newAction = {
+                                    service: selectedItem.platform,
+                                    action: selectedItem.label,
+                                    defName: defName,
+                                    params: actionParams,
+                                };
+
+                                if (editingActionIndex !== null) {
+                                    const updated = [...actionsList];
+                                    updated[editingActionIndex] = newAction;
+                                    setActionsList(updated);
+                                    setEditingActionIndex(null);
+                                } else {
+                                    setActionsList([...actionsList, newAction]);
+                                }
+
+                                setActionParams({});
+                                setActionService("");
+                                setStep(0);
                                 setSelectedItem(null);
                             }}
-                            onClose={handleCloseWidget}
+                            onClose={handleBack}
                             params={getParams(selectedItem, "action")}
                             values={actionParams}
                             onChange={setActionParams}
+                            isAction={true}
                         />
                     </div>
                 )}
@@ -316,14 +487,15 @@ export default function Create() {
                         items={parsedServices}
                         description="Choose service for your reaction"
                         onSelect={(item) => {
-                            if (item.platform === actionService) {
-                                setReactionService(item.platform);
-                                setStep(4);
-                            } else {
-                                handleSelect(item);
-                            }
+                            // Handle reaction service selection
+                            setReactionService(item.platform);
+                            setStep(4);
                         }}
                         noButton={true}
+                        onBack={() => {
+                            setStep(2);
+                        }}
+                        backButton={true}
                     />
                 )}
                 {step === 3 &&
@@ -350,7 +522,7 @@ export default function Create() {
                                     window.location.href =
                                         selectedItem.oauth_url;
                                 } else {
-                                    navigate("/create");
+                                    navigate("/create", { state: { step: 4 } });
                                 }
                             }}
                             onDiscard={() => {
@@ -362,7 +534,7 @@ export default function Create() {
                     ) : null)}
 
                 {/* STEP 4: Reaction */}
-                {step === 4 && !selectedItem && !reaction && (
+                {step === 4 && !selectedItem && (
                     <CatalogPage
                         items={parsedReactions.filter(
                             (r) => r.platform === (reactionService ?? "")
@@ -374,6 +546,10 @@ export default function Create() {
                         }
                         onSelect={handleSelect}
                         noButton={true}
+                        onBack={() => {
+                            setStep(3);
+                        }}
+                        backButton={true}
                     />
                 )}
                 {step === 4 && selectedItem && (
@@ -383,54 +559,36 @@ export default function Create() {
                             color={selectedItem.color}
                             platform={selectedItem.platform}
                             onConnect={() => {
-                                setReaction(selectedItem.label);
+                                const defName =
+                                    (selectedItem as any).defName ||
+                                    selectedItem.label;
+                                const newReaction = {
+                                    service: selectedItem.platform,
+                                    reaction: selectedItem.label,
+                                    defName: defName,
+                                    params: reactionParams,
+                                };
+
+                                if (editingReactionIndex !== null) {
+                                    const updated = [...reactionsList];
+                                    updated[editingReactionIndex] = newReaction;
+                                    setReactionsList(updated);
+                                    setEditingReactionIndex(null);
+                                } else {
+                                    setReactionsList([
+                                        ...reactionsList,
+                                        newReaction,
+                                    ]);
+                                }
+
+                                setReactionParams({});
                                 setSelectedItem(null);
+                                setStep(0);
                             }}
                             onClose={handleCloseWidget}
                             params={getParams(selectedItem, "reaction")}
                             values={reactionParams}
                             onChange={setReactionParams}
-                        />
-                    </div>
-                )}
-
-                {/* SUMMARY */}
-                {step === 4 && reaction && !selectedItem && (
-                    <div className="w-full flex-1 flex flex-col">
-                        <Summary
-                            actionService={actionService}
-                            action={action}
-                            reactionService={reactionService}
-                            reaction={reaction}
-                            actionDefName={
-                                (
-                                    parsedActions.find(
-                                        (a) =>
-                                            a.label === action &&
-                                            a.platform === actionService
-                                    ) as
-                                        | (CatalogItem & { defName?: string })
-                                        | undefined
-                                )?.defName
-                            }
-                            reactionDefName={
-                                (
-                                    parsedReactions.find(
-                                        (r) =>
-                                            r.label === reaction &&
-                                            r.platform === reactionService
-                                    ) as
-                                        | (CatalogItem & { defName?: string })
-                                        | undefined
-                                )?.defName
-                            }
-                            actionParams={actionParams}
-                            reactionParams={reactionParams}
-                            onBack={() => {
-                                setReaction(null);
-                                setReactionParams({});
-                            }}
-                            colors={[actionColor, reactionColor]}
                         />
                     </div>
                 )}
