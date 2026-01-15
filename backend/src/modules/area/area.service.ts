@@ -496,10 +496,16 @@ export class AreaService {
   async updateParams(
     areaId: string,
     dto: {
+      name?: string;
       actions?: Array<{ id: string; params?: Record<string, unknown> }>;
       reactions?: Array<{ id: string; params?: Record<string, unknown> }>;
     },
   ) {
+    // Update name if provided
+    if (dto.name) {
+      await this.area_repository.update(areaId, { name: dto.name });
+    }
+
     if (dto.actions && dto.actions.length > 0) {
       for (const a of dto.actions) {
         const paramsJson = a.params as unknown as Prisma.InputJsonValue;
