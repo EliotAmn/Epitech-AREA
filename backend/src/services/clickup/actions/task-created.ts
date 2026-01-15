@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { Logger } from '@nestjs/common';
+import axios from 'axios';
 
 import {
   ActionTriggerOutput,

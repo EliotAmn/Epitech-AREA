@@ -126,14 +126,11 @@ export class UpdateTaskReaction extends ServiceReactionDefinition {
       requestBody.priority = priority;
     }
 
-    const res = await fetch(
-      `https://api.clickup.com/api/v2/task/${taskId}`,
-      {
-        method: 'PUT',
-        headers: buildClickUpHeaders(token),
-        body: JSON.stringify(requestBody),
-      },
-    );
+    const res = await fetch(`https://api.clickup.com/api/v2/task/${taskId}`, {
+      method: 'PUT',
+      headers: buildClickUpHeaders(token),
+      body: JSON.stringify(requestBody),
+    });
 
     if (!res.ok) {
       const text = await res.text();

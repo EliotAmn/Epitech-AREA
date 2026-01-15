@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { Logger } from '@nestjs/common';
+import axios from 'axios';
 
 import {
   ActionTriggerOutput,
@@ -132,9 +132,7 @@ export class TaskUpdated extends ServiceActionDefinition {
           const updatedTasks = data.tasks.filter((task) => {
             const taskUpdatedTime = parseInt(task.date_updated);
             const taskCreatedTime = parseInt(task.date_created);
-            return (
-              taskUpdatedTime > checkTime && taskCreatedTime < checkTime
-            );
+            return taskUpdatedTime > checkTime && taskCreatedTime < checkTime;
           });
 
           if (updatedTasks.length === 0) {

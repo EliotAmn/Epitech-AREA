@@ -1,23 +1,23 @@
-import axios, { AxiosError } from 'axios';
 import {
   BadRequestException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { UserService } from '@prisma/client';
+import axios, { AxiosError } from 'axios';
 
 import {
-  ServiceDefinition,
   ServiceActionConstructor,
+  ServiceDefinition,
   ServiceReactionConstructor,
 } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
-import { UserService } from '@prisma/client';
 import { TaskCreated } from '@/services/clickup/actions/task-created';
 import { TaskUpdated } from '@/services/clickup/actions/task-updated';
-import { CreateTaskReaction } from '@/services/clickup/reactions/create-task.reaction';
-import { UpdateTaskReaction } from '@/services/clickup/reactions/update-task.reaction';
 import { AddCommentReaction } from '@/services/clickup/reactions/add-comment.reaction';
 import { ChangeStatusReaction } from '@/services/clickup/reactions/change-status.reaction';
+import { CreateTaskReaction } from '@/services/clickup/reactions/create-task.reaction';
+import { UpdateTaskReaction } from '@/services/clickup/reactions/update-task.reaction';
 
 const logger = new Logger('ClickUpService');
 
