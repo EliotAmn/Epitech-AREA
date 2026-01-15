@@ -78,7 +78,7 @@ export class UserController {
         dto.newPassword,
       );
     } catch (err) {
-      if ((err as any).status === 401) {
+      if (err.status === 401) {
         throw new UnauthorizedException('Current password is incorrect');
       }
       throw new BadRequestException('Password change failed');

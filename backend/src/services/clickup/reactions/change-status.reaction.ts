@@ -30,7 +30,8 @@ export class ChangeStatusReaction extends ServiceReactionDefinition {
       name: 'status',
       type: ParameterType.STRING,
       label: 'Status',
-      description: 'The new status for the task (e.g., "open", "in progress", "closed")',
+      description:
+        'The new status for the task (e.g., "open", "in progress", "closed")',
       required: true,
     },
   ];
@@ -71,14 +72,11 @@ export class ChangeStatusReaction extends ServiceReactionDefinition {
       status: status,
     };
 
-    const res = await fetch(
-      `https://api.clickup.com/api/v2/task/${taskId}`,
-      {
-        method: 'PUT',
-        headers: buildClickUpHeaders(token),
-        body: JSON.stringify(requestBody),
-      },
-    );
+    const res = await fetch(`https://api.clickup.com/api/v2/task/${taskId}`, {
+      method: 'PUT',
+      headers: buildClickUpHeaders(token),
+      body: JSON.stringify(requestBody),
+    });
 
     if (!res.ok) {
       const text = await res.text();
