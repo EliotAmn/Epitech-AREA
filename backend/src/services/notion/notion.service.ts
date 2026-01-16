@@ -88,6 +88,7 @@ async function oauth_callback(
       workspace_id: tokens.workspace_id,
       bot_id: tokens.bot_id,
     };
+    userService.access_token = accessToken;
   } catch (error: unknown) {
     // Handle Axios errors specifically
     if (axios.isAxiosError<NotionErrorResponse>(error)) {

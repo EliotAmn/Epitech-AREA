@@ -62,7 +62,7 @@ export default function Explore() {
                 : parsedServices;
 
     return (
-        <div className="h-screen flex flex-col items-center justify-start overflow-auto">
+        <div className="h-screen flex flex-col items-center justify-start">
             <h1 className="text-5xl text-black font-bold m-5 shrink-0">
                 Explore
             </h1>
@@ -109,6 +109,7 @@ export default function Explore() {
                             },
                         })
                     }
+                    showPlatform={filter !== "services"}
                 />
             </div>
         </div>

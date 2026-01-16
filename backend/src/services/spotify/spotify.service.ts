@@ -74,6 +74,7 @@ async function oauth_callback(
     const tokens = res.data;
     const accessToken = tokens.access_token;
     const refreshToken = tokens.refresh_token;
+    const expiresIn = tokens.expires_in;
 
     logger.log(`OAuth successful for user ${userService.user_id}`);
     logger.debug(`Access token received: ${!!accessToken}`);
@@ -84,6 +85,13 @@ async function oauth_callback(
       access_token: accessToken,
       refresh_token: refreshToken,
     };
+    userService.access_token = accessToken;
+    if (refreshToken) {
+      userService.refresh_token = refreshToken;
+    }
+    if (expiresIn) {
+      userService.token_expires_at = new Date(Date.now() + expiresIn * 1000);
+    }
   } catch (error: unknown) {
     const axiosError = error as AxiosError<SpotifyErrorResponse>;
     logger.error('OAuth token exchange failed');

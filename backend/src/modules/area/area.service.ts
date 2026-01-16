@@ -422,9 +422,14 @@ export class AreaService {
     userId: string,
     dto: {
       name: string;
-      actions: Array<{ action_name: string; params?: Record<string, unknown> }>;
+      actions: Array<{
+        action_name: string;
+        service: string;
+        params?: Record<string, unknown>;
+      }>;
       reactions: Array<{
         reaction_name: string;
+        service: string;
         params?: Record<string, unknown>;
       }>;
     },
@@ -438,12 +443,14 @@ export class AreaService {
         actions: {
           create: actionsWithDefaults.map((a) => ({
             action_name: a.action_name,
+            service: a.service,
             params: a.params as Prisma.InputJsonValue,
           })),
         },
         reactions: {
           create: dto.reactions.map((r) => ({
             reaction_name: r.reaction_name,
+            service: r.service,
             params: r.params as Prisma.InputJsonValue,
           })),
         },
@@ -489,10 +496,16 @@ export class AreaService {
   async updateParams(
     areaId: string,
     dto: {
+      name?: string;
       actions?: Array<{ id: string; params?: Record<string, unknown> }>;
       reactions?: Array<{ id: string; params?: Record<string, unknown> }>;
     },
   ) {
+    // Update name if provided
+    if (dto.name) {
+      await this.area_repository.update(areaId, { name: dto.name });
+    }
+
     if (dto.actions && dto.actions.length > 0) {
       for (const a of dto.actions) {
         const paramsJson = a.params as unknown as Prisma.InputJsonValue;

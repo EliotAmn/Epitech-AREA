@@ -53,7 +53,7 @@ export class TokenRefreshService {
       let tokenResponse: TokenRefreshResult;
 
       // Handle different OAuth providers
-      if (serviceName === 'google') {
+      if (serviceName === 'google' || serviceName === 'gmail') {
         tokenResponse = await this.refreshGoogleToken(refreshToken);
       } else if (serviceName === 'github') {
         tokenResponse = await this.refreshGithubToken(refreshToken);
@@ -261,9 +261,9 @@ export class TokenRefreshService {
       );
 
     if (!userService) {
-      this.logger.warn(
-        `No user service found for user ${userId} and service ${serviceName}`,
-      );
+      // this.logger.warn(
+      //   `No user service found for user ${userId} and service ${serviceName}`,
+      // );
       return null;
     }
 

@@ -103,6 +103,13 @@ jobs:
         working-directory: ./mobile
         run: flutter pub get
       
+      - name: Create .env file
+        working-directory: ./mobile
+        run: |
+          echo "Creating .env file from .env.example..."
+          cp .env.example .env
+          echo "✅ .env file created"
+      
       - name: Build APK
         working-directory: ./mobile
         run: |

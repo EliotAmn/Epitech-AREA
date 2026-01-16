@@ -47,12 +47,14 @@ export default function Summary({
             actions: [
                 {
                     action_name: actionDefName ?? action ?? "",
+                    service: actionService,
                     params: actionParams,
                 },
             ],
             reactions: [
                 {
                     reaction_name: reactionDefName ?? reaction ?? "",
+                    service: reactionService,
                     params: reactionParams,
                 },
             ],
