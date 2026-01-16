@@ -159,14 +159,12 @@ jobs:
     if: ${{ (needs.detect_changes.outputs.backend_changed == 'true' || needs.detect_changes.outputs.frontend_changed == 'true') && !inputs.skip_docker }}
     strategy:
       matrix:
-        service: [backend, web, mobile]
+        service: [backend, web]
         include:
           - service: backend
             changed: ${{ needs.detect_changes.outputs.backend_changed }}
           - service: web
             changed: ${{ needs.detect_changes.outputs.frontend_changed }}
-          - service: mobile
-            changed: ${{ needs.detect_changes.outputs.mobile_changed }}
       fail-fast: false
     
     steps:
