@@ -269,20 +269,20 @@ export default function Create() {
             className="h-[calc(100vh-80px)] flex flex-col text-center"
         >
             {step === 0 && (
-                <div className="flex-1 flex flex-col items-center justify-center gap-0 pb-12">
-                    <h1 className="text-7xl font-bold mb-8 shrink-0">
+                <div className="flex-1 flex flex-col items-center justify-center gap-0 pb-12 px-4">
+                    <h1 className="text-4xl md:text-7xl font-bold mb-8 shrink-0">
                         Create your own area
                     </h1>
-                    <div className="flex flex-col items-center justify-center mt-24">
+                    <div className="flex flex-col items-center justify-center mt-12 md:mt-24 w-full">
                         <div
-                            className="bg-black text-white rounded-2xl w-[500px] p-8 relative z-10 shadow-xl transition-transform hover:scale-[1.01]"
+                            className="bg-black text-white rounded-2xl w-full max-w-[500px] p-8 relative z-10 shadow-xl transition-transform hover:scale-[1.01]"
                             onClick={() => setStep(1)}
                         >
                             <div className="relative flex items-center justify-center m-2">
-                                <h2 className="text-5xl font-black tracking-tighter">
+                                <h2 className="text-3xl md:text-5xl font-black tracking-tighter">
                                     If This
                                 </h2>
-                                <button className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors">
+                                <button className="absolute right-0 bg-white text-black px-4 py-1.5 md:px-6 md:py-2 rounded-full font-bold text-sm md:text-lg hover:bg-gray-200 transition-colors">
                                     Add
                                 </button>
                             </div>
@@ -315,17 +315,19 @@ export default function Create() {
                         </div>
 
                         <div
-                            className={`rounded-2xl w-[500px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2]`}
+                            className={`rounded-2xl w-full max-w-[500px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2]`}
                         >
                             <div className="relative flex items-center justify-center m-2">
-                                <h2 className="text-5xl font-black tracking-tighter text-white">
+                                <h2
+                                    className="text-3xl md:text-5xl font-black tracking-tighter text-white"
+                                    onClick={() => setStep(3)}
+                                >
                                     Then That
                                 </h2>
 
                                 {actionsList.length !== 0 && (
                                     <button
-                                        onClick={() => setStep(3)}
-                                        className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors"
+                                        className="absolute right-0 bg-white text-black px-4 py-1.5 md:px-6 md:py-2 rounded-full font-bold text-sm md:text-lg hover:bg-gray-200 transition-colors"
                                         disabled={actionsList.length === 0}
                                     >
                                         Add
