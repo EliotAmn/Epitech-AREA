@@ -364,7 +364,7 @@ export default function Create() {
                                 label="Continue"
                                 onClick={async () => {
                                     const payload = {
-                                        name: `If ${actionsList[0].action} then ${reactionsList[0].reaction}`,
+                                        name: `If ${actionsList[0].action} ${actionsList.length > 1 ? "or..." : ""} then ${reactionsList[0].reaction}${reactionsList.length > 1 ? " and..." : ""}`,
                                         actions: actionsList.map((a) => ({
                                             action_name: a.defName || a.action,
                                             service: a.service,

@@ -156,7 +156,7 @@ export default function Widget({
                 ) : null}
             </div>
             <div className="w-full">
-                <h2 className="w-full text-3xl text-center text-[#ffffff] font-semibold mb-2">
+                <h2 className="w-full text-2xl text-center text-[#ffffff] font-extrabold mb-2 line-clamp-3">
                     {title}
                 </h2>
                 {showPlatform ? (
