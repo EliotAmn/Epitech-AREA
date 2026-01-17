@@ -4,8 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import Button from "@/component/button";
-import SearchBar from "../component/SearchBar";
-import Widget from "../component/widget";
+import SearchBar from "@/component/SearchBar";
+import Widget from "@/component/widget";
 import type { CatalogItem } from "../data/catalogData";
 
 interface CatalogPageProps {

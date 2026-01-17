@@ -3,10 +3,10 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import Button from "@/component/button";
 import GlassCardLayout from "@/component/glassCard";
 import { getPlatformIcon } from "@/config/platforms";
 import { areaService } from "@/services/api/areaService";
-import Button from "../component/button";
 
 interface SummaryProps {
     actionService: string;
