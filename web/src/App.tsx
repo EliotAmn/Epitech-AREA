@@ -3,11 +3,16 @@ import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Header from "./component/header";
+import NotificationCenter from "./component/NotificationCenter";
 import {
     AdminRoute,
     ProtectedRoute,
     PublicOnlyRoute,
 } from "./component/ProtectedRoute";
+import {
+    NotificationProvider,
+    useNotificationContext,
+} from "./context/NotificationContext";
 import ThemeProvider from "./context/ThemeContext";
 import OAuthServiceProxy from "./pages/OAuthServiceProxy";
 import { AuthService } from "./services/api";
@@ -54,128 +59,169 @@ function App() {
     }, []);
 
     return (
-        <ThemeProvider>
-            <BrowserRouter>
-                <div className="flex flex-col h-screen overflow-hidden">
-                    <Header isLoggedIn={isLoggedIn} />
-                    <main className="flex-1 overflow-auto">
-                        <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/explore" element={<Explore />} />
-                            <Route
-                                path="/widget/:id"
-                                element={<WidgetDetail />}
-                            />
-                            <Route
-                                path="/oauth-service-proxy/:service_name"
-                                element={
-                                    <ProtectedRoute>
-                                        <OAuthServiceProxy />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/signup"
-                                element={
-                                    <PublicOnlyRoute>
-                                        <SignUp />
-                                    </PublicOnlyRoute>
-                                }
-                            />
-                            <Route
-                                path="/login"
-                                element={
-                                    <PublicOnlyRoute>
-                                        <Login />
-                                    </PublicOnlyRoute>
-                                }
-                            />
-                            <Route
-                                path="/dashboard"
-                                element={
-                                    <AdminRoute>
-                                        <Dashboard />
-                                    </AdminRoute>
-                                }
-                            />
-                            <Route
-                                path="/my-areas"
-                                element={
-                                    <ProtectedRoute>
-                                        <Areas />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/area/:id"
-                                element={
-                                    <ProtectedRoute>
-                                        <AreaDetail />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/my-areas/edit"
-                                element={
-                                    <ProtectedRoute>
-                                        <EditArea />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/create"
-                                element={
-                                    <ProtectedRoute>
-                                        <Create />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/profile"
-                                element={
-                                    <ProtectedRoute>
-                                        <Profile />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/change-password"
-                                element={
-                                    <ProtectedRoute>
-                                        <ChangePassword />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/reaction/:name"
-                                element={
-                                    <ProtectedRoute>
-                                        <ActionReactionDetail />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/action/:name"
-                                element={
-                                    <ProtectedRoute>
-                                        <ActionReactionDetail />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/service/:name"
-                                element={
-                                    <ProtectedRoute>
-                                        <WidgetDetail />
-                                    </ProtectedRoute>
-                                }
-                            />
-                        </Routes>
-                    </main>
-                </div>
-            </BrowserRouter>
-        </ThemeProvider>
+        <NotificationProvider>
+            <ThemeProvider>
+                <BrowserRouter>
+                    <div className="flex flex-col h-screen overflow-hidden">
+                        <Header isLoggedIn={isLoggedIn} />
+                        <main className="flex-1 overflow-auto">
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/explore" element={<Explore />} />
+                                <Route
+                                    path="/widget/:id"
+                                    element={<WidgetDetail />}
+                                />
+                                <Route
+                                    path="/oauth-service-proxy/:service_name"
+                                    element={
+                                        <ProtectedRoute>
+                                            <OAuthServiceProxy />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/signup"
+                                    element={
+                                        <PublicOnlyRoute>
+                                            <SignUp />
+                                        </PublicOnlyRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/login"
+                                    element={
+                                        <PublicOnlyRoute>
+                                            <Login />
+                                        </PublicOnlyRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/dashboard"
+                                    element={
+                                        <AdminRoute>
+                                            <Dashboard />
+                                        </AdminRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/my-areas"
+                                    element={
+                                        <ProtectedRoute>
+                                            <Areas />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/area/:id"
+                                    element={
+                                        <ProtectedRoute>
+                                            <AreaDetail />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/my-areas/edit"
+                                    element={
+                                        <ProtectedRoute>
+                                            <EditArea />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/create"
+                                    element={
+                                        <ProtectedRoute>
+                                            <Create />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/profile"
+                                    element={
+                                        <ProtectedRoute>
+                                            <Profile />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/change-password"
+                                    element={
+                                        <ProtectedRoute>
+                                            <ChangePassword />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/reaction/:name"
+                                    element={
+                                        <ProtectedRoute>
+                                            <ActionReactionDetail />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/action/:name"
+                                    element={
+                                        <ProtectedRoute>
+                                            <ActionReactionDetail />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/service/:name"
+                                    element={
+                                        <ProtectedRoute>
+                                            <WidgetDetail />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                            </Routes>
+                        </main>
+                        <NotificationCenter />
+                        <OAuthToastHandler />
+                    </div>
+                </BrowserRouter>
+            </ThemeProvider>
+        </NotificationProvider>
     );
+
+    function OAuthToastHandler() {
+        const { showSuccess, showError } = useNotificationContext();
+        useEffect(() => {
+            const raw = sessionStorage.getItem("oauth:toast");
+            if (!raw) return;
+            try {
+                const data = JSON.parse(raw) as {
+                    status: string;
+                    service?: string;
+                    message?: string;
+                };
+
+                if (data.status === "success") {
+                    showSuccess(
+                        data.service
+                            ? `Connected to ${data.service}`
+                            : "Connected",
+                        data.message
+                    );
+                } else {
+                    showError(
+                        data.service
+                            ? `Failed to connect ${data.service}`
+                            : "Connection failed",
+                        data.message
+                    );
+                }
+            } catch {
+                // ignore
+            } finally {
+                sessionStorage.removeItem("oauth:toast");
+            }
+        }, [showError, showSuccess]);
+
+        return null;
+    }
 }
 
 export default App;

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Trash } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import CatalogPage from "@/component/CatalogPage";
 import ConnectCard from "@/component/ConnectCard";
 import GlassCardLayout from "@/component/glassCard";
 import { getPlatformColor } from "@/config/platforms";
@@ -19,7 +20,6 @@ import ConfigWidget, {
     type ParameterDefinition,
 } from "../component/ConfigWidget";
 import type { CatalogItem } from "../data/catalogData";
-import CatalogPage from "./CatalogPage";
 
 export default function Create() {
     const location = useLocation();
@@ -482,10 +482,7 @@ export default function Create() {
                                 setActionService(selectedItem.platform);
                                 setStep(2);
                                 setSelectedItem(null);
-                                if (selectedItem.oauth_url) {
-                                    window.location.href =
-                                        selectedItem.oauth_url;
-                                } else {
+                                if (!selectedItem.oauth_url) {
                                     navigate("/create", { state: { step: 2 } });
                                 }
                             }}
@@ -595,10 +592,8 @@ export default function Create() {
                                 setReactionService(selectedItem.platform);
                                 setStep(4);
                                 setSelectedItem(null);
-                                if (selectedItem.oauth_url) {
-                                    window.location.href =
-                                        selectedItem.oauth_url;
-                                } else {
+                                // if service has no oauth flow, keep previous behavior of navigating
+                                if (!selectedItem.oauth_url) {
                                     navigate("/create", { state: { step: 4 } });
                                 }
                             }}

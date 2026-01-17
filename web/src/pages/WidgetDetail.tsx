@@ -4,11 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { getPlatformColor, getPlatformIcon } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
-import {
-    disconnectUserService,
-    getUserServiceStatus,
-} from "@/services/api/userserviceClient";
-import Button from "../component/button";
+import { getUserServiceStatus } from "@/services/api/userserviceClient";
+import OAuthConnectButton from "../component/OAuthConnectButton";
 import SearchBar from "../component/SearchBar";
 import Widget from "../component/widget";
 import type { CatalogItem } from "../data/catalogData";
@@ -145,7 +142,11 @@ export default function WidgetDetail() {
                             </div>
                         </div>
                         {(connected === true || oauth_url) && (
-                            <Button
+                            <OAuthConnectButton
+                                platform={platform}
+                                oauthUrl={oauth_url}
+                                initialConnected={connected}
+                                onConnected={(c) => setConnected(c)}
                                 label={
                                     connected === null
                                         ? "Loading..."
@@ -153,28 +154,6 @@ export default function WidgetDetail() {
                                           ? "Disconnect"
                                           : `Connect ${label} Account`
                                 }
-                                onClick={async () => {
-                                    if (connected) {
-                                        try {
-                                            await disconnectUserService(
-                                                platform
-                                            );
-                                            setConnected(false);
-                                        } catch (err) {
-                                            console.error(
-                                                "Disconnect failed",
-                                                err
-                                            );
-                                        }
-                                        return;
-                                    }
-                                    if (oauth_url) {
-                                        window.location.href = oauth_url;
-                                    } else {
-                                        navigate("/create");
-                                    }
-                                }}
-                                disabled={connected === null}
                                 mode="black"
                                 className="shadow-xl shadow-slate-200"
                             />

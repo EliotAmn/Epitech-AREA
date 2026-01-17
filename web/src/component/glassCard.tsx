@@ -15,7 +15,7 @@ export default function GlassCardLayout({
     backLabel = "Back",
     onBack,
     maxWidthClass = "max-w-2xl",
-    leftCard
+    leftCard,
 }: GlassCardLayoutProps) {
     const colors = Array.isArray(color) ? color : [color, color];
     return (
