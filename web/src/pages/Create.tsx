@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { Trash } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import CatalogPage from "@/component/CatalogPage";
@@ -15,7 +16,9 @@ import { areaService } from "@/services/api/areaService";
 import { getUserServiceStatus } from "@/services/api/userserviceClient";
 import type { AboutData } from "@/services/types/aboutTypes";
 import Button from "../component/button";
-import ConfigWidget from "../component/ConfigWidget";
+import ConfigWidget, {
+    type ParameterDefinition,
+} from "../component/ConfigWidget";
 import type { CatalogItem } from "../data/catalogData";
 
 export default function Create() {
@@ -126,10 +129,11 @@ export default function Create() {
     }, []);
 
     const getParams = (item: CatalogItem, type: "action" | "reaction") => {
-        if (!aboutData?.server?.services) return [];
+        const services = aboutData?.server?.services;
+        if (!services) return [];
         const defName =
             (item as CatalogItem & { defName?: string }).defName || item.title;
-        for (const svc of aboutData.server.services) {
+        for (const svc of services) {
             const list = type === "action" ? svc.actions : svc.reactions;
             const found = list?.find((x) => x.name === defName);
             if (found) return found.input_params || [];
@@ -138,21 +142,32 @@ export default function Create() {
     };
 
     const getActionOutputParams = () => {
-        if (!aboutData?.server?.services || actionsList.length === 0) return [];
-        const action = actionsList[0]?.action;
-        const actionSvc = actionsList[0]?.service || actionService;
-        const defName =
-            (
-                parsedActions.find(
-                    (a) => a.label === action && a.platform === actionSvc
-                ) as (CatalogItem & { defName?: string }) | undefined
-            )?.defName || action;
+        const services = aboutData?.server?.services;
+        if (!services || actionsList.length === 0) return [];
 
-        for (const svc of aboutData.server.services) {
-            const found = svc.actions?.find((x) => x.name === defName);
-            if (found) return found.output_params || [];
-        }
-        return [];
+        const allParams: ParameterDefinition[] = [];
+
+        actionsList.forEach((act) => {
+            const actionName = act.action;
+            const actionSvc = act.service;
+
+            const defName =
+                (
+                    parsedActions.find(
+                        (a) =>
+                            a.label === actionName && a.platform === actionSvc
+                    ) as (CatalogItem & { defName?: string }) | undefined
+                )?.defName || actionName;
+
+            for (const svc of services) {
+                const found = svc.actions?.find((x) => x.name === defName);
+                if (found && found.output_params) {
+                    allParams.push(...found.output_params);
+                }
+            }
+        });
+
+        return allParams;
     };
 
     const handleSelect = (item: CatalogItem) => {
@@ -263,6 +278,24 @@ export default function Create() {
         }
     };
 
+    const deleteAction = (index: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setActionsList((prev) => prev.filter((_, i) => i !== index));
+        if (editingActionIndex === index) {
+            setEditingActionIndex(null);
+            setStep(0);
+        }
+    };
+
+    const deleteReaction = (index: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setReactionsList((prev) => prev.filter((_, i) => i !== index));
+        if (editingReactionIndex === index) {
+            setEditingReactionIndex(null);
+            setStep(0);
+        }
+    };
+
     return (
         <div
             key={location.key}
@@ -306,9 +339,17 @@ export default function Create() {
                                                     {act.action}
                                                 </span>
                                             </div>
-                                            <span className="text-gray-500 text-sm group-hover:text-white transition-colors">
-                                                Edit
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-gray-500 text-sm group-hover:text-white transition-colors">
+                                                    Edit
+                                                </span>
+                                                <Trash
+                                                    className="w-4 h-4 text-gray-500 hover:text-red-500 transition-colors"
+                                                    onClick={(e) =>
+                                                        deleteAction(idx, e)
+                                                    }
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -318,7 +359,7 @@ export default function Create() {
                         </div>
 
                         <div
-                            className={`rounded-2xl w-full max-w-[500px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2]`}
+                            className={`rounded-2xl w-full max-w-[500px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2] hover:scale-[1.01]`}
                         >
                             <div className="relative flex items-center justify-center m-2">
                                 <h2
@@ -355,9 +396,17 @@ export default function Create() {
                                                     {react.reaction}
                                                 </span>
                                             </div>
-                                            <span className="text-gray-400 text-sm group-hover:text-gray-600 transition-colors">
-                                                Edit
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-gray-400 text-sm group-hover:text-gray-600 transition-colors">
+                                                    Edit
+                                                </span>
+                                                <Trash
+                                                    className="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors"
+                                                    onClick={(e) =>
+                                                        deleteReaction(idx, e)
+                                                    }
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -401,7 +450,9 @@ export default function Create() {
                 {/* STEP 1: Service Action */}
                 {step === 1 && !selectedItem && (
                     <CatalogPage
-                        items={parsedServices}
+                        items={parsedServices.filter((s) =>
+                            parsedActions.some((a) => a.platform === s.platform)
+                        )}
                         description="Choose service for your action"
                         onSelect={handleSelect}
                         noButton={true}
@@ -503,7 +554,11 @@ export default function Create() {
                 {/* STEP 3: Service Reaction */}
                 {step === 3 && !selectedItem && (
                     <CatalogPage
-                        items={parsedServices}
+                        items={parsedServices.filter((s) =>
+                            parsedReactions.some(
+                                (r) => r.platform === s.platform
+                            )
+                        )}
                         description="Choose service for your reaction"
                         onSelect={(item) => {
                             // Handle reaction service selection
@@ -512,7 +567,7 @@ export default function Create() {
                         }}
                         noButton={true}
                         onBack={() => {
-                            setStep(2);
+                            setStep(0);
                         }}
                         backButton={true}
                     />

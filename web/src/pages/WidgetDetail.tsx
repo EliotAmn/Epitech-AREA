@@ -92,9 +92,9 @@ export default function WidgetDetail() {
     }, [itemsToShow, query]);
 
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-white">
+        <div className="min-h-screen flex flex-col bg-white">
             {/* Header with service info and connect button */}
-            <div className="relative w-full shrink-0">
+            <div className="relative w-full">
                 <div
                     className="absolute inset-0 z-0 opacity-40"
                     style={{
@@ -163,8 +163,8 @@ export default function WidgetDetail() {
             </div>
 
             {/* Tabs and search section on white background */}
-            <div className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
-                <div className="w-full shrink-0 bg-white border-b border-slate-200">
+            <div className="flex-1 flex flex-col bg-slate-50">
+                <div className="w-full bg-white border-b border-slate-200">
                     <div className="max-w-7xl mx-auto px-8 py-6">
                         <div className="flex items-center justify-center gap-12 mb-6">
                             <button
