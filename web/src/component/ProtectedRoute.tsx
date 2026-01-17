@@ -14,6 +14,18 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <>{children}</>;
 }
 
+export function AdminRoute({ children }: ProtectedRouteProps) {
+    if (!AuthService.isAuthenticated()) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (!AuthService.isAdmin()) {
+        return <Navigate to="/" replace />;
+    }
+
+    return <>{children}</>;
+}
+
 interface PublicOnlyRouteProps {
     children: React.ReactNode;
 }

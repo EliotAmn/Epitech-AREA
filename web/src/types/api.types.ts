@@ -33,9 +33,11 @@ export interface ApiResponse<T> {
 export interface User {
     id: string;
     email: string;
-    name?: string;
-    created_at?: string;
+    name: string;
+    auth_platform: string;
+    created_at: string;
     updated_at?: string;
+    admin?: boolean;
 }
 
 export interface UpdateUserDto {

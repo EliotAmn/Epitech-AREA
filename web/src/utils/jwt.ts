@@ -1,6 +1,7 @@
 export interface JWTPayload {
     sub?: string;
     id?: string;
+    admin?: boolean;
     exp?: number;
     iat?: number;
     [key: string]: unknown;
@@ -48,6 +49,14 @@ export function getCurrentUserId(): string | null {
     if (!token) return null;
 
     return getUserIdFromToken(token);
+}
+
+export function isCurrentUserAdmin(): boolean {
+    const token = localStorage.getItem("authToken");
+    if (!token) return false;
+
+    const payload = decodeJWT(token);
+    return !!payload?.admin;
 }
 
 export function isValidJWT(token: string): boolean {

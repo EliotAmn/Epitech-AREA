@@ -3,7 +3,7 @@ import type {
     LoginRequest,
     RegisterRequest,
 } from "@/types/api.types";
-import { isValidJWT } from "@/utils/jwt";
+import { isCurrentUserAdmin, isValidJWT } from "@/utils/jwt";
 import { apiClient } from "./apiClient";
 
 class AuthService {
@@ -74,6 +74,10 @@ class AuthService {
         }
 
         return true;
+    }
+
+    static isAdmin(): boolean {
+        return isCurrentUserAdmin();
     }
 
     static getToken(): string | null {

@@ -3,7 +3,11 @@ import { lazy, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Header from "./component/header";
-import { ProtectedRoute, PublicOnlyRoute } from "./component/ProtectedRoute";
+import {
+    AdminRoute,
+    ProtectedRoute,
+    PublicOnlyRoute,
+} from "./component/ProtectedRoute";
 import ThemeProvider from "./context/ThemeContext";
 import OAuthServiceProxy from "./pages/OAuthServiceProxy";
 import { AuthService } from "./services/api";
@@ -17,7 +21,7 @@ const EditArea = lazy(() => import("./pages/EditArea"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
-
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword"));
@@ -84,6 +88,14 @@ function App() {
                                     <PublicOnlyRoute>
                                         <Login />
                                     </PublicOnlyRoute>
+                                }
+                            />
+                            <Route
+                                path="/dashboard"
+                                element={
+                                    <AdminRoute>
+                                        <Dashboard />
+                                    </AdminRoute>
                                 }
                             />
                             <Route
