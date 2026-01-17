@@ -40,15 +40,6 @@ export default function Areas() {
                 let platform = "Unknown";
                 let reactionPlatform: string | undefined = undefined;
 
-                const formatName = (name: string) => {
-                    const withoutService = name.split(".")[1] || name;
-                    const withSpaces = withoutService.replace(/_/g, " ");
-                    return (
-                        withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
-                    );
-                };
-
-                let actionTitle = "";
                 if (a.actions && a.actions.length > 0) {
                     const actionName = a.actions[0].action_name;
                     const found = catalog.actions.find(
@@ -61,17 +52,9 @@ export default function Areas() {
                     if (found) {
                         platform = found.platform;
                         color = getPlatformColor(platform);
-                        actionTitle = "If " + (found.label || found.title);
-                    } else {
-                        actionTitle = formatName(actionName);
-                    }
-
-                    if (a.actions.length > 1) {
-                        actionTitle += " or...";
                     }
                 }
 
-                let reactionTitle = "";
                 if (a.reactions && a.reactions.length > 0) {
                     const reactionName = a.reactions[0].reaction_name;
                     const foundR = catalog.reactions.find(
@@ -82,25 +65,13 @@ export default function Areas() {
                     );
                     if (foundR) {
                         reactionPlatform = foundR.platform;
-                        reactionTitle = foundR.label || foundR.title;
-                    } else {
-                        reactionTitle = formatName(reactionName);
-                    }
-
-                    if (a.reactions.length > 1) {
-                        reactionTitle += " and...";
                     }
                 }
 
-                const displayTitle =
-                    actionTitle && reactionTitle
-                        ? `${actionTitle} then ${reactionTitle}`
-                        : a.name;
-
                 return {
                     id: a.id,
-                    title: displayTitle,
-                    label: displayTitle,
+                    title: a.name,
+                    label: a.name,
                     description: a.name,
                     platform,
                     color,
