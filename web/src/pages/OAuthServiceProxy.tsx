@@ -63,6 +63,7 @@ export default function OAuthServiceProxy() {
                     typeof window.opener.postMessage === "function"
                 ) {
                     try {
+                        // Try to notify the opener using a restricted targetOrigin (window.origin)
                         window.opener.postMessage(
                             {
                                 type: "oauth:service_connected",
@@ -70,27 +71,31 @@ export default function OAuthServiceProxy() {
                             },
                             window.origin
                         );
-                    } catch {
-                        // Fallback if origin restriction fails
-                        try {
-                            window.opener.postMessage(
-                                {
-                                    type: "oauth:service_connected",
-                                    service: service_name,
-                                },
-                                "*"
-                            );
-                        } catch {
-                            console.debug("Fallback postMessage failed");
-                        }
-                    }
 
-                    try {
-                        window.close();
-                        return;
-                    } catch {
-                        // ignore
+                        try {
+                            window.close();
+                            return;
+                        } catch {
+                            // ignore
+                        }
+                    } catch (err) {
+                        console.warn(
+                            "Could not postMessage to opener with restricted origin; not falling back to permissive '*' for security reasons.",
+                            err
+                        );
                     }
+                }
+
+                try {
+                    sessionStorage.setItem(
+                        "oauth:toast",
+                        JSON.stringify({
+                            status: "success",
+                            service: service_name,
+                        })
+                    );
+                } catch {
+                    void 0;
                 }
 
                 setIsProcessing(false);
@@ -99,6 +104,19 @@ export default function OAuthServiceProxy() {
                 }, 1500);
             } catch (err) {
                 console.error("OAuth callback failed:", err);
+                try {
+                    sessionStorage.setItem(
+                        "oauth:toast",
+                        JSON.stringify({
+                            status: "failure",
+                            service: service_name,
+                            message:
+                                err instanceof Error ? err.message : undefined,
+                        })
+                    );
+                } catch {
+                    void 0;
+                }
                 setError(
                     err instanceof Error
                         ? err.message

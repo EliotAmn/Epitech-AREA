@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useNotificationContext } from "@/context/NotificationContext";
 import useOAuthPopup from "@/hooks/useOAuthPopup";
 import {
     disconnectUserService,
@@ -33,6 +34,7 @@ export default function OAuthConnectButton({
     const [connected, setConnected] = useState<boolean | null>(
         initialConnected
     );
+    const { showSuccess, showError } = useNotificationContext();
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -46,8 +48,21 @@ export default function OAuthConnectButton({
                 await disconnectUserService(platform);
                 setConnected(false);
                 onConnected?.(false);
+                try {
+                    showSuccess(`Disconnected from ${platform}`);
+                } catch {
+                    void 0;
+                }
             } catch (err) {
                 console.error("Disconnect failed", err);
+                try {
+                    showError(
+                        "Disconnect failed",
+                        err instanceof Error ? err.message : undefined
+                    );
+                } catch {
+                    void 0;
+                }
             } finally {
                 setLoading(false);
             }
@@ -63,8 +78,29 @@ export default function OAuthConnectButton({
                 const isConnected = !!res.connected;
                 setConnected(isConnected);
                 onConnected?.(isConnected);
+                if (isConnected) {
+                    try {
+                        showSuccess(`Connected to ${platform}`);
+                    } catch {
+                        void 0;
+                    }
+                } else {
+                    try {
+                        showError(`Failed to connect ${platform}`);
+                    } catch {
+                        void 0;
+                    }
+                }
             } catch (err) {
                 console.error("OAuth flow failed", err);
+                try {
+                    showError(
+                        "OAuth flow failed",
+                        err instanceof Error ? err.message : undefined
+                    );
+                } catch {
+                    void 0;
+                }
             } finally {
                 setLoading(false);
             }
