@@ -22,10 +22,10 @@ export default function Button({
     const base = (() => {
         switch (height) {
             case "small":
-                return "inline-flex items-center justify-center px-4 py-2 w-full sm:w-[245px] md:w-[285px] h-12 sm:h-12 hover:font-bold rounded-full border";
+                return "inline-flex items-center justify-center px-4 py-2 w-auto sm:w-[245px] md:w-[285px] h-12 sm:h-12 hover:font-bold rounded-full border";
             case "normal":
             default:
-                return "inline-flex items-center justify-center px-4 py-2 w-full sm:w-[300px] md:w-[340px] h-12 sm:h-14 hover:font-bold rounded-full border";
+                return "inline-flex items-center justify-center px-4 py-2 w-auto sm:w-[300px] md:w-[340px] h-12 sm:h-14 hover:font-bold rounded-full border";
         }
     })();
 
