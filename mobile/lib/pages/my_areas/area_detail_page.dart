@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/component/card/card_button.dart';
 import 'package:mobile/utils/string_utils.dart';
 import '../../global/area_model.dart';
 import 'package:mobile/global/service_model.dart';
@@ -17,257 +16,430 @@ class AreaDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.grey.shade900),
         title: Text(
           'Area Details',
-          style: Theme.of(context).textTheme.displayLarge,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade900,
+              ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Area Name
-            Text(
-              area.name,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+      body: FutureBuilder<Map<String, Map<String, dynamic>>>(
+        future: _loadServiceMeta(),
+        builder: (context, snapshot) {
+          final actionMeta = snapshot.data?['action'];
+          final reactionMeta = snapshot.data?['reaction'];
+          final actionColor = (actionMeta?['color'] as Color?) ?? Colors.indigo.shade600;
+          final reactionColor = (reactionMeta?['color'] as Color?) ?? Colors.purple.shade600;
+          final actionLogo = (actionMeta?['logo'] as String?) ?? '';
+          final reactionLogo = (reactionMeta?['logo'] as String?) ?? '';
 
-            // Status
-            Row(
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  area.isActive ? Icons.check_circle : Icons.cancel,
-                  color: area.isActive ? Colors.green : Colors.grey,
-                  size: 20,
+                // Header card with name and status
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.indigo.withOpacity(0.08),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.bolt,
+                              color: Colors.indigo.shade600,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  area.name,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey.shade900,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                _buildStatusChip(area.isActive),   
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
+
+                const SizedBox(height: 20),
+
+                // IF card
+                _buildInfoCard(
+                  context,
+                  tag: 'IF',
+                  icon: Icons.play_arrow,
+                  color: actionColor,
+                  logoUrl: actionLogo,
+                  service: humanize(area.action.serviceName),
+                  name: humanize(area.action.actionName),
+                  description: area.action.actionDescription,
+                  params: area.action.inputValues,
+                ),
+
+                const SizedBox(height: 16),
+
+                // THEN card
+                _buildInfoCard(
+                  context,
+                  tag: 'THEN',
+                  icon: Icons.refresh,
+                  color: reactionColor,
+                  logoUrl: reactionLogo,
+                  service: humanize(area.reaction.serviceName),
+                  name: humanize(area.reaction.reactionName),
+                  description: area.reaction.reactionDescription,
+                  params: area.reaction.inputValues,
+                ),
+
+                const SizedBox(height: 24),
                 Text(
-                  area.isActive ? 'Active' : 'Inactive',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  'ID: ${area.id}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Colors.indigo.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 3,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditAreaPage(area: area),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Edit Area',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-
-            // Action Section
-            _buildSectionHeader(context, 'If', Icons.arrow_back),
-            const SizedBox(height: 12),
-            _buildActionCard(context),
-            const SizedBox(height: 24),
-
-            // Reaction Section
-            _buildSectionHeader(context, 'THEN (Action)', Icons.arrow_forward),
-            const SizedBox(height: 12),
-            _buildReactionCard(context),
-            const SizedBox(height: 24),
-
-            // Area ID
-            Text(
-              'Area ID: ${area.id}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-            ),
-
-            // Edit button placed at the end of the page
-            const SizedBox(height: 24),
-            CardButton(
-              label: 'Edit Area',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditAreaPage(area: area),
-                  ),
-                );
-              },
-              color: Theme.of(context).colorScheme.primary,
-              textColor: Colors.white,
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Future<Color> _colorFromServiceName(String serviceName) async {
+  Future<Map<String, Map<String, dynamic>>> _loadServiceMeta() async {
+    final services = await _fetchServices();
+    final actionMeta = _metaFor(area.action.serviceName, services);
+    final reactionMeta = _metaFor(area.reaction.serviceName, services);
+    return {
+      'action': actionMeta,
+      'reaction': reactionMeta,
+    };
+  }
+
+  Future<List<Service>> _fetchServices() async {
     final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
-    if (apiSettingsUrl == null) {
-      return Colors.grey; // Default color if no token or API URL
-    }
-    final response = await http.get(
-      Uri.parse('$apiSettingsUrl/about.json'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      final data = response.body;
-      final decoded = jsonDecode(data);
-      final services = (decoded['server']['services'] as List)
-                  .map((e) => Service.fromJson(e as Map<String, dynamic>))
-                  .toList();
-      final service = services.firstWhere((s) => s.name == serviceName);
-      return Color(int.parse('0xFF${service.color.substring(1)}'));
-    } else {
-      return Colors.grey; // Default color on error
+    if (apiSettingsUrl == null) return const [];
+    try {
+      final response = await http.get(
+        Uri.parse('$apiSettingsUrl/about.json'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        return (decoded['server']['services'] as List)
+            .map((e) => Service.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return const [];
+    } catch (_) {
+      return const [];
     }
   }
 
-  Widget _buildSectionHeader(
-    BuildContext context,
-    String title,
-    IconData icon,
-  ) {
-    return Row(
-      children: [
-        Icon(icon, size: 24),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-      ],
+  Map<String, dynamic> _metaFor(String serviceName, List<Service> services) {
+    final fallback = {'color': Colors.grey, 'logo': ''};
+    if (services.isEmpty) return fallback;
+    final service = services.firstWhere(
+      (s) => s.name == serviceName,
+      orElse: () => services.first,
+    );
+    final colorHex = service.color.startsWith('#')
+        ? service.color.substring(1)
+        : service.color;
+    Color parsedColor;
+    try {
+      parsedColor = Color(int.parse('0xFF$colorHex'));
+    } catch (_) {
+      parsedColor = Colors.grey;
+    }
+    return {'color': parsedColor, 'logo': service.logo};
+  }
+  Widget _buildStatusChip(bool active) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: active ? Colors.green.shade50 : Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: active ? Colors.green : Colors.grey,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            active ? 'Active' : 'Inactive',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: active ? Colors.green.shade900 : Colors.grey.shade700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildInfoCard(
     BuildContext context, {
+    required String tag,
+    required IconData icon,
+    required Color color,
+    required String logoUrl,
     required String service,
-    required String actionName,
+    required String name,
     required String description,
     required Map<String, dynamic> params,
-    Color? color,
   }) {
-    return CardButton(
-      label: service,
-      onTap: () {},
-      color: color ?? Colors.grey,
-      textColor: Colors.white,
-      children: Padding(
-        padding: const EdgeInsets.all(16),
+    final baseColor = color;
+    final isLight = baseColor.computeLuminance() > 0.6;
+    final onColor = isLight ? Colors.black87 : Colors.white;
+    final onColorMuted = isLight ? Colors.black54 : Colors.white70;
+    final chipColor = isLight
+        ? Colors.white.withOpacity(0.85)
+        : Colors.white.withOpacity(0.14);
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: baseColor,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: baseColor.withOpacity(0.28),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Service name
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                service,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(color: color),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: logoUrl.isNotEmpty
+                        ? Image.network(
+                            logoUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              icon,
+                              color: onColor,
+                              size: 22,
+                            ),
+                          )
+                        : Icon(icon, color: onColor, size: 22),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tag,
+                        style: TextStyle(
+                          fontSize: 12,
+                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w700,
+                          color: onColor,
+                        ),
+                      ),
+                      Text(
+                        service,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: onColor,
+                            ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        name,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: onColorMuted,
+                            ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
+
             const SizedBox(height: 12),
 
-            // Action / Reaction name
-            Text(
-              actionName,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-
             if (description.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                description,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.blue),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: chipColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  description,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: onColor,
+                      ),
+                ),
               ),
             ],
 
-            // Parameters
             if (params.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Text(
                 'Parameters',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                      fontWeight: FontWeight.w700,
+                      color: onColor,
+                    ),
               ),
               const SizedBox(height: 8),
-              ...params.entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+              ...params.entries.map(
+                (entry) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: chipColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          '${entry.key}:',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                              ),
+                      Container(
+                        width: 8,
+                        height: 8,
+                        margin: const EdgeInsets.only(top: 6, right: 10),
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
                         ),
                       ),
                       Expanded(
-                        flex: 3,
-                        child: Text(
-                          entry.value?.toString() ?? 'N/A',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: onColor,
+                                  ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              entry.value?.toString() ?? 'N/A',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: onColorMuted),
+                              softWrap: true,
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                );
-              }),
+                ),
+              ),
             ],
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildReactionCard(BuildContext context) {
-    return FutureBuilder<Color>(
-      future: _colorFromServiceName(area.reaction.serviceName),
-      builder: (context, snapshot) {
-        final color = snapshot.data ?? Colors.grey;
-        return _buildInfoCard(
-          context,
-          service: humanize(area.reaction.serviceName),
-          actionName: area.reaction.reactionName,
-          description: area.reaction.reactionDescription,
-          params: area.reaction.inputValues,
-          color: color,
-        );
-      },
-    );
-  }
-
-  Widget _buildActionCard(BuildContext context) {
-    return FutureBuilder<Color>(
-      future: _colorFromServiceName(area.action.serviceName),
-      builder: (context, snapshot) {
-        final color = snapshot.data ?? Colors.grey;
-        return _buildInfoCard(
-          context,
-          service: humanize(area.action.serviceName),
-          actionName: area.action.actionName,
-          description: area.action.actionDescription,
-          params: area.action.inputValues,
-          color: color,
-        );
-      },
     );
   }
 }

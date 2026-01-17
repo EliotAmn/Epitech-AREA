@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mobile/global/cache.dart' as cache;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mobile/component/card/card_button.dart';
+import 'package:forui/forui.dart';
 
 
 class AccountSettingsPage extends StatefulWidget {
@@ -118,47 +117,43 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    border: (!_editToggle) ? InputBorder.none : const OutlineInputBorder(),
-                    hintText: 'Name',
-                    labelText: 'Name',
-                    prefixIcon: Icon(Icons.person),
+                child: FTextField(
+                  control: FTextFieldControl.managed(
+                    controller: _nameController,
                   ),
+                  hint: 'Name',
+                  label: Text(  'Name'),
+                  description: Text('Enter your name'),
                   readOnly: !_editToggle,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 42),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    border: (!_editToggle) ? InputBorder.none : const OutlineInputBorder(),
-                    hintText: 'Email',
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email),
+                child: FTextField(
+                  control: FTextFieldControl.managed(
+                    controller: _emailController,
                   ),
+                  hint: 'Email',
+                  label: Text(  'Email'),
+                  description: Text('Enter your email address'),
                   readOnly: !_editToggle,
                 ),
               ),
-              const SizedBox(height: 40),
-              CardButton(
-                isRow: true,
-                label: _editToggle ? 'Save Changes' : 'Edit Profile',
-                color: !_editToggle ? Colors.blue : Colors.green,
-                textColor: Colors.white,
-                radius: 80.0,
-                onTap: () {
+              const SizedBox(height: 42),
+              FButton(
+                onPress: () {
                   if (_editToggle) {
-                    // Here you would typically call a method to save changes to the server
-                    _updateUserInfo(_nameController.text, _emailController.text);
+                    _updateUserInfo(
+                      _nameController.text,
+                      _emailController.text,
+                    );
                   }
                   setState(() {
                     _editToggle = !_editToggle;
                   });
                 },
+                child: Text(_editToggle ? 'Save' : 'Edit Profile'),
               ),
             ],
           ),

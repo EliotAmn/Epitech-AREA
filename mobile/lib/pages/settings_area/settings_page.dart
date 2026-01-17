@@ -17,7 +17,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Paramètres'), elevation: 0),
+      appBar: AppBar(title: const Text('Settings'), elevation: 0),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -34,7 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
             subtitle: 'Update your password and security settings',
             onTap: () => _navigateTo(context, 'security'),
           ),
-          _buildSectionTitle('Advenced Settings'),
+          _buildSectionTitle('Advanced Settings'),
           _buildSettingsTile(
             icon: Icons.link,
             title: 'API Settings',
@@ -81,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      subtitle: subtitle != null ? Text(subtitle) : null,
+      subtitle: subtitle != null ? Text(subtitle, style: TextStyle(color: Colors.grey.shade600).copyWith(fontSize: 12)) : null,
       trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
     );

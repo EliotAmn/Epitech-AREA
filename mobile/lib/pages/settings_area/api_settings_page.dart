@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/global/cache.dart' as cache;
+import 'package:forui/forui.dart';
 
 class ApiSettingsPage extends StatefulWidget {
   const ApiSettingsPage({super.key});
@@ -42,15 +43,16 @@ class _ApiSettingsPageState extends State<ApiSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _apiUrlController,
-              decoration: const InputDecoration(
-                labelText: 'API URL',
-                border: OutlineInputBorder(),
+            FTextField(
+              control: FTextFieldControl.managed(
+                controller: _apiUrlController,
               ),
+              hint: 'API URL',
+              label: Text('API URL'),
+              description: Text('Enter the base URL for the API'),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: _saveApiUrl, child: const Text('Save')),
+            FButton(onPress: _saveApiUrl, child: const Text('Save')),
           ],
         ),
       ),

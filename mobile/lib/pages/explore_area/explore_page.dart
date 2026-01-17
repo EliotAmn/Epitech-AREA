@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/global/service_model.dart';
-import 'package:mobile/component/card/card_button.dart';
 import 'package:mobile/pages/explore_area/service_details_page.dart';
 import 'package:mobile/global/cache.dart' as cache;
 import 'dart:convert';
+import 'package:forui/forui.dart';
+import '../../component/card/service_grid_card.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -15,7 +16,7 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   String selectedTab = 'All';
-  String searchQuery = '';
+  TextEditingValue searchQuery = TextEditingValue.empty;
   List<Map<String, Widget>> tabs = [];
   List<Service> services = [];
 
@@ -23,34 +24,78 @@ class _ExplorePageState extends State<ExplorePage> {
     final filteredServices = services
         .where(
           (service) =>
-              service.label.toLowerCase().contains(searchQuery.toLowerCase()),
+              service.label.toLowerCase().contains(searchQuery.text.toLowerCase()),
         )
         .toList();
 
-    return Column(
-      children: filteredServices.map((service) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CardButton(
-            label: service.label,
-            iconUrl: service.logo,
-            color: Color(int.parse('0xFF${service.color.substring(1)}')),
-            textColor: Colors.white,
-            height: MediaQuery.of(context).size.width * 0.5,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ServiceDetailsPage(
-                    service: service,
-                    allServices: services,
-                  ),
+    if (filteredServices.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.search_off,
+                size: 64,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No services found',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade700,
                 ),
-              );
-            },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Try a different search term',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
           ),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.85,
+      ),
+      itemCount: filteredServices.length,
+      itemBuilder: (context, index) {
+        final service = filteredServices[index];
+        final serviceColor = Color(int.parse('0xFF${service.color.substring(1)}'));
+        return ServiceGridCard(
+          label: service.label,
+          logoUrl: service.logo,
+          actionCount: service.actions.length + service.reactions.length,
+          color: serviceColor,
+          backgroundOpacity: 0.9,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ServiceDetailsPage(
+                  service: service,
+                  allServices: services,
+                ),
+              ),
+            );
+          },
         );
-      }).toList(),
+      },
     );
   }
 
@@ -98,46 +143,76 @@ class _ExplorePageState extends State<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
-          ),
-          Text('Explore', style: Theme.of(context).textTheme.displayLarge),
-          SizedBox(
-            height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-          ),
-
-          SizedBox(
-            width: 300,
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                prefixIcon: const Icon(Icons.search),
+    return Container(
+      color: Colors.white,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Explore',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade900,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: FTextField(
+                      hint: "Search services",
+                      textInputAction: TextInputAction.search,
+                      control: FTextFieldControl.managed(
+                        initial: searchQuery,
+                        onChange: (value) => setState(() {
+                          searchQuery = value;
+                        }),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              textInputAction: TextInputAction.search,
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
             ),
-          ),
-          SizedBox(
-            height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: getCurrentTabView(),
+            
+            // Services grid
+            Expanded(
+              child: services.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Loading services...',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      child: getCurrentTabView(),
+                    ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

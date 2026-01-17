@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../../component/card/card_button.dart';
 import '../../global/service_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/global/cache.dart' as cache;
 import 'action_config_page.dart';
 import 'dart:convert';
 import 'oauth_page.dart';
+import '../../component/page/service_header.dart';
+import '../../component/list/action_list_item.dart';
 
 class ActionPage extends StatefulWidget {
   const ActionPage({
@@ -56,149 +56,139 @@ class _ActionPageState extends State<ActionPage> {
     _getConnectionStatus();
   }
 
-  Widget _buildLogo() {
-    final logoUrl = widget.service.logo.isNotEmpty
-        ? widget.service.logo
-        : 'https://via.placeholder.com/100';
-    final isSvg = logoUrl.toLowerCase().endsWith('.svg');
-
-    if (isSvg) {
-      return SvgPicture.network(logoUrl, width: 100, height: 100);
-    } else {
-      return Image.network(
-        logoUrl,
-        width: 100,
-        height: 100,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.error, size: 100, color: Colors.white),
-      );
-    }
-  }
+  Color get serviceColor => Color(int.parse('0xFF${widget.service.color.substring(1)}'));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Color(
-          int.parse('0xFF${widget.service.color.substring(1)}'),
-        ),
-        title: Text(
-          'Select action',
-          style: Theme.of(
-            context,
-          ).textTheme.displayLarge?.copyWith(color: Colors.white),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.arrow_back,
+              color: Color(int.parse('0xFF${widget.service.color.substring(1)}')),
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: double.infinity,
-              color: Color(
-                int.parse('0xFF${widget.service.color.substring(1)}'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(int.parse('0xFF${widget.service.color.substring(1)}')),
+              Color(int.parse('0xFF${widget.service.color.substring(1)}')).withOpacity(0.8),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header section with service info
+              ServiceHeader(
+                service: widget.service,
+                isConnected: isConnected,
+                onConnect: !isConnected
+                    ? () async {
+                        final success = await OAuthPage(
+                          oauthUrl: widget.service.oauthUrl!,
+                          serviceName: widget.service.name,
+                        ).initiateOAuthFlow(context);
+                        if (success && mounted) {
+                          setState(() {
+                            _getConnectionStatus();
+                          });
+                        }
+                      }
+                    : null,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    _buildLogo(),
-                    const SizedBox(height: 16),
-                    Text(
-                      widget.service.label,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.displayLarge?.copyWith(color: Colors.white),
+              
+              // Actions list
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      widget.service.description,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (widget.service.oauthUrl != null) ...[
-                      const SizedBox(height: 16),
-                      (!isConnected) ? ElevatedButton(
-                        onPressed: () async {
-                          final success = await OAuthPage(
-                            oauthUrl: widget.service.oauthUrl!,
-                            serviceName: widget.service.name,
-                          ).initiateOAuthFlow(context);
-
-                          if (success && mounted) {
-                            // Optionally refresh the page or update UI
-                            setState(() {});
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                        ),
-                        child: Text(
-                          'Connect',
-                          style: TextStyle(
-                            color: Color(
-                              int.parse(
-                                '0xFF${widget.service.color.substring(1)}',
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.play_arrow,
+                              color: Color(int.parse('0xFF${widget.service.color.substring(1)}')),
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Available Actions',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade900,
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ) : ElevatedButton(
-                        onPressed: null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                        ),
-                        child: Text(
-                          'Connected',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: widget.service.actions.length,
+                          itemBuilder: (context, index) {
+                            final action = widget.service.actions[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: ActionListItem(
+                                accentColor: serviceColor,
+                                label: action.label,
+                                description: action.description.isNotEmpty ? action.description : null,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ActionConfigPage(
+                                        serviceName: widget.service.name,
+                                        action: action,
+                                        allServices: widget.allServices,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
-                    const SizedBox(height: 16),
-                  ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: widget.service.actions.length,
-              itemBuilder: (context, index) {
-                final action = widget.service.actions[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 1.0),
-                  child: CardButton(
-                    isRow: true,
-                    height: 60,
-                    label: action.label,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ActionConfigPage(
-                            serviceName: widget.service.name,
-                            action: action,
-                            allServices: widget.allServices,
-                          ),
-                        ),
-                      );
-                    },
-                    color: Color(
-                      int.parse('0xFF${widget.service.color.substring(1)}'),
-                    ),
-                    textColor: Colors.white,
-                  ),
-                );
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

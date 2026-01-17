@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../component/input/input_decorations.dart';
 import '../../global/area_model.dart';
 import 'package:http/http.dart' as http;
 import '../../global/cache.dart' as cache;
 import 'dart:convert';
 import 'area_detail_page.dart';
-import 'package:mobile/component/card/card_button.dart';
+import 'package:forui/forui.dart';
 
 class MyAreasPage extends StatefulWidget {
   const MyAreasPage({super.key});
@@ -234,114 +233,389 @@ class _MyAreasPageState extends State<MyAreasPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Center(
+    return SafeArea(
+      top: false,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
-              height:
-                  (Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16) * 4,
-            ),
-            Text('My AREAs', style: Theme.of(context).textTheme.displayLarge),
-            SizedBox(
-              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-            ),
-            SizedBox(
-              width: 300,
-              child: TextField(
-                controller: _searchController,
-                decoration: AppInputDecorations.primary(context, 'Filter'),
-                textInputAction: TextInputAction.search,
+            // Header section
+            Container(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [                  
+                  Text(
+                    'My Areas',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Search bar
+                  Container(
+                    
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: FTextField(
+                      control: FTextFieldControl.managed(
+                        controller: _searchController
+                      ),
+                      hint: 'Search Areas',
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(
-              height: Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16,
-            ),
+            
+            // Areas list
             Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _error != null
-                  ? Center(child: Text(_error!))
-                  : _filteredAreas.isEmpty
-                  ? const Center(child: Text('No areas yet'))
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      itemCount: _filteredAreas.length,
-                      itemBuilder: (context, index) {
-                        final area = _filteredAreas[index];
-                        return CardButton(
-                          label: area.name,
-                          height: MediaQuery.of(context).size.width * 0.4,
-
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AreaDetailPage(area: area),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _error != null
+                    ? Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          margin: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
+                              const SizedBox(height: 12),
+                              Text(_error!, style: TextStyle(color: Colors.red.shade900)),
+                            ],
+                          ),
+                        ),
+                      )
+                    : _filteredAreas.isEmpty
+                    ? Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          margin: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
                               ),
-                            );
-                          },
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          children: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Left: title and subtitle (IF -> THEN)
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // small header row (could include icons)
-                                      Row(
-                                        children: [
-                                          // placeholder for service icons
-                                          const SizedBox(width: 4),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                            ],
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.inbox_outlined, size: 64, color: Colors.grey.shade400),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No areas yet',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade700,
                                 ),
-
-                                // Right: controls
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Create your first automation',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          )
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: _filteredAreas.length,
+                        itemBuilder: (context, index) {
+                          final area = _filteredAreas[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.indigo.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AreaDetailPage(area: area),
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Switch(
-                                          value: area.isActive,
-                                          onChanged: (v) =>
-                                              _toggleAreaById(area.id, v),
+                                        // Header with title and controls
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                area.name,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey.shade900,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            // Status indicator
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 6,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: area.isActive 
+                                                  ? Colors.green.shade50 
+                                                  : Colors.grey.shade100,
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Container(
+                                                    width: 8,
+                                                    height: 8,
+                                                    decoration: BoxDecoration(
+                                                      color: area.isActive 
+                                                        ? Colors.green 
+                                                        : Colors.grey,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    area.isActive ? 'Active' : 'Inactive',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: area.isActive 
+                                                        ? Colors.green.shade900 
+                                                        : Colors.grey.shade700,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete),
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.error,
-                                          tooltip: 'Delete area',
-                                          onPressed: () =>
-                                              _deleteAreaById(area.id),
+                                        const SizedBox(height: 12),
+                                        
+                                        // IF section
+                                        Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue.shade50,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue.shade100,
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: Icon(
+                                                  Icons.play_arrow,
+                                                  size: 16,
+                                                  color: Colors.blue.shade700,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'IF',
+                                                      style: TextStyle(
+                                                        fontSize: 9,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.blue.shade700,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      area.action.serviceName,
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.grey.shade900,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 8),
+                                        
+                                        // THEN section
+                                        Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Colors.purple.shade50,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.purple.shade100,
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: Icon(
+                                                  Icons.refresh,
+                                                  size: 16,
+                                                  color: Colors.purple.shade700,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'THEN',
+                                                      style: TextStyle(
+                                                        fontSize: 9,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.purple.shade700,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      area.reaction.serviceName,
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.grey.shade900,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 12),
+                                        
+                                        // Actions row
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            // Toggle switch
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade100,
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(left: 12),
+                                                    child: Text(
+                                                      'Enable',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.grey.shade700,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Transform.scale(
+                                                    scale: 0.8,
+                                                    child: Switch(
+                                                      value: area.isActive,
+                                                      onChanged: (v) =>
+                                                          _toggleAreaById(area.id, v),
+                                                      activeColor: Colors.green,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            // Delete button
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.red.shade50,
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: IconButton(
+                                                icon: Icon(
+                                                  Icons.delete_outline,
+                                                  color: Colors.red.shade600,
+                                                  size: 20,
+                                                ),
+                                                tooltip: 'Delete area',
+                                                onPressed: () =>
+                                                    _deleteAreaById(area.id),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+              ),
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   // Helpers when working from filtered list items

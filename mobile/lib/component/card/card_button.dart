@@ -105,7 +105,7 @@ class CardButton extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [color, color.withValues(alpha: 0.7)],
+            colors: [color, color],
           ),
         ),
         child: InkWell(

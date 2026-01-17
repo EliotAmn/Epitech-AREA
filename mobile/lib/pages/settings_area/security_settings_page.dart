@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/global/cache.dart' as cache;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:mobile/component/card/card_button.dart';
+import 'package:forui/forui.dart';
 
 class SecuritySettingsPage extends StatefulWidget {
   const SecuritySettingsPage({super.key});
@@ -83,33 +83,37 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-            TextField(
-              controller: _currentPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Current Password',
-                border: OutlineInputBorder(),
+            FTextField(
+              control: FTextFieldControl.managed(
+                controller: _currentPasswordController,
               ),
+              hint: 'Current Password',
+              label: Text('Current Password'),
+              description: Text('Enter your current password'),
+              
               obscureText: !_showPasswords,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _newPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'New Password',
-                border: OutlineInputBorder(),
+            const SizedBox(height: 32),
+            FTextField(
+              control: FTextFieldControl.managed(
+                controller: _newPasswordController,
               ),
+              hint: 'New Password',
+              label: Text('New Password'),
+              description: Text('Enter your new password'),
               obscureText: !_showPasswords,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirm New Password',
-                border: OutlineInputBorder(),
+            const SizedBox(height: 32),
+            FTextField(
+              control: FTextFieldControl.managed(
+                controller: _confirmPasswordController,
               ),
+              hint: 'Confirm New Password',
+              label: Text('Confirm New Password'),
+              description: Text('Re-enter your new password'),
               obscureText: !_showPasswords,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 32),
             SwitchListTile(
               title: const Text('Show passwords'),
               value: _showPasswords,
@@ -120,18 +124,15 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               },
             ),
             const SizedBox(height: 24),
-            CardButton(
-              label: 'Update Password',
-              color: Colors.blue,
-              textColor: Colors.white,
-              radius: 80.0,
-              onTap: () {
+            FButton(
+              onPress: () {
                 _updatePassword(
                   _currentPasswordController.text,
                   _newPasswordController.text,
                   _confirmPasswordController.text,
                 );
               },
+              child: const Text('Update Password'),
             ),
           ],
           ),
