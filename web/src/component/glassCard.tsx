@@ -15,8 +15,7 @@ export default function GlassCardLayout({
     backLabel = "Back",
     onBack,
     maxWidthClass = "max-w-2xl",
-    leftCard,
-    leftWidthClass = "w-2/4",
+    leftCard
 }: GlassCardLayoutProps) {
     const colors = Array.isArray(color) ? color : [color, color];
     return (
@@ -44,27 +43,20 @@ export default function GlassCardLayout({
                 </button>
             )}
 
-            <div className={`relative z-10 w-full ${maxWidthClass} mx-4 my-8`}>
+            <div
+                className={`relative z-10 w-full ${leftCard ? "max-w-6xl" : maxWidthClass} mx-4 my-8 px-4`}
+            >
                 {leftCard ? (
-                    <div className="relative">
-                        <div
-                            className={`${leftWidthClass} absolute z-20`}
-                            style={{
-                                top: "0",
-                                right: "50%",
-                                transform: "translate(calc(-100% - 24px), 0)",
-                            }}
-                        >
+                    <div className="flex flex-col lg:flex-row items-stretch lg:items-start justify-center gap-6 lg:gap-10">
+                        <div className="w-full lg:w-1/3 z-20">
                             <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-4xl p-6 md:p-8 shadow-2xl h-full">
                                 <div className="w-full">{leftCard}</div>
                             </div>
                         </div>
 
-                        <div className="flex justify-center">
-                            <div className="w-full max-w-4xl">
-                                <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-4xl p-10 md:p-12 shadow-2xl flex flex-col items-center">
-                                    <div className="w-full">{children}</div>
-                                </div>
+                        <div className="w-full lg:flex-1 max-w-4xl">
+                            <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-4xl p-8 md:p-12 shadow-2xl flex flex-col items-center h-full">
+                                <div className="w-full">{children}</div>
                             </div>
                         </div>
                     </div>

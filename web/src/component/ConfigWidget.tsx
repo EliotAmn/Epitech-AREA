@@ -117,7 +117,7 @@ export default function ConfigWidget({
         <div className="w-full flex justify-center">
             <GlassCardLayout color={color} onBack={onClose} leftCard={leftCard}>
                 <div className="flex flex-col items-center">
-                    <h3 className="text-[45px] font-semibold text-black mb-8 text-center shrink-0">
+                    <h3 className="text-3xl md:text-[45px] font-semibold text-black mb-8 text-center shrink-0 leading-tight">
                         {title}
                     </h3>
                     <div className="relative mb-8">

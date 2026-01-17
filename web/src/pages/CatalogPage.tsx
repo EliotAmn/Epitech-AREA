@@ -53,20 +53,20 @@ export default function CatalogPage({
         <div className="flex flex-col w-full">
             <div className="relative z-10 max-w-7xl p-8 mx-auto">
                 <div
-                    className={`flex flex-col md:flex-row  ${description ? "md:items-end" : "md:items-start"} justify-between gap-6`}
+                    className={`flex flex-col md:flex-row ${description ? "md:items-end" : "md:items-start"} justify-between gap-6`}
                 >
-                    <div className="flex items-center gap-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                         {backButton && (
                             <button
                                 onClick={onBack}
-                                className="bg-white p-3 rounded-full shadow-lg border border-slate-100 hover:bg-slate-100 transition-colors"
+                                className="bg-white p-3 rounded-full shadow-lg border border-slate-100 hover:bg-slate-100 transition-colors shrink-0"
                             >
                                 <ArrowLeft className="w-6 h-6 text-slate-900" />
                             </button>
                         )}
                         <div className="text-left">
                             <h1
-                                className={`text-6xl font-black text-slate-900 mb-8 ${description ? "-mt-8" : "mt-0"}`}
+                                className={`text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 mb-4 sm:mb-8 ${description && !backButton ? "-mt-4 sm:-mt-8" : "mt-0"}`}
                             >
                                 {description}
                             </h1>
@@ -75,8 +75,8 @@ export default function CatalogPage({
                 </div>
             </div>
 
-            <div className="relative z-20 max-w-7xl w-full mx-auto -mt-8">
-                <div className="flex flex-row md:flex-row items-center gap-4 px-2">
+            <div className="relative z-20 max-w-7xl w-full mx-auto -mt-4 sm:-mt-8">
+                <div className="flex flex-col sm:flex-row items-center gap-4 px-2">
                     <div className="flex-1 w-full">
                         <SearchBar
                             value={query}
@@ -89,7 +89,7 @@ export default function CatalogPage({
                             label="+ Create new area"
                             onClick={() => navigate("/create")}
                             mode="black"
-                            className="shadow-xl shadow-slate-200"
+                            className="shadow-xl shadow-slate-200 w-full sm:w-auto"
                         />
                     )}
                 </div>
@@ -101,10 +101,9 @@ export default function CatalogPage({
                     </p>
                 </div>
             </div>
-
-            <div className="w-full mt-2">
-                <div className="max-w-7xl mx-auto px-8 pb-12 flex flex-col items-center">
-                    <div className="responsiveGrid">
+            <div className="">
+                <div className="min-h-screen flex flex-col items-center justify-start w-full">
+                    <div className="responsiveGrid p-8 w-full">
                         {filtered.length === 0 ? (
                             <div className="col-span-full text-center text-slate-400 py-20 bg-white/40 rounded-4xl border border-dashed border-slate-200">
                                 <p className="font-bold italic">
