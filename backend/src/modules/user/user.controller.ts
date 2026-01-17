@@ -1,16 +1,21 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
   UseGuards,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-
 import { AdminGuard } from '@/common/guards/admin.guard';
+
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -54,6 +59,35 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'User not found' })
   update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.service.update(id, dto);
+  }
+
+  @Patch(':id/password')
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'Password changed successfully' })
+  @ApiResponse({ status: 401, description: 'Current password is incorrect' })
+  async changePassword(
+    @Param('id') id: string,
+    @Body() dto: ChangePasswordDto,
+    @Req() req: Request & { user?: { sub?: string } },
+  ) {
+    // Ensure users can only change their own password
+    if (!req.user || req.user.sub !== id) {
+      throw new ForbiddenException('Not allowed');
+    }
+
+    try {
+      return await this.service.changePassword(
+        id,
+        dto.currentPassword,
+        dto.newPassword,
+      );
+    } catch (err) {
+      if (err.status === 401) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
+      throw new BadRequestException('Password change failed');
+    }
   }
 
   @Delete(':id')

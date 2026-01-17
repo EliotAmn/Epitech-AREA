@@ -11,6 +11,8 @@ interface InputProps {
     showToggle?: boolean;
     isHidden?: boolean;
     mode?: "default" | "white";
+    fullWidth?: boolean;
+    className?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -23,6 +25,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             showToggle = false,
             isHidden,
             mode = "default",
+            fullWidth = false,
+            className = "",
         },
         ref
     ) => {
@@ -48,11 +52,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         })();
 
         return (
-            <div className="relative w-full max-w-[480px]">
+            <div
+                className={`relative w-full ${fullWidth ? "max-w-none" : "max-w-[480px]"}`}
+            >
                 <input
                     ref={ref}
                     type={type}
-                    className={`w-full h-12 sm:h-[50px] px-4 sm:px-[15px] font-bold py-2 border-2 rounded-xl text-sm sm:text-[18px] focus:outline-none focus:ring-2 ${modeClasses}`}
+                    className={`w-full h-12 sm:h-[50px] px-4 sm:px-[15px] font-bold py-2 border-2 rounded-xl ${className ?? "text-sm sm:text-[18px]"} focus:outline-none focus:ring-2 ${modeClasses}`}
                     placeholder={placeholder}
                     value={value}
                     onChange={(e) =>

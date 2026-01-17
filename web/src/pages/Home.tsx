@@ -47,7 +47,7 @@ function Home() {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-start overflow-auto">
+        <div className="min-h-screen flex flex-col items-center justify-start">
             <div className="flex flex-col items-center justify-center w-full gap-10 md:h-[530px] bg-[#242424] pb-8 px-4">
                 <p className="text-center text-[#ffffff] text-3xl sm:text-4xl md:text-[75px] font-bold leading-tight">
                     Automate. Save time.

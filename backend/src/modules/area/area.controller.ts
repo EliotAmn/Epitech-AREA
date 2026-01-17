@@ -31,18 +31,24 @@ export class AreaController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all areas for the authenticated user' })
+  @ApiResponse({ status: 200, description: 'List of areas' })
   async findMyAreas(@Req() req: Request & { user?: { sub?: string } }) {
     const userId = req.user?.sub as string;
     return this.areaService.findByUser(userId);
   }
 
   @Post(':id/reload')
+  @ApiOperation({ summary: 'Reload an area by its ID' })
+  @ApiResponse({ status: 200, description: 'Area reloaded' })
   async reloadArea(@Param('id') id: string) {
     await this.areaService.initializeOne(id);
     return { ok: true };
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete an area by its ID' })
+  @ApiResponse({ status: 200, description: 'Area deleted' })
   async deleteArea(
     @Req() req: Request & { user?: { sub?: string } },
     @Param('id') id: string,
@@ -53,10 +59,13 @@ export class AreaController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update an area (name, or params) by its ID' })
+  @ApiResponse({ status: 200, description: 'Area updated' })
   async updateParams(
     @Param('id') id: string,
     @Body()
     dto: {
+      name?: string;
       actions?: Array<{ id: string; params?: Record<string, unknown> }>;
       reactions?: Array<{ id: string; params?: Record<string, unknown> }>;
     },

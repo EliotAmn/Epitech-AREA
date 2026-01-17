@@ -57,12 +57,20 @@ async function oauth_callback(
     const tokens = res.data;
     const accessToken = tokens.access_token;
     const refreshToken = tokens.refresh_token;
+    const expiresIn = tokens.expires_in;
 
     userService.service_config = {
       ...((userService.service_config as object) || {}),
       access_token: accessToken,
       refresh_token: refreshToken,
     };
+    userService.access_token = accessToken;
+    if (refreshToken) {
+      userService.refresh_token = refreshToken;
+    }
+    if (expiresIn) {
+      userService.token_expires_at = new Date(Date.now() + expiresIn * 1000);
+    }
   } catch (err) {
     const axiosError = err as AxiosError<GitlabErrorResponse>;
     const errorMessage =

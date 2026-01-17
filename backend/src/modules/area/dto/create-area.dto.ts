@@ -15,6 +15,11 @@ class ActionDto {
   @IsNotEmpty()
   action_name: string;
 
+  @ApiProperty({ example: 'slack' })
+  @IsString()
+  @IsNotEmpty()
+  service: string;
+
   @ApiProperty({ required: false, type: Object })
   @IsOptional()
   @IsObject()
@@ -26,6 +31,11 @@ class ReactionDto {
   @IsString()
   @IsNotEmpty()
   reaction_name: string;
+
+  @ApiProperty({ example: 'notion' })
+  @IsString()
+  @IsNotEmpty()
+  service: string;
 
   @ApiProperty({ required: false, type: Object })
   @IsOptional()
