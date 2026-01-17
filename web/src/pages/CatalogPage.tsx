@@ -102,7 +102,7 @@ export default function CatalogPage({
                 </div>
             </div>
             <div className="">
-                <div className="min-h-screen flex flex-col items-center justify-start w-full">
+                <div className="min-h-screen flex flex-col justify-start w-full items-start">
                     <div className="responsiveGrid p-8 w-full">
                         {filtered.length === 0 ? (
                             <div className="col-span-full text-center text-slate-400 py-20 bg-white/40 rounded-4xl border border-dashed border-slate-200">
