@@ -79,7 +79,7 @@ export class AuthController {
 
     const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/google/redirect`;
     const scope = encodeURIComponent(
-      'email profile https://www.googleapis.com/auth/gmail.send',
+      'email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly',
     );
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
       clientID,

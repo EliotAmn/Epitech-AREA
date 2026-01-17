@@ -52,6 +52,15 @@ class UserService {
             newPassword: data.newPassword,
         });
     }
+
+    async deleteCurrentUser(): Promise<void> {
+        const userId = UserService.getCurrentUserId();
+        if (!userId) {
+            throw new Error("No user ID found in token");
+        }
+
+        await apiClient.delete(`${this.basePath}/${userId}`);
+    }
 }
 
 export const userService = new UserService();

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import Button from "@/component/button";
@@ -12,6 +13,9 @@ interface CatalogPageProps {
     description?: string;
     onSelect?: (item: CatalogItem) => void;
     noButton?: boolean;
+    backButton?: boolean;
+    onBack?: () => void;
+    showPlatform?: boolean;
 }
 
 export default function CatalogPage({
@@ -19,6 +23,9 @@ export default function CatalogPage({
     description,
     onSelect,
     noButton = false,
+    backButton,
+    onBack,
+    showPlatform = true,
 }: CatalogPageProps) {
     const [query, setQuery] = useState("");
     const navigate = useNavigate();
@@ -43,44 +50,33 @@ export default function CatalogPage({
     }, [items, query]);
 
     return (
-        <div className="flex flex-col w-full bg-slate-50">
-            <div className="relative w-full pt-16 pb-20 px-8">
+        <div className="flex flex-col w-full">
+            <div className="relative z-10 max-w-7xl p-8 mx-auto">
                 <div
-                    className="absolute inset-0 z-0 opacity-40"
-                    style={{
-                        filter: "blur(80px)",
-                        backgroundImage: `radial-gradient(at 0% 0%, #3b82f6 0px, transparent 50%), radial-gradient(at 100% 0%, #8b5cf6 0px, transparent 50%)`,
-                    }}
-                />
-                <div className="relative z-10 max-w-7xl mx-auto">
-                    <div
-                        className={`flex flex-col md:flex-row  ${description ? "md:items-end" : "md:items-start"} justify-between gap-6`}
-                    >
+                    className={`flex flex-col md:flex-row  ${description ? "md:items-end" : "md:items-start"} justify-between gap-6`}
+                >
+                    <div className="flex items-center gap-6">
+                        {backButton && (
+                            <button
+                                onClick={onBack}
+                                className="bg-white p-3 rounded-full shadow-lg border border-slate-100 hover:bg-slate-100 transition-colors"
+                            >
+                                <ArrowLeft className="w-6 h-6 text-slate-900" />
+                            </button>
+                        )}
                         <div className="text-left">
                             <h1
-                                className={`text-6xl font-black text-slate-900 mb-2 ${description ? "-mt-8" : "mt-0"}`}
+                                className={`text-6xl font-black text-slate-900 mb-8 ${description ? "-mt-8" : "mt-0"}`}
                             >
                                 {description}
                             </h1>
-                            <p className="text-slate-500 font-bold tracking-widest uppercase text-[10px] ml-1">
-                                {items.length} {itemLabel}
-                                {items.length <= 1 ? "" : "s"}
-                            </p>
                         </div>
-                        {noButton ? null : (
-                            <Button
-                                label="+ Create new area"
-                                onClick={() => navigate("/create")}
-                                mode="black"
-                                className="shadow-xl shadow-slate-200"
-                            />
-                        )}
                     </div>
                 </div>
             </div>
 
-            <div className="relative z-20 max-w-7xl w-full mx-auto px-8 -mt-10">
-                <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="relative z-20 max-w-7xl w-full mx-auto -mt-8">
+                <div className="flex flex-row md:flex-row items-center gap-4 px-2">
                     <div className="flex-1 w-full">
                         <SearchBar
                             value={query}
@@ -88,16 +84,31 @@ export default function CatalogPage({
                             placeholder="Find an automation..."
                         />
                     </div>
+                    {noButton ? null : (
+                        <Button
+                            label="+ Create new area"
+                            onClick={() => navigate("/create")}
+                            mode="black"
+                            className="shadow-xl shadow-slate-200"
+                        />
+                    )}
+                </div>
+                <div className="mt-4 flex items-center gap-3 px-2">
+                    <p className="text-slate-500 font-bold tracking-widest uppercase text-[10px] ml-1">
+                        {filtered.length}{" "}
+                        {filtered.length >= 60 ? "item" : itemLabel}
+                        {filtered.length <= 1 ? "" : "s"}
+                    </p>
                 </div>
             </div>
 
-            <div className="w-full mt-8">
+            <div className="w-full mt-2">
                 <div className="max-w-7xl mx-auto px-8 pb-12 flex flex-col items-center">
                     <div className="responsiveGrid">
                         {filtered.length === 0 ? (
                             <div className="col-span-full text-center text-slate-400 py-20 bg-white/40 rounded-4xl border border-dashed border-slate-200">
                                 <p className="font-bold italic">
-                                    No results found for "{query}"
+                                    No results found.
                                 </p>
                             </div>
                         ) : (
@@ -108,6 +119,7 @@ export default function CatalogPage({
                                     platform={item.platform}
                                     reactionPlatform={item.reactionPlatform}
                                     color={item.color}
+                                    showPlatform={showPlatform}
                                     onClick={() => onSelect && onSelect(item)}
                                 />
                             ))

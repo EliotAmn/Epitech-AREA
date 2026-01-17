@@ -47,7 +47,9 @@ export class SendEmailReaction extends ServiceReactionDefinition {
     sconf: ServiceConfig,
     params: Record<string, ParameterValue>,
   ): Promise<void> {
-    const token = sconf?.config?.google_access_token as string | undefined;
+    const token =
+      (sconf?.config?.access_token as string | undefined) ||
+      (sconf?.config?.google_access_token as string | undefined);
 
     if (typeof token !== 'string' || !token) {
       throw new Error(

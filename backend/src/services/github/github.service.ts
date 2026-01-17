@@ -56,12 +56,20 @@ async function oauth_callback(
     const tokens = res.data;
     const accessToken = tokens.access_token;
     const refreshToken = tokens.refresh_token;
+    const expiresIn = tokens.expires_in;
 
     userService.service_config = {
       ...((userService.service_config as object) || {}),
       access_token: accessToken,
       refresh_token: refreshToken,
     };
+    userService.access_token = accessToken;
+    if (refreshToken) {
+      userService.refresh_token = refreshToken;
+    }
+    if (expiresIn) {
+      userService.token_expires_at = new Date(Date.now() + expiresIn * 1000);
+    }
   } catch (err) {
     const axiosError = err as AxiosError<GithubErrorResponse>;
     const errorMessage =
@@ -76,7 +84,7 @@ async function oauth_callback(
 export default class GithubService implements ServiceDefinition {
   name = 'github';
   label = 'GitHub';
-  color = '#4493F8';
+  color = '#101411';
   logo =
     'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/github-white-icon.png';
   mandatory_env_vars = ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'];

@@ -77,8 +77,8 @@ export default function ChangePassword() {
     };
 
     return (
-        <div className="min-h-screen flex justify-center">
-            <div className="w-full max-w-md p-6">
+        <div className="min-h-screen flex justify-center items-start">
+            <div className="w-full max-w-4xl p-8">
                 <h1 className="text-2xl sm:text-4xl text-black font-bold mb-4 text-center">
                     Change Password
                 </h1>
@@ -105,6 +105,8 @@ export default function ChangePassword() {
                             value={currentPassword}
                             onChange={setCurrentPassword}
                             showToggle={true}
+                            fullWidth
+                            className="text-lg"
                         />
                     </div>
 
@@ -116,6 +118,8 @@ export default function ChangePassword() {
                             value={newPassword}
                             onChange={setNewPassword}
                             showToggle={true}
+                            fullWidth
+                            className="text-lg"
                         />
                     </div>
 
@@ -127,6 +131,8 @@ export default function ChangePassword() {
                             value={confirmNewPassword}
                             onChange={setConfirmNewPassword}
                             showToggle={true}
+                            fullWidth
+                            className="text-lg"
                         />
                     </div>
 
@@ -143,6 +149,12 @@ export default function ChangePassword() {
                             disabled={loading || success}
                         />
                     </div>
+                    <p
+                        className="cursor-pointer text-black hover:underline mt-2"
+                        onClick={() => navigate("/profile")}
+                    >
+                        Cancel
+                    </p>
                 </div>
             </div>
         </div>
