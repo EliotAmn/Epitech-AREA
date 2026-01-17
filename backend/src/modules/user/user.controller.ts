@@ -8,13 +8,14 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AdminGuard } from '@/common/guards/admin.guard';
+import { Request } from 'express';
 
+import { AdminGuard } from '@/common/guards/admin.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -42,22 +43,33 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'Return the user' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  findOne(@Param('id') id: string) {
+  findOne(
+    @Param('id') id: string,
+    @Req() req: Request & { user?: { sub?: string; admin?: boolean } },
+  ) {
+    if (req.user?.sub !== id && req.user?.admin !== true) {
+      throw new ForbiddenException('Not allowed');
+    }
     return this.service.findOne(id);
   }
 
   @Patch(':id')
-  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update a user' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @Req() req: Request & { user?: { sub?: string; admin?: boolean } },
+  ) {
+    if (req.user?.sub !== id && req.user?.admin !== true) {
+      throw new ForbiddenException('Not allowed');
+    }
     return this.service.update(id, dto);
   }
 
@@ -91,12 +103,17 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete a user' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  remove(@Param('id') id: string) {
+  remove(
+    @Param('id') id: string,
+    @Req() req: Request & { user?: { sub?: string; admin?: boolean } },
+  ) {
+    if (req.user?.sub !== id && req.user?.admin !== true) {
+      throw new ForbiddenException('Not allowed');
+    }
     return this.service.remove(id);
   }
 }
