@@ -282,7 +282,10 @@ export default function Create() {
                                 <h2 className="text-3xl md:text-5xl font-black tracking-tighter">
                                     If This
                                 </h2>
-                                <button className="absolute right-0 bg-white text-black px-4 py-1.5 md:px-6 md:py-2 rounded-full font-bold text-sm md:text-lg hover:bg-gray-200 transition-colors">
+                                <button
+                                    className="absolute right-0 bg-white text-black px-4 py-1.5 md:px-6 md:py-2 rounded-full font-bold text-sm md:text-lg hover:bg-gray-200 transition-colors"
+                                    onClick={() => setStep(1)}
+                                >
                                     Add
                                 </button>
                             </div>
@@ -327,6 +330,7 @@ export default function Create() {
 
                                 {actionsList.length !== 0 && (
                                     <button
+                                        onClick={() => setStep(3)}
                                         className="absolute right-0 bg-white text-black px-4 py-1.5 md:px-6 md:py-2 rounded-full font-bold text-sm md:text-lg hover:bg-gray-200 transition-colors"
                                         disabled={actionsList.length === 0}
                                     >
