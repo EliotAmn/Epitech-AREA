@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+import 'package:mobile/global/cache.dart' as cache;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:mobile/component/card/card_button.dart';
+
+class SecuritySettingsPage extends StatefulWidget {
+  const SecuritySettingsPage({super.key});
+
+  @override
+  State<SecuritySettingsPage> createState() => _SecuritySettingsPageState();
+}
+
+class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  bool _showPasswords = false;
+
+  void _updatePassword(
+      String currentPassword, String newPassword, String confirmPassword) async {
+    if (newPassword != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('New passwords do not match')),
+      );
+      return;
+    }
+
+    final userId = await _getUserIdFromToken();
+    final token = await cache.AuthStore().loadToken();
+    final apiUrl = await cache.ApiSettingsStore().loadApiUrl();
+
+    if (token == null) {
+      debugPrint('No auth token found.');
+      return;
+    }
+
+    final response = await http.patch(
+      Uri.parse('$apiUrl/users/$userId/password'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      debugPrint('Password updated successfully.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password updated successfully')),
+      );
+    } else {
+      debugPrint('Failed to update password: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update password: ${response.reasonPhrase}')),
+      );
+    }
+  }
+
+  Future<String> _getUserIdFromToken() async {
+    final token = await cache.AuthStore().loadToken();
+    if (token == null) return 'Unknown';
+    final parts = token.split('.');
+    if (parts.length != 3) return 'Unknown';
+    final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+    final payloadMap = jsonDecode(payload);
+    return payloadMap['sub'] ?? 'Unknown';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Security Settings'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+            TextField(
+              controller: _currentPasswordController,
+              decoration: const InputDecoration(
+                labelText: 'Current Password',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: !_showPasswords,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _newPasswordController,
+              decoration: const InputDecoration(
+                labelText: 'New Password',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: !_showPasswords,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _confirmPasswordController,
+              decoration: const InputDecoration(
+                labelText: 'Confirm New Password',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: !_showPasswords,
+            ),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              title: const Text('Show passwords'),
+              value: _showPasswords,
+              onChanged: (val) {
+                setState(() {
+                  _showPasswords = val;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            CardButton(
+              label: 'Update Password',
+              color: Colors.blue,
+              textColor: Colors.white,
+              radius: 80.0,
+              onTap: () {
+                _updatePassword(
+                  _currentPasswordController.text,
+                  _newPasswordController.text,
+                  _confirmPasswordController.text,
+                );
+              },
+            ),
+          ],
+          ),
+        ),
+      ),
+    );
+  }
+}

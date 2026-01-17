@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/global/cache.dart' as cache;
 import 'package:mobile/pages/settings_area/api_settings_page.dart';
+import 'package:mobile/pages/settings_area/account_settings_page.dart';
+import 'package:mobile/pages/settings_area/security_settings_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, required this.onLogoutSuccess});
@@ -19,6 +21,19 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          _buildSectionTitle('Account Settings'),
+          _buildSettingsTile(
+            icon: Icons.person,
+            title: 'Profile',
+            subtitle: 'Manage your profile information',
+            onTap: () => _navigateTo(context, 'profile'),
+          ),
+          _buildSettingsTile(
+            icon: Icons.lock,
+            title: 'Security',
+            subtitle: 'Update your password and security settings',
+            onTap: () => _navigateTo(context, 'security'),
+          ),
           _buildSectionTitle('Advenced Settings'),
           _buildSettingsTile(
             icon: Icons.link,
@@ -79,7 +94,12 @@ class _SettingsPageState extends State<SettingsPage> {
       case 'api_settings':
         page = const ApiSettingsPage();
         break;
-      // Add other cases for 'profile', 'security', etc.
+      case 'profile':
+        page = const AccountSettingsPage();
+        break;
+      case 'security':
+        page = const SecuritySettingsPage();
+        break;
       default:
         return;
     }

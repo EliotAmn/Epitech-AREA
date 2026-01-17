@@ -300,7 +300,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
           ),
           if (_errorMessage.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 _errorMessage,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),

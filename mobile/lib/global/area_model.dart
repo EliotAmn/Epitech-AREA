@@ -16,10 +16,10 @@ class Area {
   Map<String, dynamic> toJson() => {
     'name': name,
     'actions': [
-      {'action_name': action.actionName, 'params': action.inputValues},
+      {'action_name': action.actionName, 'params': action.inputValues, 'service': action.serviceName},
     ],
     'reactions': [
-      {'reaction_name': reaction.reactionName, 'params': reaction.inputValues},
+      {'reaction_name': reaction.reactionName, 'params': reaction.inputValues, 'service': reaction.serviceName},
     ],
   };
 
@@ -28,8 +28,19 @@ class Area {
     String leftService = '';
     String rightService = '';
 
-    leftService = leftService;
-    rightService = rightService;
+    leftService = json['actions'] != null &&
+            (json['actions'] as List).isNotEmpty &&
+            (json['actions'].first as Map<String, dynamic>)['service'] !=
+                null
+        ? (json['actions'].first as Map<String, dynamic>)['service'] as String
+        : '';
+    rightService = json['reactions'] != null &&
+            (json['reactions'] as List).isNotEmpty &&
+            (json['reactions'].first as Map<String, dynamic>)['service'] !=
+                null
+        ? (json['reactions'].first as Map<String, dynamic>)['service']
+            as String
+        : '';
 
     final actions = (json['actions'] as List?) ?? const [];
     final firstAction = actions.isNotEmpty
@@ -78,7 +89,7 @@ class AreaAction {
   });
 
   Map<String, dynamic> toJson() => {
-    'serviceName': serviceName,
+    'service': serviceName,
     'actionName': actionName,
     'actionDescription': actionDescription,
     'inputValues': inputValues,
@@ -86,7 +97,7 @@ class AreaAction {
 
   factory AreaAction.fromJson(Map<String, dynamic> json) {
     return AreaAction(
-      serviceName: json['serviceName'] ?? '',
+      serviceName: json['service'] ?? '',
       actionName: json['actionName'] ?? '',
       actionDescription: json['actionDescription'] ?? '',
       inputValues: json['inputValues'] as Map<String, dynamic>? ?? {},
@@ -108,7 +119,7 @@ class AreaReaction {
   });
 
   Map<String, dynamic> toJson() => {
-    'serviceName': serviceName,
+    'service': serviceName,
     'reactionName': reactionName,
     'reactionDescription': reactionDescription,
     'inputValues': inputValues,
@@ -116,7 +127,7 @@ class AreaReaction {
 
   factory AreaReaction.fromJson(Map<String, dynamic> json) {
     return AreaReaction(
-      serviceName: json['serviceName'] ?? '',
+      serviceName: json['service'] ?? '',
       reactionName: json['reactionName'] ?? '',
       reactionDescription: json['reactionDescription'] ?? '',
       inputValues: json['inputValues'] as Map<String, dynamic>? ?? {},

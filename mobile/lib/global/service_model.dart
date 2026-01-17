@@ -56,6 +56,7 @@ class ServiceAction {
   final List<ActionParam> outputParams;
   final List<ActionParam> inputParams;
   final String label;
+  final String? serviceName;
 
   ServiceAction({
     required this.name,
@@ -63,6 +64,7 @@ class ServiceAction {
     required this.outputParams,
     required this.inputParams,
     required this.label,
+    this.serviceName,
   });
 
   factory ServiceAction.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,7 @@ class ServiceAction {
           .map((p) => ActionParam.fromJson(p as Map<String, dynamic>))
           .toList(),
       label: json['label'] ?? '',
+      serviceName: json['service'] ?? '',
     );
   }
 
@@ -84,6 +87,7 @@ class ServiceAction {
     'description': description,
     'output_params': outputParams.map((p) => p.toJson()).toList(),
     'input_params': inputParams.map((p) => p.toJson()).toList(),
+    'service': serviceName,
   };
 }
 
@@ -92,12 +96,14 @@ class ServiceReaction {
   final String description;
   final List<ActionParam> inputParams;
   final String label;
+  final String? serviceName;
 
   ServiceReaction({
     required this.name,
     required this.description,
     required this.inputParams,
     required this.label,
+    this.serviceName,
   });
 
   factory ServiceReaction.fromJson(Map<String, dynamic> json) {
@@ -108,6 +114,7 @@ class ServiceReaction {
           .map((p) => ActionParam.fromJson(p as Map<String, dynamic>))
           .toList(),
       label: json['label'] ?? '',
+      serviceName: json['service'] ?? '',
     );
   }
 
@@ -115,6 +122,7 @@ class ServiceReaction {
     'name': name,
     'description': description,
     'input_params': inputParams.map((p) => p.toJson()).toList(),
+    'service': serviceName,
   };
 }
 

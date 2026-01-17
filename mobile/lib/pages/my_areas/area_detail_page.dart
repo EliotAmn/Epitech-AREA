@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/component/card/card_button.dart';
+import 'package:mobile/utils/string_utils.dart';
 import '../../global/area_model.dart';
+import 'package:mobile/global/service_model.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:mobile/global/cache.dart' as cache;
 import 'edit_area_page.dart';
 
 class AreaDetailPage extends StatelessWidget {
@@ -8,6 +13,7 @@ class AreaDetailPage extends StatelessWidget {
 
   const AreaDetailPage({super.key, required this.area});
 
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,25 +57,13 @@ class AreaDetailPage extends StatelessWidget {
             // Action Section
             _buildSectionHeader(context, 'If', Icons.arrow_back),
             const SizedBox(height: 12),
-            _buildInfoCard(
-              context,
-              service: area.action.serviceName,
-              actionName: area.action.actionName,
-              description: area.action.actionDescription,
-              params: area.action.inputValues,
-            ),
+            _buildActionCard(context),
             const SizedBox(height: 24),
 
             // Reaction Section
             _buildSectionHeader(context, 'THEN (Action)', Icons.arrow_forward),
             const SizedBox(height: 12),
-            _buildInfoCard(
-              context,
-              service: area.reaction.serviceName,
-              actionName: area.reaction.reactionName,
-              description: area.reaction.reactionDescription,
-              params: area.reaction.inputValues,
-            ),
+            _buildReactionCard(context),
             const SizedBox(height: 24),
 
             // Area ID
@@ -101,6 +95,30 @@ class AreaDetailPage extends StatelessWidget {
     );
   }
 
+  Future<Color> _colorFromServiceName(String serviceName) async {
+    final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
+    if (apiSettingsUrl == null) {
+      return Colors.grey; // Default color if no token or API URL
+    }
+    final response = await http.get(
+      Uri.parse('$apiSettingsUrl/about.json'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      final data = response.body;
+      final decoded = jsonDecode(data);
+      final services = (decoded['server']['services'] as List)
+                  .map((e) => Service.fromJson(e as Map<String, dynamic>))
+                  .toList();
+      final service = services.firstWhere((s) => s.name == serviceName);
+      return Color(int.parse('0xFF${service.color.substring(1)}'));
+    } else {
+      return Colors.grey; // Default color on error
+    }
+  }
+
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
@@ -126,12 +144,13 @@ class AreaDetailPage extends StatelessWidget {
     required String actionName,
     required String description,
     required Map<String, dynamic> params,
+    Color? color,
   }) {
     return CardButton(
       label: service,
       onTap: () {},
-      color: const Color.fromARGB(255, 255, 255, 255),
-      textColor: Colors.black,
+      color: color ?? Colors.grey,
+      textColor: Colors.white,
       children: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -148,7 +167,7 @@ class AreaDetailPage extends StatelessWidget {
                 service,
                 style: Theme.of(
                   context,
-                ).textTheme.labelLarge?.copyWith(color: Colors.white),
+                ).textTheme.labelLarge?.copyWith(color: color),
               ),
             ),
             const SizedBox(height: 12),
@@ -158,7 +177,7 @@ class AreaDetailPage extends StatelessWidget {
               actionName,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
 
@@ -176,10 +195,10 @@ class AreaDetailPage extends StatelessWidget {
             if (params.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
-                'Parameters:',
+                'Parameters',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 8),
@@ -196,7 +215,7 @@ class AreaDetailPage extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.w500,
-                                color: Colors.blue,
+                                color: Colors.white,
                               ),
                         ),
                       ),
@@ -204,7 +223,7 @@ class AreaDetailPage extends StatelessWidget {
                         flex: 3,
                         child: Text(
                           entry.value?.toString() ?? 'N/A',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
                         ),
                       ),
                     ],
@@ -215,6 +234,40 @@ class AreaDetailPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReactionCard(BuildContext context) {
+    return FutureBuilder<Color>(
+      future: _colorFromServiceName(area.reaction.serviceName),
+      builder: (context, snapshot) {
+        final color = snapshot.data ?? Colors.grey;
+        return _buildInfoCard(
+          context,
+          service: humanize(area.reaction.serviceName),
+          actionName: area.reaction.reactionName,
+          description: area.reaction.reactionDescription,
+          params: area.reaction.inputValues,
+          color: color,
+        );
+      },
+    );
+  }
+
+  Widget _buildActionCard(BuildContext context) {
+    return FutureBuilder<Color>(
+      future: _colorFromServiceName(area.action.serviceName),
+      builder: (context, snapshot) {
+        final color = snapshot.data ?? Colors.grey;
+        return _buildInfoCard(
+          context,
+          service: humanize(area.action.serviceName),
+          actionName: area.action.actionName,
+          description: area.action.actionDescription,
+          params: area.action.inputValues,
+          color: color,
+        );
+      },
     );
   }
 }
