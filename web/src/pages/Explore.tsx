@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import CatalogPage from "@/component/CatalogPage";
 import { getPlatformColor } from "@/config/platforms";
 import {
     fetchCatalogFromAbout,
     sortCatalogItemsByLabel,
 } from "@/services/aboutParser";
 import type { CatalogItem } from "../data/catalogData";
-import CatalogPage from "./CatalogPage";
 
 export default function Explore() {
     const navigate = useNavigate();

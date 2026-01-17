@@ -58,7 +58,41 @@ export default function OAuthServiceProxy() {
                     queryParams
                 );
 
-                // Success - redirect to home page
+                if (
+                    window.opener &&
+                    typeof window.opener.postMessage === "function"
+                ) {
+                    try {
+                        window.opener.postMessage(
+                            {
+                                type: "oauth:service_connected",
+                                service: service_name,
+                            },
+                            window.origin
+                        );
+                    } catch {
+                        // Fallback if origin restriction fails
+                        try {
+                            window.opener.postMessage(
+                                {
+                                    type: "oauth:service_connected",
+                                    service: service_name,
+                                },
+                                "*"
+                            );
+                        } catch {
+                            console.debug("Fallback postMessage failed");
+                        }
+                    }
+
+                    try {
+                        window.close();
+                        return;
+                    } catch {
+                        // ignore
+                    }
+                }
+
                 setIsProcessing(false);
                 setTimeout(() => {
                     navigate("/");

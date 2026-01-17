@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import CatalogPage from "@/component/CatalogPage";
 import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
 import { areaService } from "@/services/api/areaService";
 import type { CatalogItem } from "../data/catalogData";
-import CatalogPage from "./CatalogPage";
 
 type AreaDto = {
     id: string;
