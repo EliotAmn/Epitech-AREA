@@ -46,6 +46,7 @@ jobs:
 
       - name: Get changed files
         id: changed-files
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: tj-actions/changed-files@v47
         with:
           files: |
@@ -56,12 +57,22 @@ jobs:
       - name: Set outputs
         id: set-outputs
         run: |
-          FRONT=false
-          BACK=false
-          MOBILE=false
-          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "web/"; then FRONT=true; fi
-          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "backend/"; then BACK=true; fi
-          if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "mobile/"; then MOBILE=true; fi
+          # For tag pushes (releases), build everything
+          if [ "${{ startsWith(github.ref, 'refs/tags/v') }}" == "true" ]; then
+            echo "🏷️ Tag push detected - building all components"
+            FRONT=true
+            BACK=true
+            MOBILE=true
+          else
+            # For regular pushes, detect changes
+            FRONT=false
+            BACK=false
+            MOBILE=false
+            if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "web/"; then FRONT=true; fi
+            if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "backend/"; then BACK=true; fi
+            if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "mobile/"; then MOBILE=true; fi
+          fi
+          
           echo "frontend_changed=$FRONT" >> $GITHUB_OUTPUT
           echo "backend_changed=$BACK" >> $GITHUB_OUTPUT
           echo "mobile_changed=$MOBILE" >> $GITHUB_OUTPUT
@@ -196,7 +207,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,enable=${{ !startsWith(github.ref, 'refs/tags/v') }}
             type=raw,value=latest,enable=${{ needs.detect_changes.outputs.release_type == 'production' }}
             type=raw,value=latest-dev,enable=${{ needs.detect_changes.outputs.release_type == 'development' }}
             type=raw,value=${{ needs.detect_changes.outputs.release_type }}

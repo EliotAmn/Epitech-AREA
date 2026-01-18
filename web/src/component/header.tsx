@@ -131,9 +131,11 @@ export default function Header({
     ];
 
     const renderNavItem = (item: NavItem, variant: "desktop" | "mobile") => {
-        const baseMobile = `text-left px-3 py-2 rounded ${itemHoverBg} ${hoverTextClass} focus:outline-none focus:ring-2 focus:ring-blue-400`;
+        const baseMobile = `text-left px-3 py-2 rounded ${itemHoverBg} ${hoverTextClass} focus:outline-none focus:ring-2`;
         const baseDesktop = item.primary
-            ? "bg-blue-500 text-white px-4 py-2 rounded-3xl hover:bg-blue-600 cursor-pointer"
+            ? item.key === "create"
+                ? "bg-black text-white px-4 py-2 rounded-3xl hover:bg-zinc-800 cursor-pointer"
+                : "bg-blue-500 text-white px-4 py-2 rounded-3xl hover:bg-blue-600 cursor-pointer"
             : "text-xl font-bold hover:cursor-pointer";
 
         const onClick = () => {
@@ -147,7 +149,9 @@ export default function Header({
                     key={item.key}
                     className={
                         item.primary
-                            ? `text-left px-3 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
+                            ? item.key === "create"
+                                ? `text-left px-3 py-2 rounded bg-black text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black`
+                                : `text-left px-3 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
                             : baseMobile
                     }
                     onClick={onClick}
@@ -194,7 +198,7 @@ export default function Header({
             className={`relative w-full flex justify-between items-center ${themeClasses} ${className}`}
         >
             <button
-                className={`text-3xl font-bold p-4 hover:cursor-pointer ${hoverTextClass}`}
+                className={`text-4xl font-bold p-4 hover:cursor-pointer ${hoverTextClass}`}
                 onClick={() => navigate(isLoggedIn ? "/explore" : "/")}
                 type="button"
                 aria-label="Home"
@@ -239,17 +243,6 @@ export default function Header({
                                     aria-label="Profile"
                                 >
                                     Profile
-                                </button>
-                                <button
-                                    className={`text-left px-3 py-2 rounded ${itemHoverBg} ${hoverTextClass} focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        navigate("/change-password");
-                                    }}
-                                    type="button"
-                                    aria-label="Change Password"
-                                >
-                                    Change Password
                                 </button>
                                 <button
                                     className="text-left px-3 py-2 rounded text-red-600 hover:text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400"
@@ -308,6 +301,18 @@ export default function Header({
                                     >
                                         Change Password
                                     </button>
+                                    {AuthService.isAdmin() && (
+                                        <button
+                                            className={`block w-full text-left px-4 py-2 text-sm ${hoverTextClass}`}
+                                            onClick={() => {
+                                                navigate("/dashboard");
+                                                setShowProfileMenu(false);
+                                            }}
+                                            type="button"
+                                        >
+                                            Dashboard
+                                        </button>
+                                    )}
                                     <hr
                                         className={`my-1 ${appliedTheme === "dark" ? "border-zinc-700" : "border-gray-200"}`}
                                     />

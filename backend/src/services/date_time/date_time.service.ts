@@ -9,7 +9,8 @@ export default class DateTimeService implements ServiceDefinition {
   name = 'Date & Time';
   label = 'Date & Time';
   color = '#4285F4';
-  logo = 'https://assets.ifttt.com/images/channels/3/icons/monochrome_large.webp';
+  logo =
+    'https://assets.ifttt.com/images/channels/3/icons/monochrome_large.webp';
   description = 'Date and time based triggers for scheduling actions';
 
   actions = [

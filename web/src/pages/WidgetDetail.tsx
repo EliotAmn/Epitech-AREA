@@ -4,11 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { getPlatformColor, getPlatformIcon } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
-import {
-    disconnectUserService,
-    getUserServiceStatus,
-} from "@/services/api/userserviceClient";
-import Button from "../component/button";
+import { getUserServiceStatus } from "@/services/api/userserviceClient";
+import OAuthConnectButton from "../component/OAuthConnectButton";
 import SearchBar from "../component/SearchBar";
 import Widget from "../component/widget";
 import type { CatalogItem } from "../data/catalogData";
@@ -95,9 +92,9 @@ export default function WidgetDetail() {
     }, [itemsToShow, query]);
 
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-white">
+        <div className="min-h-screen flex flex-col bg-white">
             {/* Header with service info and connect button */}
-            <div className="relative w-full shrink-0">
+            <div className="relative w-full">
                 <div
                     className="absolute inset-0 z-0 opacity-40"
                     style={{
@@ -145,7 +142,11 @@ export default function WidgetDetail() {
                             </div>
                         </div>
                         {(connected === true || oauth_url) && (
-                            <Button
+                            <OAuthConnectButton
+                                platform={platform}
+                                oauthUrl={oauth_url}
+                                initialConnected={connected}
+                                onConnected={(c) => setConnected(c)}
                                 label={
                                     connected === null
                                         ? "Loading..."
@@ -153,28 +154,6 @@ export default function WidgetDetail() {
                                           ? "Disconnect"
                                           : `Connect ${label} Account`
                                 }
-                                onClick={async () => {
-                                    if (connected) {
-                                        try {
-                                            await disconnectUserService(
-                                                platform
-                                            );
-                                            setConnected(false);
-                                        } catch (err) {
-                                            console.error(
-                                                "Disconnect failed",
-                                                err
-                                            );
-                                        }
-                                        return;
-                                    }
-                                    if (oauth_url) {
-                                        window.location.href = oauth_url;
-                                    } else {
-                                        navigate("/create");
-                                    }
-                                }}
-                                disabled={connected === null}
                                 mode="black"
                                 className="shadow-xl shadow-slate-200"
                             />
@@ -184,8 +163,8 @@ export default function WidgetDetail() {
             </div>
 
             {/* Tabs and search section on white background */}
-            <div className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
-                <div className="w-full shrink-0 bg-white border-b border-slate-200">
+            <div className="flex-1 flex flex-col bg-slate-50">
+                <div className="w-full bg-white border-b border-slate-200">
                     <div className="max-w-7xl mx-auto px-8 py-6">
                         <div className="flex items-center justify-center gap-12 mb-6">
                             <button

@@ -136,7 +136,7 @@ export default class NotionService implements ServiceDefinition {
   oauth_callback = oauth_callback;
   logo =
     'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/3840px-Notion-logo.svg.png';
-  color = '#000000';
+  color = '#373530';
   description =
     'Connect your Notion workspace to automate tasks and integrate with your notes, databases, and pages.';
   actions = [PageCreated, PageUpdated];

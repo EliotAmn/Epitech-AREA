@@ -84,7 +84,7 @@ async function oauth_callback(
 export default class GithubService implements ServiceDefinition {
   name = 'github';
   label = 'GitHub';
-  color = '#4493F8';
+  color = '#101411';
   logo =
     'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/github-white-icon.png';
   mandatory_env_vars = ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET'];
