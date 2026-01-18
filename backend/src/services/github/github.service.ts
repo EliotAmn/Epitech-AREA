@@ -5,7 +5,12 @@ import axios, { AxiosError } from 'axios';
 import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
 import { GithubNewCommit } from './actions/new-commit';
+import { GithubNewIssue } from './actions/new-issue';
+import { GithubNewPullRequest } from './actions/new-pull-request';
+import { GithubCreateComment } from './reactions/create-comment';
 import { GithubCreateIssue } from './reactions/create-issue'; // Import reaction
+
+import { GithubCreatePullRequest } from './reactions/create-pull-request.reaction';
 
 interface GithubTokenResponse {
   access_token: string;
@@ -96,6 +101,6 @@ export default class GithubService implements ServiceDefinition {
   oauth_callback = oauth_callback;
   description =
     'GitHub is a development platform inspired by the way you work. From open source to business, you can host and review code, manage projects, and build software alongside millions of developers.';
-  actions = [GithubNewCommit];
-  reactions = [GithubCreateIssue];
+  actions = [GithubNewCommit, GithubNewIssue, GithubNewPullRequest];
+  reactions = [GithubCreateIssue, GithubCreateComment, GithubCreatePullRequest];
 }
