@@ -8,19 +8,29 @@ import {
   Post,
   Req,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Request } from 'express';
 
 import { AreaService } from './area.service';
 import { CreateAreaDto } from './dto/create-area.dto';
+import { UpdateAreaDto } from './dto/update-area.dto';
 
 @ApiTags('areas')
+@ApiBearerAuth()
 @Controller('areas')
 export class AreaController {
   constructor(private readonly areaService: AreaService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create an area for the authenticated user' })
+  @ApiBody({ type: CreateAreaDto })
   @ApiResponse({ status: 201, description: 'Area created' })
   async create(
     @Req() req: Request & { user?: { sub?: string } },
@@ -40,6 +50,7 @@ export class AreaController {
 
   @Post(':id/reload')
   @ApiOperation({ summary: 'Reload an area by its ID' })
+  @ApiParam({ name: 'id', description: 'Area ID' })
   @ApiResponse({ status: 200, description: 'Area reloaded' })
   async reloadArea(@Param('id') id: string) {
     await this.areaService.initializeOne(id);
@@ -48,6 +59,7 @@ export class AreaController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an area by its ID' })
+  @ApiParam({ name: 'id', description: 'Area ID' })
   @ApiResponse({ status: 200, description: 'Area deleted' })
   async deleteArea(
     @Req() req: Request & { user?: { sub?: string } },
@@ -60,21 +72,16 @@ export class AreaController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an area (name, or params) by its ID' })
+  @ApiParam({ name: 'id', description: 'Area ID' })
+  @ApiBody({ type: UpdateAreaDto })
   @ApiResponse({ status: 200, description: 'Area updated' })
-  async updateParams(
-    @Param('id') id: string,
-    @Body()
-    dto: {
-      name?: string;
-      actions?: Array<{ id: string; params?: Record<string, unknown> }>;
-      reactions?: Array<{ id: string; params?: Record<string, unknown> }>;
-    },
-  ) {
+  async updateParams(@Param('id') id: string, @Body() dto: UpdateAreaDto) {
     return this.areaService.updateParams(id, dto);
   }
 
   @Patch(':id/toggle')
   @ApiOperation({ summary: 'Toggle area enabled state' })
+  @ApiParam({ name: 'id', description: 'Area ID' })
   @ApiResponse({ status: 200, description: 'Area enabled state toggled' })
   async toggleEnabled(
     @Req() req: Request & { user?: { sub?: string } },
@@ -86,6 +93,7 @@ export class AreaController {
 
   @Post(':id/test')
   @ApiOperation({ summary: 'Manually trigger an area test' })
+  @ApiParam({ name: 'id', description: 'Area ID' })
   @ApiResponse({ status: 200, description: 'Area test triggered' })
   async testArea(
     @Req() req: Request & { user?: { sub?: string } },

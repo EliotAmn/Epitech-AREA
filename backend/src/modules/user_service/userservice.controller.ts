@@ -7,12 +7,19 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
 import { UserServiceService } from '@/modules/user_service/userservice.service';
 
 @ApiTags('services')
+@ApiBearerAuth()
 @Controller('services')
 export class UserServiceController {
   constructor(
@@ -21,6 +28,16 @@ export class UserServiceController {
   ) {}
 
   @Get('/:service_name/redirect')
+  @ApiOperation({ summary: 'Handle service OAuth callback and store tokens' })
+  @ApiParam({ name: 'service_name', description: 'Service name' })
+  @ApiResponse({
+    status: 200,
+    description: 'OAuth callback handled successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Service not found or OAuth unsupported',
+  })
   async getServiceRedirectUrl(
     @Req()
     req: Request & {
@@ -65,6 +82,9 @@ export class UserServiceController {
   }
 
   @Get('/:service_name/status')
+  @ApiOperation({ summary: 'Get connection status for a user service' })
+  @ApiParam({ name: 'service_name', description: 'Service name' })
+  @ApiResponse({ status: 200, description: 'Returns connection status' })
   async getUserServiceStatus(
     @Req()
     req: Request & {
@@ -90,6 +110,9 @@ export class UserServiceController {
   }
 
   @Delete('/:service_name')
+  @ApiOperation({ summary: 'Disconnect user from a service' })
+  @ApiParam({ name: 'service_name', description: 'Service name' })
+  @ApiResponse({ status: 200, description: 'Disconnection success' })
   async disconnectUserService(
     @Req()
     req: Request & {

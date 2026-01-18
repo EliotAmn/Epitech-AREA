@@ -1,9 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { getTransformationMetadata } from '@/common/transformation-registry';
 
 @ApiTags('common')
+@ApiBearerAuth()
 @Controller('common')
 export class CommonController {
   @Get('transformations')
