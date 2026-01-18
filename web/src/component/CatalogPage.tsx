@@ -16,6 +16,8 @@ interface CatalogPageProps {
     backButton?: boolean;
     onBack?: () => void;
     showPlatform?: boolean;
+    onToggleEnabled?: (areaId: string) => void;
+    onTest?: (areaId: string) => Promise<void>;
 }
 
 export default function CatalogPage({
@@ -26,6 +28,8 @@ export default function CatalogPage({
     backButton,
     onBack,
     showPlatform = true,
+    onToggleEnabled,
+    onTest,
 }: CatalogPageProps) {
     const [query, setQuery] = useState("");
     const navigate = useNavigate();
@@ -119,6 +123,11 @@ export default function CatalogPage({
                                     reactionPlatform={item.reactionPlatform}
                                     color={item.color}
                                     showPlatform={showPlatform}
+                                    disabled={item.enabled === false}
+                                    areaId={item.id}
+                                    enabled={item.enabled}
+                                    onToggleEnabled={onToggleEnabled}
+                                    onTest={onTest}
                                     onClick={() => onSelect && onSelect(item)}
                                 />
                             ))

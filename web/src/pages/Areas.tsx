@@ -11,6 +11,7 @@ import type { CatalogItem } from "../data/catalogData";
 type AreaDto = {
     id: string;
     name: string;
+    enabled?: boolean;
     user_id?: string;
     actions?: Array<{ action_name: string; params?: Record<string, unknown> }>;
     reactions?: Array<{
@@ -76,6 +77,7 @@ export default function Areas() {
                     platform,
                     color,
                     reactionPlatform,
+                    enabled: a.enabled ?? true,
                 };
             });
             setItems(mapped);
@@ -102,6 +104,20 @@ export default function Areas() {
         }
     };
 
+    const handleToggleEnabled = async (areaId: string) => {
+        try {
+            await areaService.toggleEnabled(areaId);
+            // Reload areas to reflect the change
+            await loadAreas();
+        } catch (error) {
+            console.error("Failed to toggle area:", error);
+        }
+    };
+
+    const handleTest = async (areaId: string) => {
+        await areaService.testArea(areaId);
+    };
+
     if (loading && items.length === 0) {
         return (
             <div className="h-full flex items-center justify-center">
@@ -118,6 +134,8 @@ export default function Areas() {
                 onSelect={(item) => handleSelect(item)}
                 showPlatform={false}
                 noButton={true}
+                onToggleEnabled={handleToggleEnabled}
+                onTest={handleTest}
             />
         </div>
     );

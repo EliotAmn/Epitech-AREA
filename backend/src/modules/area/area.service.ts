@@ -298,6 +298,12 @@ export class AreaService {
   }
 
   private async initActionsForArea(area: any, userId: string) {
+    // Skip initialization if area is disabled
+    if (area.enabled === false) {
+      this.logger.log(`Skipping disabled area ${area.id}`);
+      return;
+    }
+
     for (const a of area.actions || []) {
       try {
         const def_action = this.service_importer_service.getActionByName(
@@ -540,5 +546,50 @@ export class AreaService {
     await this.area_repository.delete(areaId);
 
     return { ok: true };
+  }
+
+  async toggleEnabled(areaId: string, userId?: string) {
+    const area = await this.area_repository.findById(areaId);
+    if (!area) throw new NotFoundException(`Area ${areaId} not found`);
+    if (userId && area.user_id !== userId) {
+      throw new NotFoundException(`Area ${areaId} not found`);
+    }
+
+    const newEnabledState = !area.enabled;
+    await this.area_repository.update(areaId, { enabled: newEnabledState });
+
+    if (newEnabledState) {
+      // Re-initialize the area if it's being enabled
+      await this.initializeOne(areaId);
+    } else {
+      // Stop pollers if it's being disabled
+      this.stopAreaPollers(areaId);
+    }
+
+    return this.area_repository.findById(areaId);
+  }
+
+  async testArea(areaId: string, userId?: string) {
+    const area = await this.area_repository.findById(areaId);
+    if (!area) throw new NotFoundException(`Area ${areaId} not found`);
+    if (userId && area.user_id !== userId) {
+      throw new NotFoundException(`Area ${areaId} not found`);
+    }
+
+    // Execute all reactions with mock trigger data
+    const mockTriggerOutput: ActionTriggerOutput = {
+      triggered: true,
+      parameters: {},
+    };
+
+    // Get the first action ID to pass to handle_action_trigger
+    const firstAction = area.actions?.[0];
+    if (!firstAction) {
+      throw new NotFoundException(`Area ${areaId} has no actions`);
+    }
+
+    await this.handle_action_trigger(firstAction.id, mockTriggerOutput);
+
+    return { ok: true, message: 'Area test triggered successfully' };
   }
 }
