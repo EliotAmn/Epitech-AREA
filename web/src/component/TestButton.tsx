@@ -9,7 +9,10 @@ interface TestButtonProps {
     disabled?: boolean;
 }
 
-export default function TestButton({ onTest, disabled = false }: TestButtonProps) {
+export default function TestButton({
+    onTest,
+    disabled = false,
+}: TestButtonProps) {
     const [state, setState] = useState<TestButtonState>("idle");
 
     const handleClick = async () => {

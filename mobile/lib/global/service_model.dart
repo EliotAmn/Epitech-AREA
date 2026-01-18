@@ -1,11 +1,11 @@
-import '../utils/string_utils.dart';
-
 class Service {
   final String name;
   final List<ServiceAction> actions;
   final List<ServiceReaction> reactions;
+  final String description;
   final String logo;
   final String color;
+  final String label;
   final String? oauthUrl;
 
   Service({
@@ -14,12 +14,15 @@ class Service {
     required this.reactions,
     required this.logo,
     required this.color,
+    required this.description,
+    required this.label,
     this.oauthUrl,
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
-    final rawName = json['name'] ?? '';
-    final humanName = humanize(rawName.toString());
+    final name = json['name'] ?? '';
+    final label = json['label'] ?? '';
+    final description = json['description'] ?? '';
     final actions = (json['actions'] as List? ?? [])
         .map((a) => ServiceAction.fromJson(a as Map<String, dynamic>))
         .toList();
@@ -27,31 +30,12 @@ class Service {
         .map((r) => ServiceReaction.fromJson(r as Map<String, dynamic>))
         .toList();
 
-    final humanActions = actions
-        .map(
-          (a) => ServiceAction(
-            name: a.name,
-            description: a.description,
-            outputParams: a.outputParams,
-            inputParams: a.inputParams,
-          ),
-        )
-        .toList();
-
-    final humanReactions = reactions
-        .map(
-          (r) => ServiceReaction(
-            name: r.name,
-            description: r.description,
-            inputParams: r.inputParams,
-          ),
-        )
-        .toList();
-
     return Service(
-      name: humanName,
-      actions: humanActions,
-      reactions: humanReactions,
+      name: name,
+      label: label,
+      actions: actions,
+      reactions: reactions,
+      description: description,
       oauthUrl: json['oauth_url'],
       logo: json['logo'] ?? '',
       color: json['color'] ?? '',
@@ -71,12 +55,16 @@ class ServiceAction {
   final String description;
   final List<ActionParam> outputParams;
   final List<ActionParam> inputParams;
+  final String label;
+  final String? serviceName;
 
   ServiceAction({
     required this.name,
     required this.description,
     required this.outputParams,
     required this.inputParams,
+    required this.label,
+    this.serviceName,
   });
 
   factory ServiceAction.fromJson(Map<String, dynamic> json) {
@@ -89,6 +77,8 @@ class ServiceAction {
       inputParams: (json['input_params'] as List? ?? [])
           .map((p) => ActionParam.fromJson(p as Map<String, dynamic>))
           .toList(),
+      label: json['label'] ?? '',
+      serviceName: json['service'] ?? '',
     );
   }
 
@@ -97,6 +87,7 @@ class ServiceAction {
     'description': description,
     'output_params': outputParams.map((p) => p.toJson()).toList(),
     'input_params': inputParams.map((p) => p.toJson()).toList(),
+    'service': serviceName,
   };
 }
 
@@ -104,11 +95,15 @@ class ServiceReaction {
   final String name;
   final String description;
   final List<ActionParam> inputParams;
+  final String label;
+  final String? serviceName;
 
   ServiceReaction({
     required this.name,
     required this.description,
     required this.inputParams,
+    required this.label,
+    this.serviceName,
   });
 
   factory ServiceReaction.fromJson(Map<String, dynamic> json) {
@@ -118,6 +113,8 @@ class ServiceReaction {
       inputParams: (json['input_params'] as List? ?? [])
           .map((p) => ActionParam.fromJson(p as Map<String, dynamic>))
           .toList(),
+      label: json['label'] ?? '',
+      serviceName: json['service'] ?? '',
     );
   }
 
@@ -125,6 +122,7 @@ class ServiceReaction {
     'name': name,
     'description': description,
     'input_params': inputParams.map((p) => p.toJson()).toList(),
+    'service': serviceName,
   };
 }
 
