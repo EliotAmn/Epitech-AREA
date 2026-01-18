@@ -28,6 +28,7 @@ class ConfigPage extends StatefulWidget {
 
 class _ConfigPageState extends State<ConfigPage> {
   final Map<String, TextEditingValue> _controllers = {};
+  bool _allFilled = false;
 
   @override
   void initState() {
@@ -434,30 +435,47 @@ class _ConfigPageState extends State<ConfigPage> {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CreateHomePage(
-                                    action: AreaAction(
-                                      serviceName: widget.actionServiceName,
-                                      actionName: widget.selectedAction.name,
-                                      actionDescription: widget.selectedAction.description,
-                                      inputValues: widget.actionInputValues,
-                                    ),
-                                    reaction: AreaReaction(
-                                      serviceName: widget.reactionServiceName,
-                                      reactionName: widget.selectedReaction.name,
-                                      reactionDescription:
-                                          widget.selectedReaction.description,
-                                      inputValues: _controllers.map(
-                                        (key, controller) => MapEntry(key, controller.text),
+                              onTap: () =>  {
+                                for (var entry in _controllers.entries) {
+                                  if (widget.selectedReaction.inputParams
+                                      .any((param) => param.name == entry.key && param.requiredParam && entry.value.text.isEmpty)) {
+                                        _allFilled = false,
+                                      }
+                                  else {_allFilled = true}
+                                },
+                                if (_allFilled) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CreateHomePage(
+                                      action: AreaAction(
+                                        serviceName: widget.actionServiceName,
+                                        actionName: widget.selectedAction.name,
+                                        actionDescription: widget.selectedAction.description,
+                                        inputValues: widget.actionInputValues,
                                       ),
+                                      reaction: AreaReaction(
+                                        serviceName: widget.reactionServiceName,
+                                        reactionName: widget.selectedReaction.name,
+                                        reactionDescription:
+                                            widget.selectedReaction.description,
+                                        inputValues: _controllers.map(
+                                          (key, controller) => MapEntry(key, controller.text),
+                                        ),
+                                      ),
+                                      selectedReaction: widget.selectedReaction,
+                                      selectedAction: widget.selectedAction,
                                     ),
-                                    selectedReaction: widget.selectedReaction,
-                                    selectedAction: widget.selectedAction,
                                   ),
                                 ),
-                              ),
+                                } else {
+                                  showFToast(
+                                    context: context,
+                                    title: Text('Please fill all required fields'),
+                                  ),
+                                }
+                              },
+
                               child: Center(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,

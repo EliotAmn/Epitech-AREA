@@ -40,6 +40,14 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
   void _continue() {
     final inputValues = <String, dynamic>{};
     for (var entry in _controllers.entries) {
+      if (widget.action.inputParams
+          .any((param) => param.name == entry.key && param.requiredParam && entry.value.text.isEmpty)) {
+        showFToast(
+          context: context,
+          title: Text('Please fill all required fields'),
+        );
+        return;
+      }
       inputValues[entry.key] = entry.value.text;
     }
 
