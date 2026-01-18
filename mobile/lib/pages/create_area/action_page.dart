@@ -119,7 +119,17 @@ class _ActionPageState extends State<ActionPage> {
                           });
                         }
                       }
-                    : null,
+                    : () async {
+                        final success = await OAuthPage(
+                          oauthUrl: widget.service.oauthUrl!,
+                          serviceName: widget.service.name,
+                        ).disconnectService(context);
+                        if (success && mounted) {
+                          setState(() {
+                            _getConnectionStatus();
+                          });
+                        }
+                      },
               ),
 
               // Actions list

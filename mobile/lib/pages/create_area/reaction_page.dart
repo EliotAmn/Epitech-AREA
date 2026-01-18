@@ -6,6 +6,9 @@ import 'oauth_page.dart';
 import '../../component/card/service_grid_card.dart';
 import '../../component/page/service_header.dart';
 import '../../component/list/action_list_item.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../global/cache.dart' as cache;
 
 class ReactionPage extends StatelessWidget {
   final String actionServiceName;
@@ -149,7 +152,7 @@ class ReactionPage extends StatelessWidget {
   }
 }
 
-class ReactionListPage extends StatelessWidget {
+class ReactionListPage extends StatefulWidget {
   final String actionServiceName;
   final ServiceAction selectedAction;
   final Map<String, dynamic> actionInputValues;
@@ -163,8 +166,49 @@ class ReactionListPage extends StatelessWidget {
     required this.reactionService,
   });
 
+  @override
+  State<ReactionListPage> createState() => _ReactionListPageState();
+}
+
+class _ReactionListPageState extends State<ReactionListPage> {
+  bool isConnected = false;
+
+  Future<void> _getConnectionStatus() async {
+    try {
+      final apiUrl = await cache.ApiSettingsStore().loadApiUrl();
+      final token = await cache.AuthStore().loadToken();
+      final resp = await http.get(
+        Uri.parse('$apiUrl/services/${widget.reactionService.name}/status'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body) as Map<String, dynamic>;
+        final connected = decoded['connected'] as bool? ?? false;
+        if (mounted) {
+          setState(() {
+            isConnected = connected;
+          });
+        }
+      } else {
+        debugPrint('Failed to load connection status: ${resp.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error checking connection status: $e');
+    }
+  }
+
   Color get _serviceColor =>
-      Color(int.parse('0xFF${reactionService.color.substring(1)}'));
+      Color(int.parse('0xFF${widget.reactionService.color.substring(1)}'));
+
+  @override
+  void initState() {
+    super.initState();
+    _getConnectionStatus();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +234,7 @@ class ReactionListPage extends StatelessWidget {
             child: Icon(
               Icons.arrow_back,
               color: Color(
-                int.parse('0xFF${reactionService.color.substring(1)}'),
+                int.parse('0xFF${widget.reactionService.color.substring(1)}'),
               ),
             ),
           ),
@@ -203,9 +247,11 @@ class ReactionListPage extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(int.parse('0xFF${reactionService.color.substring(1)}')),
               Color(
-                int.parse('0xFF${reactionService.color.substring(1)}'),
+                int.parse('0xFF${widget.reactionService.color.substring(1)}'),
+              ),
+              Color(
+                int.parse('0xFF${widget.reactionService.color.substring(1)}'),
               ).withValues(alpha: 0.8),
             ],
           ),
@@ -215,16 +261,26 @@ class ReactionListPage extends StatelessWidget {
             children: [
               // Header section with service info
               ServiceHeader(
-                service: reactionService,
-                isConnected: false,
-                onConnect: reactionService.oauthUrl != null
-                    ? () {
-                        OAuthPage(
-                          oauthUrl: reactionService.oauthUrl!,
-                          serviceName: reactionService.name,
-                        ).initiateOAuthFlow(context);
-                      }
-                    : null,
+                service: widget.reactionService,
+                isConnected: isConnected,
+                onConnect: widget.reactionService.oauthUrl == null
+                    ? null
+                    : () async {
+                        // Toggle connect/disconnect based on current state
+                        bool success = false;
+                        final oauth = OAuthPage(
+                          oauthUrl: widget.reactionService.oauthUrl!,
+                          serviceName: widget.reactionService.name,
+                        );
+                        if (!isConnected) {
+                          success = await oauth.initiateOAuthFlow(context);
+                        } else {
+                          success = await oauth.disconnectService(context);
+                        }
+                        if (success) {
+                          await _getConnectionStatus();
+                        }
+                      },
               ),
 
               // Reactions list
@@ -248,7 +304,7 @@ class ReactionListPage extends StatelessWidget {
                               Icons.refresh,
                               color: Color(
                                 int.parse(
-                                  '0xFF${reactionService.color.substring(1)}',
+                                  '0xFF${widget.reactionService.color.substring(1)}',
                                 ),
                               ),
                               size: 24,
@@ -269,9 +325,10 @@ class ReactionListPage extends StatelessWidget {
                       Expanded(
                         child: ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: reactionService.reactions.length,
+                          itemCount: widget.reactionService.reactions.length,
                           itemBuilder: (context, index) {
-                            final reaction = reactionService.reactions[index];
+                            final reaction =
+                                widget.reactionService.reactions[index];
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: ActionListItem(
@@ -286,13 +343,16 @@ class ReactionListPage extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => ConfigPage(
-                                        actionServiceName: actionServiceName,
-                                        selectedAction: selectedAction,
-                                        actionInputValues: actionInputValues,
+                                        actionServiceName:
+                                            widget.actionServiceName,
+                                        selectedAction: widget.selectedAction,
+                                        actionInputValues:
+                                            widget.actionInputValues,
                                         reactionServiceName:
-                                            reactionService.name,
+                                            widget.reactionService.name,
                                         selectedReaction: reaction,
-                                        serviceColor: reactionService.color,
+                                        serviceColor:
+                                            widget.reactionService.color,
                                       ),
                                     ),
                                   );

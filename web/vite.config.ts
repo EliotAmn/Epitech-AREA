@@ -14,7 +14,7 @@ export default defineConfig({
     },
     server: {
         host: true,
-        allowedHosts: [".eliotamanieu.fr", "localhost", ".ngrok.io"],
+        allowedHosts: ["front.area.lan", ".eliotamanieu.fr", "localhost", ".ngrok.io"],
     }
 });
 
