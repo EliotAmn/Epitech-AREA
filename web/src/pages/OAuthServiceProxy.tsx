@@ -32,7 +32,6 @@ export default function OAuthServiceProxy() {
                 return;
             }
 
-
             // If user is not connected, redirect the url to the mobile app url
             if (!localStorage.getItem("authToken")) {
                 // Front url: https://areafront.eliotamanieu.fr/oauth-service-proxy/spotify?code=xxxx
