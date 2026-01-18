@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import GlassCardLayout from "@/component/glassCard";
+import TestButton from "@/component/TestButton";
 import Toast from "@/component/Toast";
 import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
@@ -17,6 +18,7 @@ import Input from "./input";
 interface Area {
     id: string;
     name: string;
+    enabled?: boolean;
     actions: {
         id?: string;
         action_name: string;
@@ -51,12 +53,29 @@ export default function Edit({ area }: EditProps) {
     } | null>(null);
 
     const [name, setName] = useState(area?.name || "");
-    const [actionParams, setActionParams] = useState<Record<string, unknown>>(
-        area?.actions?.[0]?.params || {}
+    const [enabled, setEnabled] = useState(area?.enabled ?? true);
+    const [actionsParams, setActionsParams] = useState<
+        Record<number, Record<string, unknown>>
+    >(
+        area?.actions?.reduce(
+            (acc, a, idx) => {
+                acc[idx] = a.params || {};
+                return acc;
+            },
+            {} as Record<number, Record<string, unknown>>
+        ) || {}
     );
-    const [reactionParams, setReactionParams] = useState<
-        Record<string, unknown>
-    >(area?.reactions?.[0]?.params || {});
+    const [reactionsParams, setReactionsParams] = useState<
+        Record<number, Record<string, unknown>>
+    >(
+        area?.reactions?.reduce(
+            (acc, r, idx) => {
+                acc[idx] = r.params || {};
+                return acc;
+            },
+            {} as Record<number, Record<string, unknown>>
+        ) || {}
+    );
 
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -72,6 +91,19 @@ export default function Edit({ area }: EditProps) {
         } finally {
             setShowConfirmDelete(false);
         }
+    };
+
+    const handleToggleEnabled = async () => {
+        try {
+            await areaService.toggleEnabled(area.id);
+            setEnabled(!enabled);
+        } catch (err) {
+            console.error("Failed to toggle enabled state:", err);
+        }
+    };
+
+    const handleTestArea = async () => {
+        await areaService.testArea(area.id);
     };
 
     useEffect(() => {
@@ -107,26 +139,31 @@ export default function Edit({ area }: EditProps) {
 
             if (name !== area.name) dto.name = name;
 
-            const actionId = area.actions?.[0]?.id;
-            const reactionId = area.reactions?.[0]?.id;
+            dto.actions = area.actions
+                .map((a, idx) => {
+                    if (!a.id) return null;
+                    return {
+                        id: a.id,
+                        params: actionsParams[idx],
+                    };
+                })
+                .filter(
+                    (a): a is { id: string; params: Record<string, unknown> } =>
+                        a !== null
+                );
 
-            if (actionId) {
-                dto.actions = [
-                    {
-                        id: actionId,
-                        params: actionParams,
-                    },
-                ];
-            }
-
-            if (reactionId) {
-                dto.reactions = [
-                    {
-                        id: reactionId,
-                        params: reactionParams,
-                    },
-                ];
-            }
+            dto.reactions = area.reactions
+                .map((r, idx) => {
+                    if (!r.id) return null;
+                    return {
+                        id: r.id,
+                        params: reactionsParams[idx],
+                    };
+                })
+                .filter(
+                    (r): r is { id: string; params: Record<string, unknown> } =>
+                        r !== null
+                );
 
             // Send a single PATCH request to update name and/or params
             if (Object.keys(dto).length > 0) {
@@ -240,17 +277,20 @@ export default function Edit({ area }: EditProps) {
             </div>
         );
 
-    const actionName = area.actions?.[0]?.action_name || "";
-    const reactionName = area.reactions?.[0]?.reaction_name || "";
+    const getBrandColor = (itemName: string, type: "action" | "reaction") => {
+        type CatalogItemWithDef = CatalogItem & { defName?: string };
+        const list = type === "action" ? catalog.actions : catalog.reactions;
+        const found = list.find(
+            (a: CatalogItemWithDef) =>
+                a.title === itemName || a.defName === itemName
+        );
+        return found ? getPlatformColor(found.platform) : "#5865F2";
+    };
 
-    type CatalogItemWithDef = CatalogItem & { defName?: string };
-    const actionItem = catalog.actions.find(
-        (a: CatalogItemWithDef) =>
-            a.title === actionName || a.defName === actionName
+    const primaryColor = getBrandColor(
+        area.actions?.[0]?.action_name || "",
+        "action"
     );
-    const brandColor = actionItem
-        ? getPlatformColor(actionItem.platform)
-        : "#5865F2";
 
     const formatName = (name: string) => {
         const withoutService = name.split(".")[1] || name;
@@ -260,18 +300,21 @@ export default function Edit({ area }: EditProps) {
 
     return (
         <GlassCardLayout
-            color={brandColor}
+            color={primaryColor}
             onBack={() => navigate(-1)}
             backLabel="Cancel"
         >
             <div className="flex flex-col w-full max-w-md mx-auto">
-                <div className="text-center mb-6">
-                    <h1 className="text-3xl font-black text-slate-900 leading-tight">
-                        Edit Area
-                    </h1>
-                    <p className="text-slate-500 text-sm mt-2">
-                        Adjust your automation parameters
-                    </p>
+                <div className="flex items-center justify-between mb-6">
+                    <div className="text-center flex-1">
+                        <h1 className="text-3xl font-black text-slate-900 leading-tight">
+                            Edit Area
+                        </h1>
+                        <p className="text-slate-500 text-sm mt-2">
+                            Adjust your automation parameters
+                        </p>
+                    </div>
+                    <TestButton onTest={handleTestArea} disabled={!enabled} />
                 </div>
 
                 <div className="mb-6 max-w-md mx-auto w-full">
@@ -286,40 +329,128 @@ export default function Edit({ area }: EditProps) {
                     />
                 </div>
 
-                <div className="space-y-10">
-                    <div
-                        className="relative pl-6 border-l-4"
-                        style={{ borderColor: brandColor }}
-                    >
-                        <span className="text-[10px] uppercase tracking-widest font-bold block mb-1">
-                            Trigger
+                <div className="mb-6 max-w-md mx-auto w-full flex items-center justify-between p-4 bg-white/50 rounded-xl">
+                    <div className="flex flex-col">
+                        <label className="text-xs font-bold uppercase tracking-wide text-slate-700">
+                            Area Status
+                        </label>
+                        <span className="text-sm text-slate-500 mt-1">
+                            {enabled ? "Enabled" : "Disabled"}
                         </span>
-                        <h3 className="text-xl font-bold text-slate-800 mb-4">
-                            {formatName(actionName)}
-                        </h3>
-                        {renderInputs(
-                            getParamsDefinition(actionName, "action"),
-                            actionParams,
-                            setActionParams
-                        )}
+                    </div>
+                    <button
+                        onClick={handleToggleEnabled}
+                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                            enabled ? "bg-green-500" : "bg-slate-300"
+                        }`}
+                        aria-label="Toggle area enabled state"
+                    >
+                        <span
+                            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                                enabled ? "translate-x-7" : "translate-x-1"
+                            }`}
+                        />
+                    </button>
+                </div>
+
+                <div className="space-y-10">
+                    {area.actions.map((action, idx) => (
+                        <div key={action.id || `action-${idx}`}>
+                            {idx > 0 && (
+                                <div className="flex items-center justify-center my-6">
+                                    <div className="h-px bg-slate-200 flex-1"></div>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase">
+                                        Or
+                                    </span>
+                                    <div className="h-px bg-slate-200 flex-1"></div>
+                                </div>
+                            )}
+                            <div
+                                className="relative pl-6 border-l-4"
+                                style={{
+                                    borderColor: getBrandColor(
+                                        action.action_name,
+                                        "action"
+                                    ),
+                                }}
+                            >
+                                <span className="text-[10px] uppercase tracking-widest font-bold block mb-1 text-slate-400">
+                                    Action{" "}
+                                    {area.actions.length > 1
+                                        ? `#${idx + 1}`
+                                        : ""}
+                                </span>
+                                <h3 className="text-xl font-bold text-slate-800 mb-4">
+                                    {formatName(action.action_name)}
+                                </h3>
+                                {renderInputs(
+                                    getParamsDefinition(
+                                        action.action_name,
+                                        "action"
+                                    ),
+                                    actionsParams[idx] || {},
+                                    (newVals) =>
+                                        setActionsParams({
+                                            ...actionsParams,
+                                            [idx]: newVals,
+                                        })
+                                )}
+                            </div>
+                        </div>
+                    ))}
+
+                    <div className="flex items-center justify-center my-8">
+                        <div className="h-0.5 bg-slate-900 flex-1"></div>
+                        <span className="px-6 text-xs font-black text-slate-900 uppercase tracking-[0.2em]">
+                            Then
+                        </span>
+                        <div className="h-0.5 bg-slate-900 flex-1"></div>
                     </div>
 
-                    <div
-                        className="relative pl-6 border-l-4"
-                        style={{ borderColor: brandColor }}
-                    >
-                        <span className="text-[10px] uppercase tracking-widest font-bold block mb-1">
-                            Reaction
-                        </span>
-                        <h3 className="text-xl font-bold text-slate-800 mb-4">
-                            {formatName(reactionName)}
-                        </h3>
-                        {renderInputs(
-                            getParamsDefinition(reactionName, "reaction"),
-                            reactionParams,
-                            setReactionParams
-                        )}
-                    </div>
+                    {area.reactions.map((reaction, idx) => (
+                        <div key={reaction.id || `reaction-${idx}`}>
+                            {idx > 0 && (
+                                <div className="flex items-center justify-center my-6">
+                                    <div className="h-px bg-slate-200 flex-1"></div>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        And
+                                    </span>
+                                    <div className="h-px bg-slate-200 flex-1"></div>
+                                </div>
+                            )}
+                            <div
+                                className="relative pl-6 border-l-4"
+                                style={{
+                                    borderColor: getBrandColor(
+                                        reaction.reaction_name,
+                                        "reaction"
+                                    ),
+                                }}
+                            >
+                                <span className="text-[10px] uppercase tracking-widest font-bold block mb-1 text-slate-400">
+                                    Reaction{" "}
+                                    {area.reactions.length > 1
+                                        ? `#${idx + 1}`
+                                        : ""}
+                                </span>
+                                <h3 className="text-xl font-bold text-slate-800 mb-4">
+                                    {formatName(reaction.reaction_name)}
+                                </h3>
+                                {renderInputs(
+                                    getParamsDefinition(
+                                        reaction.reaction_name,
+                                        "reaction"
+                                    ),
+                                    reactionsParams[idx] || {},
+                                    (newVals) =>
+                                        setReactionsParams({
+                                            ...reactionsParams,
+                                            [idx]: newVals,
+                                        })
+                                )}
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 <div className="mt-12 flex flex-col items-center gap-3">

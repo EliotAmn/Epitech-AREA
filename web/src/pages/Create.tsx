@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
+import { Trash } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import CatalogPage from "@/component/CatalogPage";
 import ConnectCard from "@/component/ConnectCard";
 import GlassCardLayout from "@/component/glassCard";
 import { getPlatformColor } from "@/config/platforms";
@@ -14,9 +16,10 @@ import { areaService } from "@/services/api/areaService";
 import { getUserServiceStatus } from "@/services/api/userserviceClient";
 import type { AboutData } from "@/services/types/aboutTypes";
 import Button from "../component/button";
-import ConfigWidget from "../component/ConfigWidget";
+import ConfigWidget, {
+    type ParameterDefinition,
+} from "../component/ConfigWidget";
 import type { CatalogItem } from "../data/catalogData";
-import CatalogPage from "./CatalogPage";
 
 export default function Create() {
     const location = useLocation();
@@ -126,10 +129,11 @@ export default function Create() {
     }, []);
 
     const getParams = (item: CatalogItem, type: "action" | "reaction") => {
-        if (!aboutData?.server?.services) return [];
+        const services = aboutData?.server?.services;
+        if (!services) return [];
         const defName =
             (item as CatalogItem & { defName?: string }).defName || item.title;
-        for (const svc of aboutData.server.services) {
+        for (const svc of services) {
             const list = type === "action" ? svc.actions : svc.reactions;
             const found = list?.find((x) => x.name === defName);
             if (found) return found.input_params || [];
@@ -138,21 +142,32 @@ export default function Create() {
     };
 
     const getActionOutputParams = () => {
-        if (!aboutData?.server?.services || actionsList.length === 0) return [];
-        const action = actionsList[0]?.action;
-        const actionSvc = actionsList[0]?.service || actionService;
-        const defName =
-            (
-                parsedActions.find(
-                    (a) => a.label === action && a.platform === actionSvc
-                ) as (CatalogItem & { defName?: string }) | undefined
-            )?.defName || action;
+        const services = aboutData?.server?.services;
+        if (!services || actionsList.length === 0) return [];
 
-        for (const svc of aboutData.server.services) {
-            const found = svc.actions?.find((x) => x.name === defName);
-            if (found) return found.output_params || [];
-        }
-        return [];
+        const allParams: ParameterDefinition[] = [];
+
+        actionsList.forEach((act) => {
+            const actionName = act.action;
+            const actionSvc = act.service;
+
+            const defName =
+                (
+                    parsedActions.find(
+                        (a) =>
+                            a.label === actionName && a.platform === actionSvc
+                    ) as (CatalogItem & { defName?: string }) | undefined
+                )?.defName || actionName;
+
+            for (const svc of services) {
+                const found = svc.actions?.find((x) => x.name === defName);
+                if (found && found.output_params) {
+                    allParams.push(...found.output_params);
+                }
+            }
+        });
+
+        return allParams;
     };
 
     const handleSelect = (item: CatalogItem) => {
@@ -263,26 +278,47 @@ export default function Create() {
         }
     };
 
+    const deleteAction = (index: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setActionsList((prev) => prev.filter((_, i) => i !== index));
+        if (editingActionIndex === index) {
+            setEditingActionIndex(null);
+            setStep(0);
+        }
+    };
+
+    const deleteReaction = (index: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setReactionsList((prev) => prev.filter((_, i) => i !== index));
+        if (editingReactionIndex === index) {
+            setEditingReactionIndex(null);
+            setStep(0);
+        }
+    };
+
     return (
         <div
             key={location.key}
             className="h-[calc(100vh-80px)] flex flex-col text-center"
         >
             {step === 0 && (
-                <div className="flex-1 flex flex-col items-center justify-center gap-0 pb-12">
-                    <h1 className="text-7xl font-bold mb-8 shrink-0">
+                <div className="flex-1 flex flex-col items-center justify-center gap-0 pb-12 px-4">
+                    <h1 className="text-4xl md:text-7xl font-bold mb-8 shrink-0">
                         Create your own area
                     </h1>
-                    <div className="flex flex-col items-center justify-center mt-24">
+                    <div className="flex flex-col items-center justify-center mt-12 md:mt-24 w-full">
                         <div
-                            className="bg-black text-white rounded-2xl w-[500px] p-8 relative z-10 shadow-xl transition-transform hover:scale-[1.01]"
+                            className="bg-black text-white rounded-2xl w-full max-w-[500px] p-8 relative z-10 shadow-xl transition-transform hover:scale-[1.01]"
                             onClick={() => setStep(1)}
                         >
                             <div className="relative flex items-center justify-center m-2">
-                                <h2 className="text-5xl font-black tracking-tighter">
+                                <h2 className="text-3xl md:text-5xl font-black tracking-tighter">
                                     If This
                                 </h2>
-                                <button className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors">
+                                <button
+                                    className="absolute right-0 bg-white text-black px-4 py-1.5 md:px-6 md:py-2 rounded-full font-bold text-sm md:text-lg hover:bg-gray-200 transition-colors"
+                                    onClick={() => setStep(1)}
+                                >
                                     Add
                                 </button>
                             </div>
@@ -303,9 +339,17 @@ export default function Create() {
                                                     {act.action}
                                                 </span>
                                             </div>
-                                            <span className="text-gray-500 text-sm group-hover:text-white transition-colors">
-                                                Edit
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-gray-500 text-sm group-hover:text-white transition-colors">
+                                                    Edit
+                                                </span>
+                                                <Trash
+                                                    className="w-4 h-4 text-gray-500 hover:text-red-500 transition-colors"
+                                                    onClick={(e) =>
+                                                        deleteAction(idx, e)
+                                                    }
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -315,17 +359,20 @@ export default function Create() {
                         </div>
 
                         <div
-                            className={`rounded-2xl w-[500px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2]`}
+                            className={`rounded-2xl w-full max-w-[500px] p-8 relative z-20 mt-14 shadow-inner transition-colors duration-300 bg-[#C2C2C2] hover:scale-[1.01]`}
                         >
                             <div className="relative flex items-center justify-center m-2">
-                                <h2 className="text-5xl font-black tracking-tighter text-white">
+                                <h2
+                                    className="text-3xl md:text-5xl font-black tracking-tighter text-white"
+                                    onClick={() => setStep(3)}
+                                >
                                     Then That
                                 </h2>
 
                                 {actionsList.length !== 0 && (
                                     <button
                                         onClick={() => setStep(3)}
-                                        className="absolute right-0 bg-white text-black px-6 py-2 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors"
+                                        className="absolute right-0 bg-white text-black px-4 py-1.5 md:px-6 md:py-2 rounded-full font-bold text-sm md:text-lg hover:bg-gray-200 transition-colors"
                                         disabled={actionsList.length === 0}
                                     >
                                         Add
@@ -349,9 +396,17 @@ export default function Create() {
                                                     {react.reaction}
                                                 </span>
                                             </div>
-                                            <span className="text-gray-400 text-sm group-hover:text-gray-600 transition-colors">
-                                                Edit
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-gray-400 text-sm group-hover:text-gray-600 transition-colors">
+                                                    Edit
+                                                </span>
+                                                <Trash
+                                                    className="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors"
+                                                    onClick={(e) =>
+                                                        deleteReaction(idx, e)
+                                                    }
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -364,7 +419,7 @@ export default function Create() {
                                 label="Continue"
                                 onClick={async () => {
                                     const payload = {
-                                        name: `If ${actionsList[0].action} then ${reactionsList[0].reaction}`,
+                                        name: `If ${actionsList[0].action} ${actionsList.length > 1 ? "or..." : ""} then ${reactionsList[0].reaction}${reactionsList.length > 1 ? " and..." : ""}`,
                                         actions: actionsList.map((a) => ({
                                             action_name: a.defName || a.action,
                                             service: a.service,
@@ -395,7 +450,9 @@ export default function Create() {
                 {/* STEP 1: Service Action */}
                 {step === 1 && !selectedItem && (
                     <CatalogPage
-                        items={parsedServices}
+                        items={parsedServices.filter((s) =>
+                            parsedActions.some((a) => a.platform === s.platform)
+                        )}
                         description="Choose service for your action"
                         onSelect={handleSelect}
                         noButton={true}
@@ -425,10 +482,7 @@ export default function Create() {
                                 setActionService(selectedItem.platform);
                                 setStep(2);
                                 setSelectedItem(null);
-                                if (selectedItem.oauth_url) {
-                                    window.location.href =
-                                        selectedItem.oauth_url;
-                                } else {
+                                if (!selectedItem.oauth_url) {
                                     navigate("/create", { state: { step: 2 } });
                                 }
                             }}
@@ -500,7 +554,11 @@ export default function Create() {
                 {/* STEP 3: Service Reaction */}
                 {step === 3 && !selectedItem && (
                     <CatalogPage
-                        items={parsedServices}
+                        items={parsedServices.filter((s) =>
+                            parsedReactions.some(
+                                (r) => r.platform === s.platform
+                            )
+                        )}
                         description="Choose service for your reaction"
                         onSelect={(item) => {
                             // Handle reaction service selection
@@ -509,7 +567,7 @@ export default function Create() {
                         }}
                         noButton={true}
                         onBack={() => {
-                            setStep(2);
+                            setStep(0);
                         }}
                         backButton={true}
                     />
@@ -534,10 +592,8 @@ export default function Create() {
                                 setReactionService(selectedItem.platform);
                                 setStep(4);
                                 setSelectedItem(null);
-                                if (selectedItem.oauth_url) {
-                                    window.location.href =
-                                        selectedItem.oauth_url;
-                                } else {
+                                // if service has no oauth flow, keep previous behavior of navigating
+                                if (!selectedItem.oauth_url) {
                                     navigate("/create", { state: { step: 4 } });
                                 }
                             }}

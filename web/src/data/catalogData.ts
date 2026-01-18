@@ -10,4 +10,5 @@ export interface CatalogItem {
     oauth_url?: string;
     serviceName?: string;
     defName?: string;
+    enabled?: boolean;
 }

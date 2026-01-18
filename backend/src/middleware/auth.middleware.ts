@@ -11,6 +11,7 @@ import type { VerifyOptions } from 'jsonwebtoken';
 type JwtPayload = {
   sub?: string;
   email?: string;
+  admin?: boolean;
   iat?: number;
   exp?: number;
   [k: string]: unknown;

@@ -1,5 +1,6 @@
 import Button from "@/component/button";
 import GlassCardLayout from "@/component/glassCard";
+import OAuthConnectButton from "@/component/OAuthConnectButton";
 import { getPlatformIcon } from "@/config/platforms";
 import type { CatalogItem } from "@/data/catalogData";
 
@@ -39,12 +40,26 @@ const ConnectCard = ({
                     </div>
 
                     <div className="mt-8 flex flex-col items-center gap-3 w-full max-w-md px-4">
-                        <Button
-                            label="Connect"
-                            onClick={onConnect}
-                            mode="black"
-                            className="w-full py-4"
-                        />
+                        {item.oauth_url ? (
+                            <OAuthConnectButton
+                                platform={item.platform}
+                                oauthUrl={item.oauth_url}
+                                initialConnected={false}
+                                label="Connect"
+                                onConnected={(connected) => {
+                                    if (connected) onConnect();
+                                }}
+                                mode="black"
+                                className="w-full py-4"
+                            />
+                        ) : (
+                            <Button
+                                label="Connect"
+                                onClick={onConnect}
+                                mode="black"
+                                className="w-full py-4"
+                            />
+                        )}
                         <button
                             onClick={() => onDiscard && onDiscard()}
                             className="text-slate-400 text-xs font-bold uppercase hover:text-slate-600 transition-colors py-2 text-center"

@@ -72,4 +72,26 @@ export class AreaController {
   ) {
     return this.areaService.updateParams(id, dto);
   }
+
+  @Patch(':id/toggle')
+  @ApiOperation({ summary: 'Toggle area enabled state' })
+  @ApiResponse({ status: 200, description: 'Area enabled state toggled' })
+  async toggleEnabled(
+    @Req() req: Request & { user?: { sub?: string } },
+    @Param('id') id: string,
+  ) {
+    const userId = req.user?.sub;
+    return this.areaService.toggleEnabled(id, userId);
+  }
+
+  @Post(':id/test')
+  @ApiOperation({ summary: 'Manually trigger an area test' })
+  @ApiResponse({ status: 200, description: 'Area test triggered' })
+  async testArea(
+    @Req() req: Request & { user?: { sub?: string } },
+    @Param('id') id: string,
+  ) {
+    const userId = req.user?.sub;
+    return this.areaService.testArea(id, userId);
+  }
 }
