@@ -4,6 +4,7 @@ import { InfoIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import GlassCardLayout from "@/component/glassCard";
+import TransformationsList from "@/component/TransformationsList";
 import { getPlatformIcon } from "@/config/platforms";
 import Button from "./button";
 import Input from "./input";
@@ -87,29 +88,55 @@ export default function ConfigWidget({
                 <div className="flex flex-col items-center gap-2 mb-3">
                     <InfoIcon className="w-6 h-6 text-slate-700" />
                     <h4 className="text-lg font-semibold text-black text-center">
-                        Available Variables
+                        Available Variables & Transformations
                     </h4>
                 </div>
-                <div className="text-[12px] text-gray-600 text-left font-semibold mb-4">
-                    Use <span className="font-mono">$(variable_name)</span> in
-                    fields to insert the value from the action output.
+                
+                {/* Usage Instructions */}
+                <div className="text-[12px] text-gray-600 text-left font-semibold mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <p className="mb-2">
+                        Use <span className="font-mono bg-white px-1 rounded">$(variable_name)</span> to insert values
+                    </p>
+                    <p>
+                        Use <span className="font-mono bg-white px-1 rounded">{"{{variable | transformation}}"}</span> to transform values
+                    </p>
                 </div>
-                <div className="w-full">
+
+                {/* Available Variables */}
+                <div className="w-full mb-4">
+                    <h5 className="text-sm font-bold text-gray-700 mb-2">Variables</h5>
                     <div className="bg-white/80 border border-white/30 rounded-xl p-3 shadow-sm">
-                        <div className="w-full text-left text-gray-800 space-y-3">
+                        <div className="w-full text-left text-gray-800 space-y-2">
                             {outputParams.map((p) => (
-                                <div key={p.name} className="flex flex-col">
-                                    <label className="text-sm font-bold mb-1">
-                                        {"$(" + p.name + ")"}
-                                    </label>
-                                    <label className="text-sm font-light mb-1">
-                                        {p.description || ""}
-                                    </label>
+                                <div key={p.name} className="flex flex-col border-b border-gray-100 last:border-0 pb-2 last:pb-0">
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                // Insert variable syntax at cursor - we'll handle this in the parent
+                                                const event = new CustomEvent('insertVariable', { 
+                                                    detail: { variable: p.name } 
+                                                });
+                                                window.dispatchEvent(event);
+                                            }}
+                                            className="font-mono text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                                        >
+                                            $({p.name})
+                                        </button>
+                                    </div>
+                                    {p.description && (
+                                        <span className="text-xs text-gray-600 mt-1 ml-1">
+                                            {p.description}
+                                        </span>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </div>
                 </div>
+
+                {/* Transformation Functions */}
+                <TransformationsList />
             </div>
         ) : undefined;
 

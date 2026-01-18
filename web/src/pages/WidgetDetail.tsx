@@ -106,6 +106,15 @@ export default function WidgetDetail() {
                         `,
                     }}
                 />
+                <div className="relative z-30">
+                    <button
+                        aria-label="Back to Explore"
+                        onClick={() => navigate("/explore")}
+                        className="absolute left-4 top-4 md:left-8 md:top-6 inline-flex items-center gap-2 text-slate-700 hover:text-slate-900"
+                    >
+                        <span className="hidden md:inline">← Back</span>
+                    </button>
+                </div>
                 <div className="relative z-10 max-w-7xl mx-auto px-8 py-12">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-6">

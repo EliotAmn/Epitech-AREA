@@ -56,11 +56,23 @@ async function oauth_callback(
     const refreshToken = tokens.refresh_token;
     const expiresIn = tokens.expires_in;
 
-    userService.service_config = {
-      ...((userService.service_config as object) || {}),
-      access_token: accessToken,
-      refresh_token: refreshToken,
+    // Persist tokens under google_* keys for consistency with provider flow
+    const existingConfig =
+      (userService.service_config as Record<string, any>) || {};
+    const googleExpiry =
+      typeof expiresIn === 'number' ? Date.now() + expiresIn * 1000 : undefined;
+
+    const newConfig = {
+      ...existingConfig,
+      ...(accessToken ? { google_access_token: accessToken } : {}),
+      ...(refreshToken ? { google_refresh_token: refreshToken } : {}),
+      ...(googleExpiry ? { google_token_expires_at: googleExpiry } : {}),
+      // Keep generic keys for backward compatibility
+      ...(accessToken ? { access_token: accessToken } : {}),
+      ...(refreshToken ? { refresh_token: refreshToken } : {}),
     };
+
+    userService.service_config = newConfig;
     userService.access_token = accessToken;
     if (refreshToken) {
       userService.refresh_token = refreshToken;
