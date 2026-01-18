@@ -37,9 +37,24 @@ export class GithubNewCommit extends ServiceActionDefinition {
     },
     {
       name: 'branch',
-      type: ParameterType.STRING,
+      type: ParameterType.SELECT,
       label: 'Branch',
-      description: 'The branch to watch (defaults to main)',
+      description:
+        'The branch to watch (defaults to main). Select a common branch or enter a custom one in the repository field if not listed.',
+      required: false,
+      options: [
+        { label: 'main', value: 'main' },
+        { label: 'master', value: 'master' },
+        { label: 'develop', value: 'develop' },
+        { label: 'release', value: 'release' },
+      ],
+    },
+    {
+      name: 'branch_custom',
+      type: ParameterType.STRING,
+      label: 'Custom branch (optional)',
+      description:
+        'Specify a custom branch name if not listed in the Branch dropdown',
       required: false,
     },
   ];

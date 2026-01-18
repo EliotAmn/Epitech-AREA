@@ -3,7 +3,7 @@ import type { UserService } from '@prisma/client';
 import axios from 'axios';
 
 import { ServiceDefinition } from '@/common/service.types';
-import { buildServiceRedirectUrl } from '@/common/tools';
+import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
 import { GmailEmailReceived } from './actions/email-received';
 import { SendEmailReaction } from './reactions/send-email.reaction';
 
@@ -53,11 +53,23 @@ async function oauth_callback(
     const refreshToken = tokens.refresh_token;
     const expiresIn = tokens.expires_in;
 
-    userService.service_config = {
-      ...((userService.service_config as object) || {}),
-      access_token: accessToken,
-      refresh_token: refreshToken,
+    // Persist tokens under google_* keys for consistency with provider flow
+    const existingConfig =
+      (userService.service_config as Record<string, any>) || {};
+    const googleExpiry =
+      typeof expiresIn === 'number' ? Date.now() + expiresIn * 1000 : undefined;
+
+    const newConfig = {
+      ...existingConfig,
+      ...(accessToken ? { google_access_token: accessToken } : {}),
+      ...(refreshToken ? { google_refresh_token: refreshToken } : {}),
+      ...(googleExpiry ? { google_token_expires_at: googleExpiry } : {}),
+      // Keep generic keys for backward compatibility
+      ...(accessToken ? { access_token: accessToken } : {}),
+      ...(refreshToken ? { refresh_token: refreshToken } : {}),
     };
+
+    userService.service_config = newConfig;
     userService.access_token = accessToken;
     if (refreshToken) {
       userService.refresh_token = refreshToken;
@@ -88,5 +100,15 @@ export default class GmailService implements ServiceDefinition {
   oauth_callback = oauth_callback;
   actions = [GmailEmailReceived];
   reactions = [SendEmailReaction];
-  oauth_url = process.env.APP_URL ? process.env.APP_URL + '/auth/google' : '';
+  oauth_url = process.env.GOOGLE_CLIENT_ID
+    ? buildUrlParameters('https://accounts.google.com/o/oauth2/v2/auth', {
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        redirect_uri: buildServiceRedirectUrl('gmail'),
+        response_type: 'code',
+        scope:
+          'email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly',
+        access_type: 'offline',
+        prompt: 'consent',
+      })
+    : '';
 }
