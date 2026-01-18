@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import GlassCardLayout from "@/component/glassCard";
-import TestButton from "@/component/TestButton";
 import Toast from "@/component/Toast";
 import { getPlatformColor } from "@/config/platforms";
 import { fetchCatalogFromAbout } from "@/services/aboutParser";
@@ -18,7 +17,6 @@ import Input from "./input";
 interface Area {
     id: string;
     name: string;
-    enabled?: boolean;
     actions: {
         id?: string;
         action_name: string;
@@ -53,7 +51,6 @@ export default function Edit({ area }: EditProps) {
     } | null>(null);
 
     const [name, setName] = useState(area?.name || "");
-    const [enabled, setEnabled] = useState(area?.enabled ?? true);
     const [actionsParams, setActionsParams] = useState<
         Record<number, Record<string, unknown>>
     >(
@@ -91,19 +88,6 @@ export default function Edit({ area }: EditProps) {
         } finally {
             setShowConfirmDelete(false);
         }
-    };
-
-    const handleToggleEnabled = async () => {
-        try {
-            await areaService.toggleEnabled(area.id);
-            setEnabled(!enabled);
-        } catch (err) {
-            console.error("Failed to toggle enabled state:", err);
-        }
-    };
-
-    const handleTestArea = async () => {
-        await areaService.testArea(area.id);
     };
 
     useEffect(() => {
@@ -305,16 +289,13 @@ export default function Edit({ area }: EditProps) {
             backLabel="Cancel"
         >
             <div className="flex flex-col w-full max-w-md mx-auto">
-                <div className="flex items-center justify-between mb-6">
-                    <div className="text-center flex-1">
-                        <h1 className="text-3xl font-black text-slate-900 leading-tight">
-                            Edit Area
-                        </h1>
-                        <p className="text-slate-500 text-sm mt-2">
-                            Adjust your automation parameters
-                        </p>
-                    </div>
-                    <TestButton onTest={handleTestArea} disabled={!enabled} />
+                <div className="text-center mb-6">
+                    <h1 className="text-3xl font-black text-slate-900 leading-tight">
+                        Edit Area
+                    </h1>
+                    <p className="text-slate-500 text-sm mt-2">
+                        Adjust your automation parameters
+                    </p>
                 </div>
 
                 <div className="mb-6 max-w-md mx-auto w-full">
@@ -327,30 +308,6 @@ export default function Edit({ area }: EditProps) {
                         placeholder="Area name"
                         className="text-black border-gray-400"
                     />
-                </div>
-
-                <div className="mb-6 max-w-md mx-auto w-full flex items-center justify-between p-4 bg-white/50 rounded-xl">
-                    <div className="flex flex-col">
-                        <label className="text-xs font-bold uppercase tracking-wide text-slate-700">
-                            Area Status
-                        </label>
-                        <span className="text-sm text-slate-500 mt-1">
-                            {enabled ? "Enabled" : "Disabled"}
-                        </span>
-                    </div>
-                    <button
-                        onClick={handleToggleEnabled}
-                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                            enabled ? "bg-green-500" : "bg-slate-300"
-                        }`}
-                        aria-label="Toggle area enabled state"
-                    >
-                        <span
-                            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                                enabled ? "translate-x-7" : "translate-x-1"
-                            }`}
-                        />
-                    </button>
                 </div>
 
                 <div className="space-y-10">

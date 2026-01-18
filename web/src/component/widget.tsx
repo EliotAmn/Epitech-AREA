@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { getPlatformColor, getPlatformIcon } from "@/config/platforms";
 
@@ -38,11 +38,6 @@ interface WidgetProps {
     color?: string;
     onClick?: () => void;
     showPlatform?: boolean;
-    disabled?: boolean;
-    areaId?: string;
-    enabled?: boolean;
-    onToggleEnabled?: (areaId: string) => void;
-    onTest?: (areaId: string) => Promise<void>;
 }
 
 export default function Widget({
@@ -52,15 +47,9 @@ export default function Widget({
     reactionPlatform,
     onClick,
     showPlatform = true,
-    disabled = false,
-    areaId,
-    enabled = true,
-    onToggleEnabled,
-    onTest,
 }: WidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [isPressed, setIsPressed] = useState(false);
-    const [testState, setTestState] = useState<"idle" | "loading" | "success">("idle");
     const iconSrc = getPlatformIcon(platform);
     const samePlatform = !reactionPlatform || platform === reactionPlatform;
 
@@ -77,28 +66,6 @@ export default function Widget({
     const reactionClicked = reactionColor
         ? lightenColor(reactionColor, 20)
         : undefined;
-
-    const handleTest = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!areaId || !onTest || testState !== "idle" || !enabled) return;
-
-        setTestState("loading");
-        try {
-            await onTest(areaId);
-            setTestState("success");
-            setTimeout(() => setTestState("idle"), 500);
-        } catch (error) {
-            console.error("Test failed:", error);
-            setTestState("idle");
-        }
-    };
-
-    const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.stopPropagation();
-        if (!areaId || !onToggleEnabled) return;
-        onToggleEnabled(areaId);
-    };
-
     const backgroundStyle =
         !reactionColor || samePlatform
             ? {
@@ -117,32 +84,32 @@ export default function Widget({
             role="button"
             tabIndex={0}
             aria-pressed={isPressed}
-            className={`relative w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-between shrink-0 ${onClick ? "cursor-pointer" : ""} ${disabled ? "opacity-50 grayscale" : ""}`}
+            className={`w-full sm:w-[340px] h-auto sm:h-[401px] rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 ease-out flex flex-col items-start justify-between shrink-0 ${onClick ? "cursor-pointer" : ""}`}
             style={{
                 ...backgroundStyle,
             }}
-            onMouseDown={() => !disabled && setIsPressed(true)}
+            onMouseDown={() => setIsPressed(true)}
             onMouseUp={() => {
-                if (isPressed && !disabled) {
+                if (isPressed) {
                     setIsPressed(false);
                     onClick?.();
                 }
             }}
-            onTouchStart={() => !disabled && setIsPressed(true)}
+            onTouchStart={() => setIsPressed(true)}
             onTouchEnd={() => {
-                if (isPressed && !disabled) {
+                if (isPressed) {
                     setIsPressed(false);
                     onClick?.();
                 }
             }}
             onKeyDown={(e) => {
-                if ((e.key === "Enter" || e.key === " ") && !e.repeat && !disabled) {
+                if ((e.key === "Enter" || e.key === " ") && !e.repeat) {
                     e.preventDefault();
                     setIsPressed(true);
                 }
             }}
             onKeyUp={(e) => {
-                if ((e.key === "Enter" || e.key === " ") && !disabled) {
+                if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     if (isPressed) {
                         setIsPressed(false);
@@ -150,7 +117,7 @@ export default function Widget({
                     }
                 }
             }}
-            onMouseEnter={() => !disabled && setIsHovered(true)}
+            onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => {
                 setIsHovered(false);
                 if (isPressed) setIsPressed(false);
@@ -188,80 +155,6 @@ export default function Widget({
                     </>
                 ) : null}
             </div>
-            {(areaId && onToggleEnabled) || (areaId && onTest) ? (
-                <div 
-                    className="absolute top-3 right-3 flex items-center gap-2 z-20"
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onMouseUp={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                    onTouchEnd={(e) => e.stopPropagation()}
-                >
-                    {areaId && onToggleEnabled && (
-                        <label
-                            className="relative inline-flex items-center cursor-pointer"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={enabled}
-                                onChange={handleToggle}
-                                className="sr-only peer"
-                            />
-                            <div className="w-7 h-7 bg-white/90 border-2 border-white rounded-md peer-checked:bg-green-500 peer-checked:border-green-500 transition-all duration-200 flex items-center justify-center shadow-lg">
-                                {enabled && (
-                                    <Check className="w-5 h-5 text-white" strokeWidth={3} />
-                                )}
-                            </div>
-                        </label>
-                    )}
-                    {areaId && onTest && enabled && (
-                        <button
-                            onClick={handleTest}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            onMouseUp={(e) => e.stopPropagation()}
-                            disabled={testState !== "idle"}
-                            className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                                testState === "success"
-                                    ? "bg-green-500"
-                                    : "bg-white/90 border-2 border-white"
-                            } ${testState !== "idle" ? "cursor-not-allowed" : "cursor-pointer hover:scale-110"}`}
-                            aria-label="Test area"
-                        >
-                            {testState === "loading" && (
-                                <svg
-                                    className="absolute inset-0 w-full h-full -rotate-90"
-                                    viewBox="0 0 36 36"
-                                >
-                                    <circle
-                                        cx="18"
-                                        cy="18"
-                                        r="16"
-                                        fill="none"
-                                        stroke="#22c55e"
-                                        strokeWidth="3"
-                                        strokeDasharray="100"
-                                        strokeDashoffset="0"
-                                        strokeLinecap="round"
-                                        className="animate-spin-progress"
-                                    />
-                                </svg>
-                            )}
-                            <div className="relative z-10">
-                                {testState === "idle" && (
-                                    <ArrowRight className="w-4 h-4 text-slate-700" />
-                                )}
-                                {testState === "loading" && (
-                                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                                )}
-                                {testState === "success" && (
-                                    <Check className="w-5 h-5 text-white animate-scale-in" />
-                                )}
-                            </div>
-                        </button>
-                    )}
-                </div>
-            ) : null}
             <div className="w-full">
                 <h2 className="w-full text-2xl text-center text-[#ffffff] font-extrabold mb-2 line-clamp-3">
                     {title}
