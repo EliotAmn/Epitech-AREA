@@ -642,7 +642,6 @@ export default function Create() {
                                     reaction: selectedItem.label,
                                     defName: defName,
                                     params: reactionParams,
-                                    transformations: reactionTransformations,
                                 };
 
                                 if (editingReactionIndex !== null) {

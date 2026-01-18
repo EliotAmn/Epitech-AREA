@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { InfoIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
