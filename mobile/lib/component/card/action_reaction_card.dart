@@ -30,7 +30,9 @@ class ActionReactionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: (isSelected ? color : unselectedColor).withValues(alpha: 0.5),
+            color: (isSelected ? color : unselectedColor).withValues(
+              alpha: 0.5,
+            ),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

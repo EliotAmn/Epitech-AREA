@@ -128,7 +128,10 @@ class ServiceDetailsPage extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [serviceColor, serviceColor.withValues(alpha: 0.8)],
+                      colors: [
+                        serviceColor,
+                        serviceColor.withValues(alpha: 0.8),
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
