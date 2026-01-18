@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/logout_page.dart';
-import 'package:mobile/pages/my_areas_page.dart';
+import 'package:mobile/pages/my_areas/my_areas_page.dart';
 import 'pages/login_page.dart';
 import 'pages/create_area/create_home_page.dart';
-import 'themes.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/pages/settings_area/settings_page.dart';
+import 'package:mobile/pages/explore_area/explore_page.dart';
 import 'global/cache.dart' as cache;
+import 'package:forui/forui.dart';
 
 Future<void> main() async {
   try {
@@ -21,10 +22,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = FThemes.zinc;
+
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.darkTheme,
+      title: 'AÉRA',
+      theme: appTheme.light.toApproximateMaterialTheme(),
+      builder: (_, child) => FToaster(
+        child: FAnimatedTheme(data: appTheme.light, child: child!),
+      ),
       home: const MainNavigation(),
     );
   }
@@ -60,11 +65,7 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   List<Widget> _getPages() {
-    return [
-      LogoutPage(onLogoutSuccess: _onLogoutSuccess),
-      CreateHomePage(),
-      MyAreasPage(),
-    ];
+    return [ExplorePage(), CreateHomePage(), MyAreasPage()];
   }
 
   Widget getCurrentPage() {
@@ -79,20 +80,28 @@ class _MainNavigationState extends State<MainNavigation> {
     final bool showMainAppBar =
         _selectedIndex != 1; // hide on Create page to let its own AppBar render
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: showMainAppBar
-          ? AppBar(
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: LogoutPage(onLogoutSuccess: _onLogoutSuccess),
+    return FScaffold(
+      childPad: false,
+      header: showMainAppBar
+          ? FHeader(
+              title: const Text('AÉRA'),
+              suffixes: [
+                FHeaderAction(
+                  icon: const Icon(Icons.settings),
+                  onPress: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SettingsPage(onLogoutSuccess: _onLogoutSuccess),
+                      ),
+                    );
+                  },
                 ),
               ],
             )
           : null,
-      body: getCurrentPage(),
-      bottomNavigationBar: _isLogined
+      footer: _isLogined
           ? BottomNavigationBar(
               items: const [
                 BottomNavigationBarItem(
@@ -112,6 +121,7 @@ class _MainNavigationState extends State<MainNavigation> {
               onTap: _onItemTapped,
             )
           : null,
+      child: getCurrentPage(),
     );
   }
 

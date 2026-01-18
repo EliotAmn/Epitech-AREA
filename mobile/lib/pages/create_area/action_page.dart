@@ -1,139 +1,202 @@
 import 'package:flutter/material.dart';
-import '../../component/card/card_button.dart';
 import '../../global/service_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile/global/cache.dart' as cache;
 import 'action_config_page.dart';
+import 'dart:convert';
 import 'oauth_page.dart';
-import 'package:mobile/utils/string_utils.dart';
+import '../../component/page/service_header.dart';
+import '../../component/list/action_list_item.dart';
 
 class ActionPage extends StatefulWidget {
   const ActionPage({
     super.key,
-    required this.serviceName,
-    required this.serviceActions,
+    required this.service,
     required this.allServices,
-    this.oauthUrl,
-    this.color,
-    this.logo,
   });
 
-  final String serviceName;
-  final List<ServiceAction> serviceActions;
+  final Service service;
   final List<Service> allServices;
-  final String? oauthUrl;
-  final Color? color;
-  final String? logo;
 
   @override
   State<ActionPage> createState() => _ActionPageState();
 }
 
 class _ActionPageState extends State<ActionPage> {
+  var isConnected = false;
+
+  void _getConnectionStatus() async {
+    http.Response response = await http.get(
+      Uri.parse(
+        '${await cache.ApiSettingsStore().loadApiUrl()}/services/${widget.service.name}/status',
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${await cache.AuthStore().loadToken()}',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = response.body;
+      final decoded = jsonDecode(data);
+      setState(() {
+        isConnected = decoded['connected'] as bool;
+      });
+    } else {
+      debugPrint('Failed to load connection status: ${response.statusCode}');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getConnectionStatus();
+  }
+
+  Color get serviceColor =>
+      Color(int.parse('0xFF${widget.service.color.substring(1)}'));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: widget.color ?? const Color.fromARGB(255, 78, 78, 78),
-        title: Text(
-          'Select action',
-          style: Theme.of(
-            context,
-          ).textTheme.displayLarge?.copyWith(color: Colors.white),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.9),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.arrow_back,
+              color: Color(
+                int.parse('0xFF${widget.service.color.substring(1)}'),
+              ),
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Container(
-              width: double.infinity,
-              color: widget.color ?? const Color.fromARGB(255, 78, 78, 78),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  Image(
-                    image: widget.logo != null
-                        ? NetworkImage(widget.logo!)
-                        : const NetworkImage('https://via.placeholder.com/100'),
-                    width: 100,
-                    height: 100,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.serviceName,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.displayLarge?.copyWith(color: Colors.white),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Choose an action to trigger your area',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(color: Colors.white),
-                  ),
-                  if (widget.oauthUrl != null) ...[
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle OAuth flow here, e.g., open a webview or external browser
-                        // same as login flow
-                        OAuthPage(
-                          oauthUrl: widget.oauthUrl!,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(int.parse('0xFF${widget.service.color.substring(1)}')),
+              Color(
+                int.parse('0xFF${widget.service.color.substring(1)}'),
+              ).withValues(alpha: 0.8),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header section with service info
+              ServiceHeader(
+                service: widget.service,
+                isConnected: isConnected,
+                onConnect: !isConnected
+                    ? () async {
+                        final success = await OAuthPage(
+                          oauthUrl: widget.service.oauthUrl!,
+                          serviceName: widget.service.name,
                         ).initiateOAuthFlow(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                      ),
-                      child: Text(
-                        'Connect',
-                        style: TextStyle(
-                          color:
-                              widget.color ??
-                              const Color.fromARGB(255, 78, 78, 78),
+                        if (success && mounted) {
+                          setState(() {
+                            _getConnectionStatus();
+                          });
+                        }
+                      }
+                    : null,
+              ),
+
+              // Actions list
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.play_arrow,
+                              color: Color(
+                                int.parse(
+                                  '0xFF${widget.service.color.substring(1)}',
+                                ),
+                              ),
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Available Actions',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade900,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                ],
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: widget.service.actions.length,
+                          itemBuilder: (context, index) {
+                            final action = widget.service.actions[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: ActionListItem(
+                                accentColor: serviceColor,
+                                label: action.label,
+                                description: action.description.isNotEmpty
+                                    ? action.description
+                                    : null,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ActionConfigPage(
+                                        serviceName: widget.service.name,
+                                        action: action,
+                                        allServices: widget.allServices,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            SizedBox(
-              height: 400,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: widget.serviceActions.length,
-                itemBuilder: (context, index) {
-                  final action = widget.serviceActions[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1.0),
-                    child: CardButton(
-                      isRow: true,
-                      height: 100,
-                      label: humanize(action.name),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ActionConfigPage(
-                              serviceName: widget.serviceName,
-                              action: action,
-                              allServices: widget.allServices,
-                            ),
-                          ),
-                        );
-                      },
-                      color:
-                          widget.color ?? const Color.fromARGB(255, 78, 78, 78),
-                      textColor: Colors.white,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

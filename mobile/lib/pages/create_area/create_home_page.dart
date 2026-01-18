@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
-import '../../component/card/card_button.dart';
+import '../../component/card/action_reaction_card.dart';
+import '../../component/card/connector_arrow.dart';
+import '../../component/card/create_button.dart';
 import 'create_page.dart';
 import '../../global/area_model.dart';
 import 'reaction_page.dart';
 import '../../global/service_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import '../../global/cache.dart' as cache;
+import 'package:forui/forui.dart';
 
 class CreateHomePage extends StatefulWidget {
   CreateHomePage({
@@ -46,19 +48,20 @@ class _CreateHomePageState extends State<CreateHomePage> {
     getServices();
   }
 
-  void saveArea(BuildContext context) {
+  void saveArea(BuildContext context) async {
     final area = Area(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name:
-          '${CreateHomePage.action!.serviceName}:${CreateHomePage.selectedAction!.name} → ${CreateHomePage.reaction!.serviceName}:${CreateHomePage.selectedReaction!.name}',
+          'If ${CreateHomePage.selectedAction!.label} Then ${CreateHomePage.selectedReaction!.label}',
       action: CreateHomePage.action!,
       reaction: CreateHomePage.reaction!,
     );
+    final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
 
     cache.AuthStore().loadToken().then((token) {
       http
           .post(
-            Uri.parse('${dotenv.env['API_URL']}/areas'),
+            Uri.parse('$apiSettingsUrl/areas'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
@@ -71,20 +74,26 @@ class _CreateHomePageState extends State<CreateHomePage> {
               debugPrint('reponse body: ${response.body}');
               if (context.mounted) {
                 Navigator.of(context).popUntil((route) => route.isFirst);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('AREA created successfully!')),
+                showFToast(
+                  context: context,
+                  title: Text('AREA created successfully!'),
+                  suffixBuilder: (context, entry) =>
+                      const Icon(Icons.check_circle, color: Colors.green),
+                  alignment: FToastAlignment.bottomCenter,
+                  duration: const Duration(seconds: 3),
                 );
               }
             } else {
               debugPrint('Failed to create area: ${response.body}');
               debugPrint('area data: ${jsonEncode(area.toJson())}');
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Failed to create AREA: ${response.statusCode}',
-                    ),
-                  ),
+                showFToast(
+                  context: context,
+                  title: Text('Failed to create AREA: ${response.statusCode}'),
+                  suffixBuilder: (context, entry) =>
+                      const Icon(Icons.error, color: Colors.red),
+                  alignment: FToastAlignment.bottomCenter,
+                  duration: const Duration(seconds: 3),
                 );
               }
             }
@@ -92,10 +101,12 @@ class _CreateHomePageState extends State<CreateHomePage> {
     });
   }
 
-  void getServices() {
+  void getServices() async {
     http
         .get(
-          Uri.parse('${dotenv.env['API_URL']}/about.json'),
+          Uri.parse(
+            '${await cache.ApiSettingsStore().loadApiUrl()}/about.json',
+          ),
           headers: {'Content-Type': 'application/json'},
         )
         .then((response) {
@@ -115,28 +126,53 @@ class _CreateHomePageState extends State<CreateHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Create a new Area',
-          style: Theme.of(context).textTheme.displayLarge,
-        ),
-      ),
-      body: SingleChildScrollView(
+    return FScaffold(
+      header: FHeader.nested(title: Text('Create AREA')),
+      child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 700),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CardButton(
-                isRow: true,
-                label: CreateHomePage.selectedAction != null
-                    ? 'If '
-                    : 'If This ',
-                color: Colors.black,
-                textColor: Colors.white,
-                height: MediaQuery.of(context).size.height * 0.1,
+              // Visual helper text
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                margin: const EdgeInsets.only(bottom: 20.0),
+
+                child: SizedBox(
+                  height: 30,
+                  child: Marquee(
+                    text:
+                        'Create your AREA by selecting an action and a reaction!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blueGrey.shade900,
+                    ),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    blankSpace: 100.0,
+                    velocity: 50.0,
+                    pauseAfterRound: const Duration(seconds: 1),
+                    startPadding: 10.0,
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  ),
+                ),
+              ),
+
+              // Action Card
+              ActionReactionCard(
+                label: 'IF',
+                icon: Icons.play_arrow,
+                color: Colors.blue.shade600,
+                unselectedColor: Colors.grey.shade700,
+                isSelected: CreateHomePage.selectedAction != null,
+                serviceName: CreateHomePage.action?.serviceName,
+                selectedLabel: CreateHomePage.selectedAction?.label,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -145,61 +181,33 @@ class _CreateHomePageState extends State<CreateHomePage> {
                     ),
                   );
                 },
-                children: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  child: CreateHomePage.selectedAction != null
-                      ? Marquee(
-                          text:
-                              '${CreateHomePage.action!.serviceName} → ${CreateHomePage.selectedAction!.name}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.white70),
-                          scrollAxis: Axis.horizontal,
-                          blankSpace: 20.0,
-                          velocity: 50.0,
-                        )
-                      : Card(
-                          color: Colors.white24,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Add an action ',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.white70),
-                            ),
-                          ),
-                        ),
-                ),
               ),
-              Center(
-                child: Container(
-                  width: 2,
-                  height: 50,
-                  color: const Color.fromARGB(125, 0, 0, 0),
-                ),
+
+              // Connector Arrow
+              ConnectorArrow(
+                color: Colors.blue.shade700,
+                show: CreateHomePage.selectedAction != null,
               ),
-              if (CreateHomePage.selectedAction != null)
-                Center(
-                  child: Icon(
-                    Icons.arrow_downward,
-                    size: 24,
-                    color: const Color.fromARGB(125, 0, 0, 0),
-                  ),
-                ),
-              CardButton(
-                isRow: true,
-                label: CreateHomePage.selectedReaction != null
-                    ? 'Then '
-                    : 'Then That ',
-                color: Colors.black,
-                textColor: Colors.white,
-                height: MediaQuery.of(context).size.height * 0.1,
+
+              // Reaction Card
+              ActionReactionCard(
+                label: 'THEN',
+                icon: Icons.refresh,
+                color: Colors.purple.shade600,
+                unselectedColor: Colors.grey.shade600,
+                isSelected: CreateHomePage.selectedReaction != null,
+                serviceName: CreateHomePage.reaction?.serviceName,
+                selectedLabel: CreateHomePage.selectedReaction?.name,
                 onTap: () {
                   if (CreateHomePage.action == null ||
                       CreateHomePage.selectedAction == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select an action first.'),
-                      ),
+                    showFToast(
+                      context: context,
+                      title: const Text('Please select an action first.'),
+                      suffixBuilder: (context, entry) =>
+                          const Icon(Icons.error, color: Colors.black),
+                      alignment: FToastAlignment.bottomCenter,
+                      duration: const Duration(seconds: 3),
                     );
                     return;
                   }
@@ -215,44 +223,17 @@ class _CreateHomePageState extends State<CreateHomePage> {
                     ),
                   );
                 },
-                children: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.51,
-                  child: CreateHomePage.selectedReaction != null
-                      ? Marquee(
-                          text:
-                              '${CreateHomePage.reaction!.serviceName} → ${CreateHomePage.selectedReaction!.name}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.white70),
-                          scrollAxis: Axis.horizontal,
-                          blankSpace: 20.0,
-                          velocity: 50.0,
-                        )
-                      : Card(
-                          color: Colors.white24,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Add a reaction ',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.white70),
-                            ),
-                          ),
-                        ),
-                ),
               ),
+
               const SizedBox(height: 32),
-              if (CreateHomePage.action != null &&
-                  CreateHomePage.reaction != null)
-                CardButton(
-                  isRow: true,
-                  label: 'Create AREA',
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  textColor: const Color.fromARGB(255, 0, 0, 0),
-                  height: 60,
-                  onTap: () {
-                    saveArea(context);
-                  },
-                ),
+
+              // Create Button
+              CreateButton(
+                isEnabled:
+                    CreateHomePage.action != null &&
+                    CreateHomePage.reaction != null,
+                onTap: () => saveArea(context),
+              ),
             ],
           ),
         ),
