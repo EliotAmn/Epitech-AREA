@@ -149,3 +149,9 @@ Check each package's `package.json` for the exact script names.
 ## License & Authors
 
 See `LICENSE` file for license details.
+
+---
+
+## Architecture
+
+High-level architecture diagrams (class and sequence diagrams) are available in the repository docs: [docs/architecture/README.md](docs/architecture/README.md).
