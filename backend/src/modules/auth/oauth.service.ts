@@ -102,14 +102,12 @@ export class OauthService {
           profile.expiresIn,
         );
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
         this.logger.error(
           `Failed to store OAuth tokens for user ${user.id} and provider ${provider}. Authentication will fail.`,
-          errorMessage,
+          error,
         );
         throw new Error(
-          `OAuth token storage failed for provider ${provider}: ${errorMessage}`,
+          `OAuth token storage failed for provider ${provider}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     }
@@ -120,7 +118,7 @@ export class OauthService {
       admin: user.admin,
     });
 
-    const safeUser: Partial<User> = { ...user };
+    const safeUser: Partial<User & Record<string, any>> = { ...user };
     delete safeUser.password_hash;
 
     try {
