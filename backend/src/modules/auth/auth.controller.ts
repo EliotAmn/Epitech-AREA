@@ -78,9 +78,7 @@ export class AuthController {
     if (!clientID) throw new BadRequestException('Google OAuth not configured');
 
     const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/google/redirect`;
-    const scope = encodeURIComponent(
-      'email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly',
-    );
+    const scope = encodeURIComponent('email profile https://mail.google.com/');
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
       clientID,
     )}&redirect_uri=${encodeURIComponent(callbackURL)}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;

@@ -3,8 +3,11 @@ import type { UserService } from '@prisma/client';
 import axios from 'axios';
 
 import { ServiceDefinition } from '@/common/service.types';
-import { buildServiceRedirectUrl } from '@/common/tools';
+import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
+import { GmailEmailLabeled } from './actions/email-labeled';
 import { GmailEmailReceived } from './actions/email-received';
+import { GmailAddLabel } from './reactions/add-label.reaction';
+import { GmailMarkAsRead } from './reactions/mark-as-read.reaction';
 import { SendEmailReaction } from './reactions/send-email.reaction';
 
 interface GmailTokenResponse {
@@ -84,9 +87,18 @@ export default class GmailService implements ServiceDefinition {
   color = '#EA4335';
   logo = 'https://img.icons8.com/ios_filled/512/FFFFFF/gmail-new.png';
   description =
-    'Send emails on behalf of a user authenticated via Google OAuth';
+    'Gmail is a free email service developed by Google that allows users to send and receive emails, manage their inbox, and access various features such as spam filtering, labels.';
   oauth_callback = oauth_callback;
-  actions = [GmailEmailReceived];
-  reactions = [SendEmailReaction];
-  oauth_url = process.env.APP_URL ? process.env.APP_URL + '/auth/google' : '';
+  actions = [GmailEmailReceived, GmailEmailLabeled];
+  reactions = [SendEmailReaction, GmailAddLabel, GmailMarkAsRead];
+  oauth_url = process.env.GOOGLE_CLIENT_ID
+    ? buildUrlParameters('https://accounts.google.com/o/oauth2/v2/auth', {
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        redirect_uri: buildServiceRedirectUrl('gmail'),
+        response_type: 'code',
+        scope: 'email profile https://mail.google.com/',
+        access_type: 'offline',
+        prompt: 'consent',
+      })
+    : '';
 }
