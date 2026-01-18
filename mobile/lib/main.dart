@@ -92,9 +92,8 @@ class _MainNavigationState extends State<MainNavigation> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SettingsPage(
-                          onLogoutSuccess: _onLogoutSuccess,
-                        ),
+                        builder: (context) =>
+                            SettingsPage(onLogoutSuccess: _onLogoutSuccess),
                       ),
                     );
                   },
@@ -102,29 +101,29 @@ class _MainNavigationState extends State<MainNavigation> {
               ],
             )
           : null,
-        footer: _isLogined
-            ? BottomNavigationBar(
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.search),
-                    label: 'Explore',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.add_box),
-                    label: 'Create',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.list),
-                    label: 'My AREAs',
-                  ),
-                ],
-                currentIndex: _selectedIndex,
-                onTap: _onItemTapped,
-              )
-            : null,
-        child: getCurrentPage(),
-      );
-    }
+      footer: _isLogined
+          ? BottomNavigationBar(
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.search),
+                  label: 'Explore',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.add_box),
+                  label: 'Create',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.list),
+                  label: 'My AREAs',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+            )
+          : null,
+      child: getCurrentPage(),
+    );
+  }
 
   void _onLoginSuccess() {
     setState(() {

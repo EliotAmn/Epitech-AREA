@@ -4,11 +4,7 @@ class CreateButton extends StatelessWidget {
   final VoidCallback onTap;
   final bool isEnabled;
 
-  const CreateButton({
-    super.key,
-    required this.onTap,
-    this.isEnabled = true,
-  });
+  const CreateButton({super.key, required this.onTap, this.isEnabled = true});
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +34,7 @@ class CreateButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                Icon(Icons.check_circle_outline, color: Colors.white, size: 28),
                 const SizedBox(width: 12),
                 Text(
                   'Create AREA',

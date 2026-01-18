@@ -23,7 +23,8 @@ class ReactionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color serviceColor(String hex) => Color(int.parse('0xFF${hex.substring(1)}'));
+    Color serviceColor(String hex) =>
+        Color(int.parse('0xFF${hex.substring(1)}'));
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -43,10 +44,7 @@ class ReactionPage extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.purple.shade700,
-            ),
+            child: Icon(Icons.arrow_back, color: Colors.purple.shade700),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -56,11 +54,7 @@ class ReactionPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.purple.shade900,
-              Colors.blue.shade900,
-
-            ],
+            colors: [Colors.purple.shade900, Colors.blue.shade900],
           ),
         ),
         child: SafeArea(
@@ -91,7 +85,7 @@ class ReactionPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Services grid
               Expanded(
                 child: Container(
@@ -125,12 +119,15 @@ class ReactionPage extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => ReactionListPage(
-                                            actionServiceName: actionServiceName,
-                                            selectedAction: selectedAction,
-                                            actionInputValues: actionInputValues,
-                                            reactionService: service,
-                                          ),
+                                          builder: (context) =>
+                                              ReactionListPage(
+                                                actionServiceName:
+                                                    actionServiceName,
+                                                selectedAction: selectedAction,
+                                                actionInputValues:
+                                                    actionInputValues,
+                                                reactionService: service,
+                                              ),
                                         ),
                                       );
                                     },
@@ -166,7 +163,8 @@ class ReactionListPage extends StatelessWidget {
     required this.reactionService,
   });
 
-  Color get _serviceColor => Color(int.parse('0xFF${reactionService.color.substring(1)}'));
+  Color get _serviceColor =>
+      Color(int.parse('0xFF${reactionService.color.substring(1)}'));
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +189,9 @@ class ReactionListPage extends StatelessWidget {
             ),
             child: Icon(
               Icons.arrow_back,
-              color: Color(int.parse('0xFF${reactionService.color.substring(1)}')),
+              color: Color(
+                int.parse('0xFF${reactionService.color.substring(1)}'),
+              ),
             ),
           ),
           onPressed: () => Navigator.pop(context),
@@ -204,7 +204,9 @@ class ReactionListPage extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [
               Color(int.parse('0xFF${reactionService.color.substring(1)}')),
-              Color(int.parse('0xFF${reactionService.color.substring(1)}')).withOpacity(0.8),
+              Color(
+                int.parse('0xFF${reactionService.color.substring(1)}'),
+              ).withOpacity(0.8),
             ],
           ),
         ),
@@ -224,7 +226,7 @@ class ReactionListPage extends StatelessWidget {
                       }
                     : null,
               ),
-              
+
               // Reactions list
               Expanded(
                 child: Container(
@@ -244,7 +246,11 @@ class ReactionListPage extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.refresh,
-                              color: Color(int.parse('0xFF${reactionService.color.substring(1)}')),
+                              color: Color(
+                                int.parse(
+                                  '0xFF${reactionService.color.substring(1)}',
+                                ),
+                              ),
                               size: 24,
                             ),
                             const SizedBox(width: 8),
@@ -272,7 +278,9 @@ class ReactionListPage extends StatelessWidget {
                                 accentColor: _serviceColor,
                                 icon: Icons.refresh,
                                 label: reaction.label,
-                                description: reaction.description.isNotEmpty ? reaction.description : null,
+                                description: reaction.description.isNotEmpty
+                                    ? reaction.description
+                                    : null,
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -281,7 +289,8 @@ class ReactionListPage extends StatelessWidget {
                                         actionServiceName: actionServiceName,
                                         selectedAction: selectedAction,
                                         actionInputValues: actionInputValues,
-                                        reactionServiceName: reactionService.name,
+                                        reactionServiceName:
+                                            reactionService.name,
                                         selectedReaction: reaction,
                                         serviceColor: reactionService.color,
                                       ),

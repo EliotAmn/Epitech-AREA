@@ -40,8 +40,12 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
   void _continue() {
     final inputValues = <String, dynamic>{};
     for (var entry in _controllers.entries) {
-      if (widget.action.inputParams
-          .any((param) => param.name == entry.key && param.requiredParam && entry.value.text.isEmpty)) {
+      if (widget.action.inputParams.any(
+        (param) =>
+            param.name == entry.key &&
+            param.requiredParam &&
+            entry.value.text.isEmpty,
+      )) {
         showFToast(
           context: context,
           title: Text('Please fill all required fields'),
@@ -72,7 +76,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
     final serviceColor = widget.allServices
         .firstWhere((s) => s.name == widget.serviceName)
         .color;
-    
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -107,7 +111,9 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
             end: Alignment.bottomCenter,
             colors: [
               Color(int.parse('0xFF${serviceColor.substring(1)}')),
-              Color(int.parse('0xFF${serviceColor.substring(1)}')).withOpacity(0.8),
+              Color(
+                int.parse('0xFF${serviceColor.substring(1)}'),
+              ).withOpacity(0.8),
             ],
           ),
         ),
@@ -119,11 +125,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.settings,
-                      size: 48,
-                      color: Colors.white,
-                    ),
+                    Icon(Icons.settings, size: 48, color: Colors.white),
                     const SizedBox(height: 16),
                     Text(
                       'Configure Action',
@@ -149,17 +151,14 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                       const SizedBox(height: 8),
                       Text(
                         widget.action.description,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white60,
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.white60),
                         textAlign: TextAlign.center,
                       ),
                     ],
                   ],
                 ),
               ),
-              
+
               // Configuration form
               Expanded(
                 child: Container(
@@ -180,7 +179,9 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                             children: [
                               Icon(
                                 Icons.tune,
-                                color: Color(int.parse('0xFF${serviceColor.substring(1)}')),
+                                color: Color(
+                                  int.parse('0xFF${serviceColor.substring(1)}'),
+                                ),
                                 size: 24,
                               ),
                               const SizedBox(width: 8),
@@ -219,19 +220,32 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                                         Container(
                                           padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color: Color(int.parse('0xFF${serviceColor.substring(1)}')).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(8),
+                                            color: Color(
+                                              int.parse(
+                                                '0xFF${serviceColor.substring(1)}',
+                                              ),
+                                            ).withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: Icon(
-                                            param.requiredParam ? Icons.star : Icons.edit,
-                                            color: Color(int.parse('0xFF${serviceColor.substring(1)}')),
+                                            param.requiredParam
+                                                ? Icons.star
+                                                : Icons.edit,
+                                            color: Color(
+                                              int.parse(
+                                                '0xFF${serviceColor.substring(1)}',
+                                              ),
+                                            ),
                                             size: 20,
                                           ),
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 param.label,
@@ -260,7 +274,8 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.orange.shade100,
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Text(
                                               'Required',
@@ -300,7 +315,10 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                                           );
                                         }).toList(),
                                         onChanged: (value) {
-                                          _controllers[param.name] = TextEditingValue(text: value ?? '');
+                                          _controllers[param.name] =
+                                              TextEditingValue(
+                                                text: value ?? '',
+                                              );
                                         },
                                       ),
                                   ],
@@ -360,14 +378,20 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Color(int.parse('0xFF${serviceColor.substring(1)}')),
-                                Color(int.parse('0xFF${serviceColor.substring(1)}')).withOpacity(0.8),
+                                Color(
+                                  int.parse('0xFF${serviceColor.substring(1)}'),
+                                ),
+                                Color(
+                                  int.parse('0xFF${serviceColor.substring(1)}'),
+                                ).withOpacity(0.8),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Color(int.parse('0xFF${serviceColor.substring(1)}')).withOpacity(0.4),
+                                color: Color(
+                                  int.parse('0xFF${serviceColor.substring(1)}'),
+                                ).withOpacity(0.4),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),

@@ -66,7 +66,9 @@ class _ConfigPageState extends State<ConfigPage> {
             ),
             child: Icon(
               Icons.arrow_back,
-              color: Color(int.parse('0xFF${widget.serviceColor.substring(1)}')),
+              color: Color(
+                int.parse('0xFF${widget.serviceColor.substring(1)}'),
+              ),
             ),
           ),
           onPressed: () => Navigator.pop(context),
@@ -79,7 +81,9 @@ class _ConfigPageState extends State<ConfigPage> {
             end: Alignment.bottomCenter,
             colors: [
               Color(int.parse('0xFF${widget.serviceColor.substring(1)}')),
-              Color(int.parse('0xFF${widget.serviceColor.substring(1)}')).withOpacity(0.8),
+              Color(
+                int.parse('0xFF${widget.serviceColor.substring(1)}'),
+              ).withOpacity(0.8),
             ],
           ),
         ),
@@ -91,11 +95,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.tune,
-                      size: 48,
-                      color: Colors.white,
-                    ),
+                    Icon(Icons.tune, size: 48, color: Colors.white),
                     const SizedBox(height: 16),
                     Text(
                       'Configure Reaction',
@@ -121,17 +121,14 @@ class _ConfigPageState extends State<ConfigPage> {
                       const SizedBox(height: 8),
                       Text(
                         widget.selectedReaction.description,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white60,
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.white60),
                         textAlign: TextAlign.center,
                       ),
                     ],
                   ],
                 ),
               ),
-              
+
               // Configuration form
               Expanded(
                 child: Container(
@@ -180,7 +177,8 @@ class _ConfigPageState extends State<ConfigPage> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'IF',
@@ -211,19 +209,28 @@ class _ConfigPageState extends State<ConfigPage> {
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Color(int.parse('0xFF${widget.serviceColor.substring(1)}')).withOpacity(0.1),
+                                      color: Color(
+                                        int.parse(
+                                          '0xFF${widget.serviceColor.substring(1)}',
+                                        ),
+                                      ).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
                                       Icons.refresh,
-                                      color: Color(int.parse('0xFF${widget.serviceColor.substring(1)}')),
+                                      color: Color(
+                                        int.parse(
+                                          '0xFF${widget.serviceColor.substring(1)}',
+                                        ),
+                                      ),
                                       size: 20,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'THEN',
@@ -249,15 +256,19 @@ class _ConfigPageState extends State<ConfigPage> {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         if (widget.selectedReaction.inputParams.isNotEmpty) ...[
                           Row(
                             children: [
                               Icon(
                                 Icons.tune,
-                                color: Color(int.parse('0xFF${widget.serviceColor.substring(1)}')),
+                                color: Color(
+                                  int.parse(
+                                    '0xFF${widget.serviceColor.substring(1)}',
+                                  ),
+                                ),
                                 size: 24,
                               ),
                               const SizedBox(width: 8),
@@ -296,19 +307,32 @@ class _ConfigPageState extends State<ConfigPage> {
                                         Container(
                                           padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color: Color(int.parse('0xFF${widget.serviceColor.substring(1)}')).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(8),
+                                            color: Color(
+                                              int.parse(
+                                                '0xFF${widget.serviceColor.substring(1)}',
+                                              ),
+                                            ).withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: Icon(
-                                            param.requiredParam ? Icons.star : Icons.edit,
-                                            color: Color(int.parse('0xFF${widget.serviceColor.substring(1)}')),
+                                            param.requiredParam
+                                                ? Icons.star
+                                                : Icons.edit,
+                                            color: Color(
+                                              int.parse(
+                                                '0xFF${widget.serviceColor.substring(1)}',
+                                              ),
+                                            ),
                                             size: 20,
                                           ),
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 param.label,
@@ -337,7 +361,8 @@ class _ConfigPageState extends State<ConfigPage> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.orange.shade100,
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Text(
                                               'Required',
@@ -409,7 +434,7 @@ class _ConfigPageState extends State<ConfigPage> {
                             ),
                           ),
                         ],
-                        
+
                         const SizedBox(height: 24),
                         // Create AREA button
                         Container(
@@ -435,45 +460,67 @@ class _ConfigPageState extends State<ConfigPage> {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
-                              onTap: () =>  {
-                                for (var entry in _controllers.entries) {
-                                  if (widget.selectedReaction.inputParams
-                                      .any((param) => param.name == entry.key && param.requiredParam && entry.value.text.isEmpty)) {
-                                        _allFilled = false,
-                                      }
-                                  else {_allFilled = true}
-                                },
-                                if (_allFilled) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CreateHomePage(
-                                      action: AreaAction(
-                                        serviceName: widget.actionServiceName,
-                                        actionName: widget.selectedAction.name,
-                                        actionDescription: widget.selectedAction.description,
-                                        inputValues: widget.actionInputValues,
-                                      ),
-                                      reaction: AreaReaction(
-                                        serviceName: widget.reactionServiceName,
-                                        reactionName: widget.selectedReaction.name,
-                                        reactionDescription:
-                                            widget.selectedReaction.description,
-                                        inputValues: _controllers.map(
-                                          (key, controller) => MapEntry(key, controller.text),
+                              onTap: () => {
+                                for (var entry in _controllers.entries)
+                                  {
+                                    if (widget.selectedReaction.inputParams.any(
+                                      (param) =>
+                                          param.name == entry.key &&
+                                          param.requiredParam &&
+                                          entry.value.text.isEmpty,
+                                    ))
+                                      {_allFilled = false}
+                                    else
+                                      {_allFilled = true},
+                                  },
+                                if (_allFilled)
+                                  {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CreateHomePage(
+                                          action: AreaAction(
+                                            serviceName:
+                                                widget.actionServiceName,
+                                            actionName:
+                                                widget.selectedAction.name,
+                                            actionDescription: widget
+                                                .selectedAction
+                                                .description,
+                                            inputValues:
+                                                widget.actionInputValues,
+                                          ),
+                                          reaction: AreaReaction(
+                                            serviceName:
+                                                widget.reactionServiceName,
+                                            reactionName:
+                                                widget.selectedReaction.name,
+                                            reactionDescription: widget
+                                                .selectedReaction
+                                                .description,
+                                            inputValues: _controllers.map(
+                                              (key, controller) => MapEntry(
+                                                key,
+                                                controller.text,
+                                              ),
+                                            ),
+                                          ),
+                                          selectedReaction:
+                                              widget.selectedReaction,
+                                          selectedAction: widget.selectedAction,
                                         ),
                                       ),
-                                      selectedReaction: widget.selectedReaction,
-                                      selectedAction: widget.selectedAction,
                                     ),
-                                  ),
-                                ),
-                                } else {
-                                  showFToast(
-                                    context: context,
-                                    title: Text('Please fill all required fields'),
-                                  ),
-                                }
+                                  }
+                                else
+                                  {
+                                    showFToast(
+                                      context: context,
+                                      title: Text(
+                                        'Please fill all required fields',
+                                      ),
+                                    ),
+                                  },
                               },
 
                               child: Center(

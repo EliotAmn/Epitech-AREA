@@ -7,7 +7,6 @@ import 'package:mobile/global/cache.dart' as cache;
 import 'dart:convert';
 import 'package:forui/forui.dart';
 
-
 class EditAreaPage extends StatefulWidget {
   final Area area;
 
@@ -20,12 +19,10 @@ class EditAreaPage extends StatefulWidget {
 class _EditAreaPageState extends State<EditAreaPage> {
   final TextEditingController _nameController = TextEditingController();
 
-
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.area.name;
-    
   }
 
   @override
@@ -43,7 +40,7 @@ class _EditAreaPageState extends State<EditAreaPage> {
     );
     final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
 
-    http.delete(  
+    http.delete(
       Uri.parse('$apiSettingsUrl/areas/${widget.area.id}'),
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +60,9 @@ class _EditAreaPageState extends State<EditAreaPage> {
     if (response.statusCode != 200 && response.statusCode != 201) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save changes: ${response.statusCode}')),
+          SnackBar(
+            content: Text('Failed to save changes: ${response.statusCode}'),
+          ),
         );
       }
       return;
@@ -98,10 +97,8 @@ class _EditAreaPageState extends State<EditAreaPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
-              
               const SizedBox(height: 24),
-              
+
               // Action section
               Row(
                 children: [
@@ -129,7 +126,7 @@ class _EditAreaPageState extends State<EditAreaPage> {
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -177,10 +174,14 @@ class _EditAreaPageState extends State<EditAreaPage> {
                                   ),
                                   child: FTextField(
                                     control: FTextFieldControl.managed(
-                                      initial: TextEditingValue(text: entry.value.toString()),
+                                      initial: TextEditingValue(
+                                        text: entry.value.toString(),
+                                      ),
                                       onChange: (value) {
                                         inputs[entry.key] = value.text;
-                                        widget.area.action.inputValues[entry.key] = value.text;
+                                        widget.area.action.inputValues[entry
+                                                .key] =
+                                            value.text;
                                       },
                                     ),
                                     hint: 'Enter ${entry.key}',
@@ -204,9 +205,9 @@ class _EditAreaPageState extends State<EditAreaPage> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Reaction section
               Row(
                 children: [
@@ -234,7 +235,7 @@ class _EditAreaPageState extends State<EditAreaPage> {
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -250,7 +251,7 @@ class _EditAreaPageState extends State<EditAreaPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                     humanize( widget.area.reaction.reactionName),
+                      humanize(widget.area.reaction.reactionName),
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -283,10 +284,14 @@ class _EditAreaPageState extends State<EditAreaPage> {
                                   child: FTextField(
                                     hint: 'Enter ${entry.key}',
                                     control: FTextFieldControl.managed(
-                                      initial: TextEditingValue(text: entry.value.toString()),
+                                      initial: TextEditingValue(
+                                        text: entry.value.toString(),
+                                      ),
                                       onChange: (value) {
                                         inputs[entry.key] = value.text;
-                                        widget.area.reaction.inputValues[entry.key] = value.text;
+                                        widget.area.reaction.inputValues[entry
+                                                .key] =
+                                            value.text;
                                       },
                                     ),
                                   ),
@@ -309,9 +314,9 @@ class _EditAreaPageState extends State<EditAreaPage> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Save button
               SizedBox(
                 width: double.infinity,
@@ -342,7 +347,7 @@ class _EditAreaPageState extends State<EditAreaPage> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
             ],
           ),

@@ -40,9 +40,8 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo/Icon
-                
                   const SizedBox(height: 40),
-                  
+
                   // Title
                   Text(
                     'AREA',
@@ -53,9 +52,9 @@ class _LoginPageState extends State<LoginPage> {
                       letterSpacing: 2,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Subtitle
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -70,9 +69,9 @@ class _LoginPageState extends State<LoginPage> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 60),
-                  
+
                   // Login Button
                   Container(
                     width: double.infinity,
@@ -120,9 +119,9 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Features
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -378,9 +377,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Text(
               'Welcome Back',
@@ -391,20 +390,17 @@ class _LoginModalContentState extends State<_LoginModalContent> {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               'Sign in to continue',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Email field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,9 +430,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Password field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,7 +465,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                 ),
               ],
             ),
-            
+
             if (_errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -482,7 +478,11 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red.shade700,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -497,9 +497,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                   ),
                 ),
               ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Login button
             Container(
               decoration: BoxDecoration(
@@ -536,9 +536,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Divider
             Row(
               children: [
@@ -557,9 +557,9 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                 Expanded(child: Divider(color: Colors.grey.shade300)),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Google sign-in
             Container(
               decoration: BoxDecoration(
@@ -579,7 +579,11 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.g_mobiledata, size: 28, color: Colors.grey.shade700),
+                        Icon(
+                          Icons.g_mobiledata,
+                          size: 28,
+                          color: Colors.grey.shade700,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Continue with Google',
@@ -595,24 +599,23 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Sign up link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   "Don't have an account? ",
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const SignUpPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const SignUpPage(),
+                      ),
                     );
                   },
                   style: TextButton.styleFrom(
@@ -631,7 +634,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 8),
           ],
         ),

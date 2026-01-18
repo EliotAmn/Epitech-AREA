@@ -77,10 +77,8 @@ class _CreateHomePageState extends State<CreateHomePage> {
                 showFToast(
                   context: context,
                   title: Text('AREA created successfully!'),
-                  suffixBuilder: (context, entry) => const Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                  ),
+                  suffixBuilder: (context, entry) =>
+                      const Icon(Icons.check_circle, color: Colors.green),
                   alignment: FToastAlignment.bottomCenter,
                   duration: const Duration(seconds: 3),
                 );
@@ -92,10 +90,8 @@ class _CreateHomePageState extends State<CreateHomePage> {
                 showFToast(
                   context: context,
                   title: Text('Failed to create AREA: ${response.statusCode}'),
-                  suffixBuilder: (context, entry) => const Icon(
-                    Icons.error,
-                    color: Colors.red,
-                  ),
+                  suffixBuilder: (context, entry) =>
+                      const Icon(Icons.error, color: Colors.red),
                   alignment: FToastAlignment.bottomCenter,
                   duration: const Duration(seconds: 3),
                 );
@@ -131,118 +127,117 @@ class _CreateHomePageState extends State<CreateHomePage> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
-      header: FHeader.nested(
-        title: Text('Create AREA'),
-      ),
+      header: FHeader.nested(title: Text('Create AREA')),
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
         child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Visual helper text
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  margin: const EdgeInsets.only(bottom: 20.0),
-                 
-                  child: SizedBox(
-                    height: 30,
-                    child: Marquee(
-                      text: 'Create your AREA by selecting an action and a reaction!',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blueGrey.shade900,
-                      ),
-                      scrollAxis: Axis.horizontal,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      blankSpace: 100.0,
-                      velocity: 50.0,
-                      pauseAfterRound: const Duration(seconds: 1),
-                      startPadding: 10.0,
-                      accelerationDuration: const Duration(seconds: 1),
-                      accelerationCurve: Curves.linear,
-                      decelerationDuration: const Duration(milliseconds: 500),
-                      decelerationCurve: Curves.easeOut,
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Visual helper text
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                margin: const EdgeInsets.only(bottom: 20.0),
+
+                child: SizedBox(
+                  height: 30,
+                  child: Marquee(
+                    text:
+                        'Create your AREA by selecting an action and a reaction!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blueGrey.shade900,
                     ),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    blankSpace: 100.0,
+                    velocity: 50.0,
+                    pauseAfterRound: const Duration(seconds: 1),
+                    startPadding: 10.0,
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
                   ),
                 ),
-                
-                // Action Card
-                ActionReactionCard(
-                  label: 'IF',
-                  icon: Icons.play_arrow,
-                  color: Colors.blue.shade600,
-                  unselectedColor: Colors.grey.shade700,
-                  isSelected: CreateHomePage.selectedAction != null,
-                  serviceName: CreateHomePage.action?.serviceName,
-                  selectedLabel: CreateHomePage.selectedAction?.label,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CreatePage(services: services),
-                      ),
+              ),
+
+              // Action Card
+              ActionReactionCard(
+                label: 'IF',
+                icon: Icons.play_arrow,
+                color: Colors.blue.shade600,
+                unselectedColor: Colors.grey.shade700,
+                isSelected: CreateHomePage.selectedAction != null,
+                serviceName: CreateHomePage.action?.serviceName,
+                selectedLabel: CreateHomePage.selectedAction?.label,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreatePage(services: services),
+                    ),
+                  );
+                },
+              ),
+
+              // Connector Arrow
+              ConnectorArrow(
+                color: Colors.blue.shade700,
+                show: CreateHomePage.selectedAction != null,
+              ),
+
+              // Reaction Card
+              ActionReactionCard(
+                label: 'THEN',
+                icon: Icons.refresh,
+                color: Colors.purple.shade600,
+                unselectedColor: Colors.grey.shade600,
+                isSelected: CreateHomePage.selectedReaction != null,
+                serviceName: CreateHomePage.reaction?.serviceName,
+                selectedLabel: CreateHomePage.selectedReaction?.name,
+                onTap: () {
+                  if (CreateHomePage.action == null ||
+                      CreateHomePage.selectedAction == null) {
+                    showFToast(
+                      context: context,
+                      title: const Text('Please select an action first.'),
+                      suffixBuilder: (context, entry) =>
+                          const Icon(Icons.error, color: Colors.black),
+                      alignment: FToastAlignment.bottomCenter,
+                      duration: const Duration(seconds: 3),
                     );
-                  },
-                ),
-                
-                // Connector Arrow
-                ConnectorArrow(
-                  color: Colors.blue.shade700,
-                  show: CreateHomePage.selectedAction != null,
-                ),
-                
-                // Reaction Card
-                ActionReactionCard(
-                  label: 'THEN',
-                  icon: Icons.refresh,
-                  color: Colors.purple.shade600,
-                  unselectedColor: Colors.grey.shade600,
-                  isSelected: CreateHomePage.selectedReaction != null,
-                  serviceName: CreateHomePage.reaction?.serviceName,
-                  selectedLabel: CreateHomePage.selectedReaction?.name,
-                  onTap: () {
-                    if (CreateHomePage.action == null ||
-                        CreateHomePage.selectedAction == null) {
-                      showFToast(
-                        context: context,
-                        title: const Text('Please select an action first.'),
-                        suffixBuilder: (context, entry) => const Icon(
-                          Icons.error,
-                          color: Colors.black,
-                        ),
-                        alignment: FToastAlignment.bottomCenter,
-                        duration: const Duration(seconds: 3),
-                      );
-                      return;
-                    }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ReactionPage(
-                          actionServiceName: CreateHomePage.action!.serviceName,
-                          selectedAction: CreateHomePage.selectedAction!,
-                          actionInputValues: CreateHomePage.action!.inputValues,
-                          allServices: services,
-                        ),
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReactionPage(
+                        actionServiceName: CreateHomePage.action!.serviceName,
+                        selectedAction: CreateHomePage.selectedAction!,
+                        actionInputValues: CreateHomePage.action!.inputValues,
+                        allServices: services,
                       ),
-                    );
-                  },
-                ),
-                
-                const SizedBox(height: 32),
-                
-                // Create Button
-                  CreateButton(
-                    isEnabled: CreateHomePage.action != null &&
-                        CreateHomePage.reaction != null,
-                    onTap: () => saveArea(context),
-                  ),
-            ]),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 32),
+
+              // Create Button
+              CreateButton(
+                isEnabled:
+                    CreateHomePage.action != null &&
+                    CreateHomePage.reaction != null,
+                onTap: () => saveArea(context),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }

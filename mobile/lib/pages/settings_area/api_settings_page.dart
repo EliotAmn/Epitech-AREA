@@ -44,9 +44,7 @@ class _ApiSettingsPageState extends State<ApiSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FTextField(
-              control: FTextFieldControl.managed(
-                controller: _apiUrlController,
-              ),
+              control: FTextFieldControl.managed(controller: _apiUrlController),
               hint: 'API URL',
               label: Text('API URL'),
               description: Text('Enter the base URL for the API'),

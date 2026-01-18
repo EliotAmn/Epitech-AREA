@@ -4,11 +4,7 @@ class ConnectorArrow extends StatelessWidget {
   final Color color;
   final bool show;
 
-  const ConnectorArrow({
-    super.key,
-    required this.color,
-    this.show = true,
-  });
+  const ConnectorArrow({super.key, required this.color, this.show = true});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +27,7 @@ class ConnectorArrow extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(
-          Icons.arrow_downward,
-          size: 28,
-          color: color,
-        ),
+        child: Icon(Icons.arrow_downward, size: 28, color: color),
       ),
     );
   }

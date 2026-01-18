@@ -19,7 +19,7 @@ class ServiceDetailsPage extends StatelessWidget {
     final serviceColor = Color(int.parse('0xFF${service.color.substring(1)}'));
     final isLightColor = serviceColor.computeLuminance() > 0.5;
     final textColor = isLightColor ? Colors.black87 : Colors.white;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -36,7 +36,10 @@ class ServiceDetailsPage extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(20),
@@ -55,10 +58,7 @@ class ServiceDetailsPage extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      serviceColor,
-                      serviceColor.withOpacity(0.7),
-                    ],
+                    colors: [serviceColor, serviceColor.withOpacity(0.7)],
                   ),
                 ),
                 child: Center(
@@ -88,7 +88,7 @@ class ServiceDetailsPage extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Content
           SliverList(
             delegate: SliverChildListDelegate([
@@ -106,11 +106,7 @@ class ServiceDetailsPage extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: serviceColor,
-                      size: 24,
-                    ),
+                    Icon(Icons.info_outline, color: serviceColor, size: 24),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -125,7 +121,7 @@ class ServiceDetailsPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Create area button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -180,9 +176,9 @@ class ServiceDetailsPage extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Actions section
               if (service.actions.isNotEmpty) ...[
                 Padding(
@@ -263,9 +259,9 @@ class ServiceDetailsPage extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 32),
-              
+
               // Reactions section
               if (service.reactions.isNotEmpty) ...[
                 Padding(
@@ -338,7 +334,7 @@ class ServiceDetailsPage extends StatelessWidget {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 40),
             ]),
           ),
@@ -380,84 +376,87 @@ class ServiceDetailsPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          ...params.map((param) => Container(
-                margin: const EdgeInsets.only(bottom: 8.0),
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.shade100,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      param.requiredParam ? Icons.star : Icons.star_border,
-                      color: param.requiredParam ? Colors.orange : Colors.grey.shade400,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            param.label,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey.shade900,
-                              fontSize: 14,
-                            ),
+          ...params.map(
+            (param) => Container(
+              margin: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.shade100,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    param.requiredParam ? Icons.star : Icons.star_border,
+                    color: param.requiredParam
+                        ? Colors.orange
+                        : Colors.grey.shade400,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          param.label,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade900,
+                            fontSize: 14,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${param.name} • ${param.type}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
-                            ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${param.name} • ${param.type}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: param.requiredParam
+                          ? Colors.orange.shade50
+                          : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
                         color: param.requiredParam
-                            ? Colors.orange.shade50
-                            : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: param.requiredParam
-                              ? Colors.orange.shade200
-                              : Colors.grey.shade300,
-                        ),
-                      ),
-                      child: Text(
-                        param.requiredParam ? 'required' : 'optional',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: param.requiredParam
-                              ? Colors.orange.shade900
-                              : Colors.grey.shade700,
-                        ),
+                            ? Colors.orange.shade200
+                            : Colors.grey.shade300,
                       ),
                     ),
-                  ],
-                ),
-              )),
+                    child: Text(
+                      param.requiredParam ? 'required' : 'optional',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: param.requiredParam
+                            ? Colors.orange.shade900
+                            : Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
-       

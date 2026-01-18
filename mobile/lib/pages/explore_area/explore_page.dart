@@ -23,8 +23,9 @@ class _ExplorePageState extends State<ExplorePage> {
   Widget getAllView() {
     final filteredServices = services
         .where(
-          (service) =>
-              service.label.toLowerCase().contains(searchQuery.text.toLowerCase()),
+          (service) => service.label.toLowerCase().contains(
+            searchQuery.text.toLowerCase(),
+          ),
         )
         .toList();
 
@@ -35,11 +36,7 @@ class _ExplorePageState extends State<ExplorePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.search_off,
-                size: 64,
-                color: Colors.grey.shade400,
-              ),
+              Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
               const SizedBox(height: 16),
               Text(
                 'No services found',
@@ -52,10 +49,7 @@ class _ExplorePageState extends State<ExplorePage> {
               const SizedBox(height: 8),
               Text(
                 'Try a different search term',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -76,7 +70,9 @@ class _ExplorePageState extends State<ExplorePage> {
       itemCount: filteredServices.length,
       itemBuilder: (context, index) {
         final service = filteredServices[index];
-        final serviceColor = Color(int.parse('0xFF${service.color.substring(1)}'));
+        final serviceColor = Color(
+          int.parse('0xFF${service.color.substring(1)}'),
+        );
         return ServiceGridCard(
           label: service.label,
           logoUrl: service.logo,
@@ -87,10 +83,8 @@ class _ExplorePageState extends State<ExplorePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ServiceDetailsPage(
-                  service: service,
-                  allServices: services,
-                ),
+                builder: (context) =>
+                    ServiceDetailsPage(service: service, allServices: services),
               ),
             );
           },
@@ -185,7 +179,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 ],
               ),
             ),
-            
+
             // Services grid
             Expanded(
               child: services.isEmpty
@@ -207,9 +201,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         ],
                       ),
                     )
-                  : SingleChildScrollView(
-                      child: getCurrentTabView(),
-                    ),
+                  : SingleChildScrollView(child: getCurrentTabView()),
             ),
           ],
         ),

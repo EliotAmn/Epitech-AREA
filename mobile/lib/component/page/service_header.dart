@@ -14,7 +14,8 @@ class ServiceHeader extends StatelessWidget {
     this.onConnect,
   });
 
-  Color get serviceColor => Color(int.parse('0xFF${service.color.substring(1)}'));
+  Color get serviceColor =>
+      Color(int.parse('0xFF${service.color.substring(1)}'));
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +47,7 @@ class ServiceHeader extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             service.description,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.white70,
-            ),
+            style: const TextStyle(fontSize: 14, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
           if (service.oauthUrl != null) ...[
@@ -106,7 +104,9 @@ class ServiceHeader extends StatelessWidget {
   }
 
   Widget _buildLogo() {
-    final logoUrl = service.logo.isNotEmpty ? service.logo : 'https://via.placeholder.com/100';
+    final logoUrl = service.logo.isNotEmpty
+        ? service.logo
+        : 'https://via.placeholder.com/100';
     final isSvg = logoUrl.toLowerCase().endsWith('.svg');
     if (isSvg) {
       return SvgPicture.network(logoUrl, width: 100, height: 100);
@@ -115,11 +115,8 @@ class ServiceHeader extends StatelessWidget {
         logoUrl,
         width: 100,
         height: 100,
-        errorBuilder: (context, error, stackTrace) => const Icon(
-          Icons.error,
-          size: 100,
-          color: Colors.white,
-        ),
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.error, size: 100, color: Colors.white),
       );
     }
   }

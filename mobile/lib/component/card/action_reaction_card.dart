@@ -48,7 +48,10 @@ class ActionReactionCard extends StatelessWidget {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 16),
-                if (isSelected) _buildSelectedContent() else _buildPlaceholder(),
+                if (isSelected)
+                  _buildSelectedContent()
+                else
+                  _buildPlaceholder(),
               ],
             ),
           ),
@@ -60,11 +63,7 @@ class ActionReactionCard extends StatelessWidget {
   Widget _buildHeader() {
     return Row(
       children: [
-        Icon(
-          icon,
-          color: Colors.white,
-          size: 24,
-        ),
+        Icon(icon, color: Colors.white, size: 24),
         const SizedBox(width: 12),
         Text(
           isSelected ? label : '$label THIS',
@@ -76,11 +75,7 @@ class ActionReactionCard extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        Icon(
-          Icons.arrow_forward_ios,
-          color: Colors.white70,
-          size: 16,
-        ),
+        Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
       ],
     );
   }
@@ -100,10 +95,7 @@ class ActionReactionCard extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           selectedLabel ?? '',
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
@@ -115,18 +107,11 @@ class ActionReactionCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.add_circle_outline,
-          color: Colors.white70,
-          size: 20,
-        ),
+        Icon(Icons.add_circle_outline, color: Colors.white70, size: 20),
         const SizedBox(width: 8),
         Text(
           'Choose a ${label.toLowerCase()}',
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
       ],
     );

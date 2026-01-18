@@ -81,7 +81,14 @@ class _SettingsPageState extends State<SettingsPage> {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      subtitle: subtitle != null ? Text(subtitle, style: TextStyle(color: Colors.grey.shade600).copyWith(fontSize: 12)) : null,
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: TextStyle(
+                color: Colors.grey.shade600,
+              ).copyWith(fontSize: 12),
+            )
+          : null,
       trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
     );

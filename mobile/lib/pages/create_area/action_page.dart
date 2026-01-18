@@ -23,7 +23,6 @@ class ActionPage extends StatefulWidget {
 }
 
 class _ActionPageState extends State<ActionPage> {
-
   var isConnected = false;
 
   void _getConnectionStatus() async {
@@ -42,11 +41,9 @@ class _ActionPageState extends State<ActionPage> {
       final decoded = jsonDecode(data);
       setState(() {
         isConnected = decoded['connected'] as bool;
-       });
+      });
     } else {
-      debugPrint(
-        'Failed to load connection status: ${response.statusCode}',
-      );
+      debugPrint('Failed to load connection status: ${response.statusCode}');
     }
   }
 
@@ -56,7 +53,8 @@ class _ActionPageState extends State<ActionPage> {
     _getConnectionStatus();
   }
 
-  Color get serviceColor => Color(int.parse('0xFF${widget.service.color.substring(1)}'));
+  Color get serviceColor =>
+      Color(int.parse('0xFF${widget.service.color.substring(1)}'));
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +79,9 @@ class _ActionPageState extends State<ActionPage> {
             ),
             child: Icon(
               Icons.arrow_back,
-              color: Color(int.parse('0xFF${widget.service.color.substring(1)}')),
+              color: Color(
+                int.parse('0xFF${widget.service.color.substring(1)}'),
+              ),
             ),
           ),
           onPressed: () => Navigator.pop(context),
@@ -94,7 +94,9 @@ class _ActionPageState extends State<ActionPage> {
             end: Alignment.bottomCenter,
             colors: [
               Color(int.parse('0xFF${widget.service.color.substring(1)}')),
-              Color(int.parse('0xFF${widget.service.color.substring(1)}')).withOpacity(0.8),
+              Color(
+                int.parse('0xFF${widget.service.color.substring(1)}'),
+              ).withOpacity(0.8),
             ],
           ),
         ),
@@ -119,7 +121,7 @@ class _ActionPageState extends State<ActionPage> {
                       }
                     : null,
               ),
-              
+
               // Actions list
               Expanded(
                 child: Container(
@@ -139,7 +141,11 @@ class _ActionPageState extends State<ActionPage> {
                           children: [
                             Icon(
                               Icons.play_arrow,
-                              color: Color(int.parse('0xFF${widget.service.color.substring(1)}')),
+                              color: Color(
+                                int.parse(
+                                  '0xFF${widget.service.color.substring(1)}',
+                                ),
+                              ),
                               size: 24,
                             ),
                             const SizedBox(width: 8),
@@ -166,7 +172,9 @@ class _ActionPageState extends State<ActionPage> {
                               child: ActionListItem(
                                 accentColor: serviceColor,
                                 label: action.label,
-                                description: action.description.isNotEmpty ? action.description : null,
+                                description: action.description.isNotEmpty
+                                    ? action.description
+                                    : null,
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(

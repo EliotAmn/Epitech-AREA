@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:forui/forui.dart';
 
-
 class AccountSettingsPage extends StatefulWidget {
   const AccountSettingsPage({super.key});
 
@@ -16,7 +15,6 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   bool _editToggle = false;
-
 
   void _updateUserInfo(String name, String email) async {
     final userId = await _getUserIdFromToken();
@@ -34,10 +32,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({
-        'name': name,
-        'email': email,
-      }),
+      body: jsonEncode({'name': name, 'email': email}),
     );
 
     if (response.statusCode == 200) {
@@ -48,7 +43,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     } else {
       debugPrint('Failed to update user info: ${response.statusCode}');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile: ${response.statusCode}')),
+        SnackBar(
+          content: Text('Failed to update profile: ${response.statusCode}'),
+        ),
       );
     }
   }
@@ -87,7 +84,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     if (response.statusCode == 200) {
       final data = response.body;
       final decoded = jsonDecode(data);
-      
+
       setState(() {
         _nameController.text = decoded['name'] ?? 'N/A';
         _emailController.text = decoded['email'] ?? 'N/A';
@@ -98,13 +95,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     }
   }
 
- @override
+  @override
   void initState() {
     super.initState();
     _getUserInfo();
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Account Settings'), elevation: 0),
@@ -122,7 +119,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                     controller: _nameController,
                   ),
                   hint: 'Name',
-                  label: Text(  'Name'),
+                  label: Text('Name'),
                   description: Text('Enter your name'),
                   readOnly: !_editToggle,
                 ),
@@ -135,7 +132,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                     controller: _emailController,
                   ),
                   hint: 'Email',
-                  label: Text(  'Email'),
+                  label: Text('Email'),
                   description: Text('Enter your email address'),
                   readOnly: !_editToggle,
                 ),
@@ -160,5 +157,5 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         ),
       ),
     );
-  } 
+  }
 }

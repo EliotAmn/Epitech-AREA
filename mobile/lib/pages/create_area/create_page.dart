@@ -39,10 +39,7 @@ class _CreatePageState extends State<CreatePage> {
                 ),
               ],
             ),
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.blue.shade700,
-            ),
+            child: Icon(Icons.arrow_back, color: Colors.blue.shade700),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -52,10 +49,7 @@ class _CreatePageState extends State<CreatePage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.blue.shade900,
-              Colors.purple.shade900,
-            ],
+            colors: [Colors.blue.shade900, Colors.purple.shade900],
           ),
         ),
         child: SafeArea(
@@ -66,11 +60,7 @@ class _CreatePageState extends State<CreatePage> {
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.apps,
-                      size: 48,
-                      color: Colors.white,
-                    ),
+                    Icon(Icons.apps, size: 48, color: Colors.white),
                     const SizedBox(height: 16),
                     Text(
                       'Choose Your Service',
@@ -84,16 +74,13 @@ class _CreatePageState extends State<CreatePage> {
                     const SizedBox(height: 8),
                     Text(
                       'Select a service to trigger your automation',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.white70),
                       textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-              
+
               // Services grid
               Expanded(
                 child: Container(
@@ -122,7 +109,11 @@ class _CreatePageState extends State<CreatePage> {
                                     label: service.label,
                                     logoUrl: service.logo,
                                     actionCount: service.actions.length,
-                                    color: Color(int.parse('0xFF${service.color.substring(1)}')),
+                                    color: Color(
+                                      int.parse(
+                                        '0xFF${service.color.substring(1)}',
+                                      ),
+                                    ),
                                     onTap: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(

@@ -100,31 +100,22 @@ class ServiceGridCard extends StatelessWidget {
 
   Widget _buildLogo() {
     if (logoUrl.isEmpty) {
-      return Icon(
-        Icons.add_box,
-        color: color,
-        size: 32,
-      );
+      return Icon(Icons.add_box, color: color, size: 32);
     }
     if (logoUrl.toLowerCase().endsWith('.svg')) {
       return SvgPicture.network(
         logoUrl,
         fit: BoxFit.contain,
         placeholderBuilder: (context) => Center(
-          child: CircularProgressIndicator(
-            color: color,
-            strokeWidth: 2,
-          ),
+          child: CircularProgressIndicator(color: color, strokeWidth: 2),
         ),
       );
     }
     return Image.network(
       logoUrl,
       fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) => Icon(
-        Icons.image_not_supported,
-        color: color,
-      ),
+      errorBuilder: (context, error, stackTrace) =>
+          Icon(Icons.image_not_supported, color: color),
     );
   }
 }

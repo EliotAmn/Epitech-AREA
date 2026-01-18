@@ -16,10 +16,18 @@ class Area {
   Map<String, dynamic> toJson() => {
     'name': name,
     'actions': [
-      {'action_name': action.actionName, 'params': action.inputValues, 'service': action.serviceName},
+      {
+        'action_name': action.actionName,
+        'params': action.inputValues,
+        'service': action.serviceName,
+      },
     ],
     'reactions': [
-      {'reaction_name': reaction.reactionName, 'params': reaction.inputValues, 'service': reaction.serviceName},
+      {
+        'reaction_name': reaction.reactionName,
+        'params': reaction.inputValues,
+        'service': reaction.serviceName,
+      },
     ],
   };
 
@@ -28,18 +36,17 @@ class Area {
     String leftService = '';
     String rightService = '';
 
-    leftService = json['actions'] != null &&
+    leftService =
+        json['actions'] != null &&
             (json['actions'] as List).isNotEmpty &&
-            (json['actions'].first as Map<String, dynamic>)['service'] !=
-                null
+            (json['actions'].first as Map<String, dynamic>)['service'] != null
         ? (json['actions'].first as Map<String, dynamic>)['service'] as String
         : '';
-    rightService = json['reactions'] != null &&
+    rightService =
+        json['reactions'] != null &&
             (json['reactions'] as List).isNotEmpty &&
-            (json['reactions'].first as Map<String, dynamic>)['service'] !=
-                null
-        ? (json['reactions'].first as Map<String, dynamic>)['service']
-            as String
+            (json['reactions'].first as Map<String, dynamic>)['service'] != null
+        ? (json['reactions'].first as Map<String, dynamic>)['service'] as String
         : '';
 
     final actions = (json['actions'] as List?) ?? const [];

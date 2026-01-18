@@ -12,7 +12,6 @@ class AreaDetailPage extends StatelessWidget {
 
   const AreaDetailPage({super.key, required this.area});
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,9 +23,9 @@ class AreaDetailPage extends StatelessWidget {
         title: Text(
           'Area Details',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade900,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Colors.grey.shade900,
+          ),
         ),
       ),
       body: FutureBuilder<Map<String, Map<String, dynamic>>>(
@@ -34,8 +33,10 @@ class AreaDetailPage extends StatelessWidget {
         builder: (context, snapshot) {
           final actionMeta = snapshot.data?['action'];
           final reactionMeta = snapshot.data?['reaction'];
-          final actionColor = (actionMeta?['color'] as Color?) ?? Colors.indigo.shade600;
-          final reactionColor = (reactionMeta?['color'] as Color?) ?? Colors.purple.shade600;
+          final actionColor =
+              (actionMeta?['color'] as Color?) ?? Colors.indigo.shade600;
+          final reactionColor =
+              (reactionMeta?['color'] as Color?) ?? Colors.purple.shade600;
           final actionLogo = (actionMeta?['logo'] as String?) ?? '';
           final reactionLogo = (reactionMeta?['logo'] as String?) ?? '';
 
@@ -93,7 +94,7 @@ class AreaDetailPage extends StatelessWidget {
                                       ),
                                 ),
                                 const SizedBox(height: 8),
-                                _buildStatusChip(area.isActive),   
+                                _buildStatusChip(area.isActive),
                               ],
                             ),
                           ),
@@ -136,10 +137,9 @@ class AreaDetailPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 Text(
                   'ID: ${area.id}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Colors.grey.shade600),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -183,10 +183,7 @@ class AreaDetailPage extends StatelessWidget {
     final services = await _fetchServices();
     final actionMeta = _metaFor(area.action.serviceName, services);
     final reactionMeta = _metaFor(area.reaction.serviceName, services);
-    return {
-      'action': actionMeta,
-      'reaction': reactionMeta,
-    };
+    return {'action': actionMeta, 'reaction': reactionMeta};
   }
 
   Future<List<Service>> _fetchServices() async {
@@ -227,6 +224,7 @@ class AreaDetailPage extends StatelessWidget {
     }
     return {'color': parsedColor, 'logo': service.logo};
   }
+
   Widget _buildStatusChip(bool active) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -302,18 +300,15 @@ class AreaDetailPage extends StatelessWidget {
                 SizedBox(
                   width: 40,
                   height: 40,
-                  
+
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: logoUrl.isNotEmpty
                         ? Image.network(
                             logoUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(
-                              icon,
-                              color: onColor,
-                              size: 22,
-                            ),
+                            errorBuilder: (_, __, ___) =>
+                                Icon(icon, color: onColor, size: 22),
                           )
                         : Icon(icon, color: onColor, size: 22),
                   ),
@@ -334,7 +329,8 @@ class AreaDetailPage extends StatelessWidget {
                       ),
                       Text(
                         service,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: onColor,
                             ),
@@ -344,9 +340,9 @@ class AreaDetailPage extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         name,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: onColorMuted,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: onColorMuted),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -369,9 +365,9 @@ class AreaDetailPage extends StatelessWidget {
                 ),
                 child: Text(
                   description,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: onColor,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: onColor),
                 ),
               ),
             ],
@@ -381,9 +377,9 @@ class AreaDetailPage extends StatelessWidget {
               Text(
                 'Parameters',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: onColor,
-                    ),
+                  fontWeight: FontWeight.w700,
+                  color: onColor,
+                ),
               ),
               const SizedBox(height: 8),
               ...params.entries.map(
@@ -412,9 +408,7 @@ class AreaDetailPage extends StatelessWidget {
                           children: [
                             Text(
                               entry.key,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.w700,
                                     color: onColor,
@@ -423,9 +417,7 @@ class AreaDetailPage extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               entry.value?.toString() ?? 'N/A',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: onColorMuted),
                               softWrap: true,
                             ),

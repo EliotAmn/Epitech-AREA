@@ -45,11 +45,7 @@ class ActionListItem extends StatelessWidget {
                     color: accentColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    icon,
-                    color: accentColor,
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: accentColor, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

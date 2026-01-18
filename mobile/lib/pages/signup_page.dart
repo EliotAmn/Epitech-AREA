@@ -126,9 +126,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Title
                 Text(
                   'Create Account',
@@ -138,19 +138,16 @@ class _SignUpPageState extends State<SignUpPage> {
                     color: Colors.grey.shade900,
                   ),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 Text(
                   'Join AREA today',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Email field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,9 +177,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Username field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,9 +209,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Password field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,9 +252,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Sign up button
                 Container(
                   decoration: BoxDecoration(
@@ -294,9 +291,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Sign in link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
