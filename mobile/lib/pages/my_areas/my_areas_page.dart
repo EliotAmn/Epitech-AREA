@@ -146,13 +146,12 @@ class _MyAreasPageState extends State<MyAreasPage> {
     try {
       final response = await http.patch(
         Uri.parse(
-          '${await cache.ApiSettingsStore().loadApiUrl()}/areas/${area.id}',
+          '${await cache.ApiSettingsStore().loadApiUrl()}/areas/${area.id}/toggle',
         ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({'isActive': value}),
       );
       if (response.statusCode < 200 || response.statusCode >= 300) {
         if (!mounted) return;
