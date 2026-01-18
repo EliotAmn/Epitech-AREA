@@ -118,8 +118,7 @@ export default class ClickUpService implements ServiceDefinition {
     redirect_uri: buildServiceRedirectUrl('clickup'),
   });
   oauth_callback = oauth_callback;
-  logo =
-    'https://clickup.com/assets/brand/v4/Logomark-gradient.svg';
+  logo = 'https://clickup.com/assets/brand/v4/Logomark-gradient.svg';
   color = '#7B68EE';
   description =
     'Connect your ClickUp workspace to automate task management and project workflows.';

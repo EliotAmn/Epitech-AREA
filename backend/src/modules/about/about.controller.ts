@@ -1,9 +1,10 @@
 import { Controller, Get, Ip } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { AboutService } from './about.service';
 import type { AboutResponse } from './about.service';
 
+@ApiTags('about')
 @Controller()
 export class AboutController {
   constructor(private readonly aboutService: AboutService) {}
