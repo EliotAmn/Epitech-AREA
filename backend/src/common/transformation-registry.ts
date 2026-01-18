@@ -38,7 +38,7 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
     parameters: [
       {
         name: 'index',
-        description: 'Position de l\'élément (commence à 1)',
+        description: "Position de l'élément (commence à 1)",
         required: true,
       },
     ],
@@ -47,7 +47,7 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'first',
-    description: 'Sélectionne le premier élément d\'un tableau',
+    description: "Sélectionne le premier élément d'un tableau",
     example: 'split(" ") | first',
     parameters: [],
     inputTypes: ['array'],
@@ -55,7 +55,7 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'last',
-    description: 'Sélectionne le dernier élément d\'un tableau',
+    description: "Sélectionne le dernier élément d'un tableau",
     example: 'split(" ") | last',
     parameters: [],
     inputTypes: ['array'],
@@ -63,7 +63,7 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'join',
-    description: 'Joint les éléments d\'un tableau avec un séparateur',
+    description: "Joint les éléments d'un tableau avec un séparateur",
     example: 'split(",") | join(" - ")',
     parameters: [
       {
@@ -77,7 +77,8 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'clean',
-    description: 'Supprime les espaces superflus au début, fin et normalise les espaces internes',
+    description:
+      'Supprime les espaces superflus au début, fin et normalise les espaces internes',
     example: 'message | clean',
     parameters: [],
     inputTypes: ['string'],
@@ -85,7 +86,7 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'replace',
-    description: 'Remplace toutes les occurrences d\'une chaîne par une autre',
+    description: "Remplace toutes les occurrences d'une chaîne par une autre",
     example: 'message | replace("old", "new")',
     parameters: [
       {
@@ -104,12 +105,13 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'extract',
-    description: 'Extrait le premier groupe d\'une expression régulière',
+    description: "Extrait le premier groupe d'une expression régulière",
     example: 'message | extract("([0-9]+)")',
     parameters: [
       {
         name: 'regex',
-        description: 'Expression régulière (premier groupe capturé sera retourné)',
+        description:
+          'Expression régulière (premier groupe capturé sera retourné)',
         required: true,
       },
     ],
@@ -142,7 +144,7 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'length',
-    description: 'Retourne la longueur d\'une chaîne ou d\'un tableau',
+    description: "Retourne la longueur d'une chaîne ou d'un tableau",
     example: 'message | length',
     parameters: [],
     inputTypes: ['string', 'array'],
@@ -164,7 +166,8 @@ export const TRANSFORMATION_REGISTRY: TransformationMetadata[] = [
   },
   {
     name: 'default',
-    description: 'Retourne une valeur par défaut si la valeur actuelle est vide',
+    description:
+      'Retourne une valeur par défaut si la valeur actuelle est vide',
     example: 'message | default("Aucune description")',
     parameters: [
       {

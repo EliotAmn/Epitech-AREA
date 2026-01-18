@@ -130,23 +130,23 @@ export class AreaService {
         // Apply transformations to action output parameters
         // Extract transformations from {{variable | pipeline}} syntax in reaction params
         const transformations: Record<string, string> = {};
-        
+
         // Parse user params for {{}} patterns
-        for (const [paramName, paramValue] of Object.entries(user_params)) {
-            if (typeof paramValue === 'string') {
-                const transformMatch = paramValue.match(/\{\{([^}]+)\}\}/g);
-                if (transformMatch) {
-                    transformMatch.forEach((match) => {
-                        const content = match.slice(2, -2).trim(); // Remove {{ }}
-                        const parts = content.split('|').map(s => s.trim());
-                        if (parts.length > 1) {
-                            const varName = parts[0];
-                            const pipeline = parts.slice(1).join(' | ');
-                            transformations[varName] = pipeline;
-                        }
-                    });
+        for (const [_paramName, paramValue] of Object.entries(user_params)) {
+          if (typeof paramValue === 'string') {
+            const transformMatch = paramValue.match(/\{\{([^}]+)\}\}/g);
+            if (transformMatch) {
+              transformMatch.forEach((match) => {
+                const content = match.slice(2, -2).trim(); // Remove {{ }}
+                const parts = content.split('|').map((s) => s.trim());
+                if (parts.length > 1) {
+                  const varName = parts[0];
+                  const pipeline = parts.slice(1).join(' | ');
+                  transformations[varName] = pipeline;
                 }
+              });
             }
+          }
         }
 
         const transformedActionParams: Record<string, ParameterValue> = {
@@ -169,7 +169,7 @@ export class AreaService {
               value: result.value,
             } as ParameterValue;
             this.logger.log(
-              `Transformed parameter ${paramName}: "${originalValue}" -> "${result.value}" using pipeline: ${pipeline}`,
+              `Transformed parameter ${paramName}: "${String(originalValue)}" -> "${String(result.value)}" using pipeline: ${pipeline}`,
             );
           } else {
             this.logger.warn(
@@ -185,25 +185,32 @@ export class AreaService {
           const current = reaction_in_params[key];
           if (!current || typeof current.value !== 'string') return;
           let current_value = current.value;
-          
+
           // First, replace {{variable | pipeline}} with transformed values
           const transformPattern = /\{\{([^}]+)\}\}/g;
           current_value = current_value.replace(
             transformPattern,
             (match: string, content: string): string => {
-              const parts = content.split('|').map(s => s.trim());
+              const parts = content.split('|').map((s) => s.trim());
               const varName = parts[0];
-              
-              if (Object.prototype.hasOwnProperty.call(transformedActionParams, varName)) {
+
+              if (
+                Object.prototype.hasOwnProperty.call(
+                  transformedActionParams,
+                  varName,
+                )
+              ) {
                 const replacement = transformedActionParams[varName]?.value;
-                return typeof replacement === 'string' || typeof replacement === 'number' || typeof replacement === 'boolean' 
-                  ? String(replacement) 
+                return typeof replacement === 'string' ||
+                  typeof replacement === 'number' ||
+                  typeof replacement === 'boolean'
+                  ? String(replacement)
                   : match;
               }
               return match;
-            }
+            },
           );
-          
+
           // Then, replace simple $(variable) patterns
           const var_pattern = /\$\(([^)]+)\)/g;
           current_value = current_value.replace(
