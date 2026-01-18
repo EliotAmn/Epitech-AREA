@@ -119,7 +119,7 @@ export default class ClickUpService implements ServiceDefinition {
   });
   oauth_callback = oauth_callback;
   logo =
-    'https://cdn.brandfetch.io/idU6lzwMYA/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B';
+    'https://clickup.com/assets/brand/v4/Logomark-gradient.svg';
   color = '#7B68EE';
   description =
     'Connect your ClickUp workspace to automate task management and project workflows.';

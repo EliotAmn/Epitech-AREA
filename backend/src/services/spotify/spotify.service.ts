@@ -8,11 +8,21 @@ import axios, { AxiosError } from 'axios';
 
 import { ServiceDefinition } from '@/common/service.types';
 import { buildServiceRedirectUrl, buildUrlParameters } from '@/common/tools';
+import { DeviceChanged } from '@/services/spotify/actions/device-changed';
+import { PlaybackProgressPassed } from '@/services/spotify/actions/playback-progress-passed';
 import { PlayingStateUpdated } from '@/services/spotify/actions/playing-state-updated';
+import { SpecificItemPlaying } from '@/services/spotify/actions/specific-item-playing';
 import { TrackChanged } from '@/services/spotify/actions/track-changed';
+import { VolumeChanged } from '@/services/spotify/actions/volume-changed';
+import { AddToPlaylist } from '@/services/spotify/reactions/add-to-playlist';
 import { PlayPause } from '@/services/spotify/reactions/play-pause';
+import { SaveTrack } from '@/services/spotify/reactions/save-track';
+import { Seek } from '@/services/spotify/reactions/seek';
+import { SetRepeat } from '@/services/spotify/reactions/set-repeat';
+import { SetShuffle } from '@/services/spotify/reactions/set-shuffle';
 import { SetVolume } from '@/services/spotify/reactions/set-volume';
 import { SkipTrack } from '@/services/spotify/reactions/skip-track';
+import { StartPlayback } from '@/services/spotify/reactions/start-playback';
 
 const logger = new Logger('SpotifyService');
 
@@ -121,11 +131,28 @@ export default class SpotifyService implements ServiceDefinition {
     response_type: 'code',
     redirect_uri: buildServiceRedirectUrl('spotify'),
     scope:
-      'user-read-playback-state user-modify-playback-state user-read-currently-playing',
+      'user-read-playback-state user-modify-playback-state user-read-currently-playing user-library-modify playlist-modify-public playlist-modify-private',
   });
   oauth_callback = oauth_callback;
   description =
     'Connect your Spotify account to automate music-related tasks and enhance your listening experience.';
-  actions = [PlayingStateUpdated, TrackChanged];
-  reactions = [PlayPause, SkipTrack, SetVolume];
+  actions = [
+    PlayingStateUpdated,
+    TrackChanged,
+    VolumeChanged,
+    DeviceChanged,
+    SpecificItemPlaying,
+    PlaybackProgressPassed,
+  ];
+  reactions = [
+    PlayPause,
+    SkipTrack,
+    SetVolume,
+    SaveTrack,
+    AddToPlaylist,
+    Seek,
+    StartPlayback,
+    SetRepeat,
+    SetShuffle,
+  ];
 }

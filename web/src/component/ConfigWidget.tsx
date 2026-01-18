@@ -91,32 +91,50 @@ export default function ConfigWidget({
                         Available Variables & Transformations
                     </h4>
                 </div>
-                
+
                 {/* Usage Instructions */}
                 <div className="text-[12px] text-gray-600 text-left font-semibold mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200">
                     <p className="mb-2">
-                        Use <span className="font-mono bg-white px-1 rounded">$(variable_name)</span> to insert values
+                        Use{" "}
+                        <span className="font-mono bg-white px-1 rounded">
+                            $(variable_name)
+                        </span>{" "}
+                        to insert values
                     </p>
                     <p>
-                        Use <span className="font-mono bg-white px-1 rounded">{"{{variable | transformation}}"}</span> to transform values
+                        Use{" "}
+                        <span className="font-mono bg-white px-1 rounded">
+                            {"{{variable | transformation}}"}
+                        </span>{" "}
+                        to transform values
                     </p>
                 </div>
 
                 {/* Available Variables */}
                 <div className="w-full mb-4">
-                    <h5 className="text-sm font-bold text-gray-700 mb-2">Variables</h5>
+                    <h5 className="text-sm font-bold text-gray-700 mb-2">
+                        Variables
+                    </h5>
                     <div className="bg-white/80 border border-white/30 rounded-xl p-3 shadow-sm">
                         <div className="w-full text-left text-gray-800 space-y-2">
                             {outputParams.map((p) => (
-                                <div key={p.name} className="flex flex-col border-b border-gray-100 last:border-0 pb-2 last:pb-0">
+                                <div
+                                    key={p.name}
+                                    className="flex flex-col border-b border-gray-100 last:border-0 pb-2 last:pb-0"
+                                >
                                     <div className="flex items-center gap-2">
                                         <button
                                             type="button"
                                             onClick={() => {
                                                 // Insert variable syntax at cursor - we'll handle this in the parent
-                                                const event = new CustomEvent('insertVariable', { 
-                                                    detail: { variable: p.name } 
-                                                });
+                                                const event = new CustomEvent(
+                                                    "insertVariable",
+                                                    {
+                                                        detail: {
+                                                            variable: p.name,
+                                                        },
+                                                    }
+                                                );
                                                 window.dispatchEvent(event);
                                             }}
                                             className="font-mono text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"

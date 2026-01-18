@@ -160,7 +160,7 @@ export default class AirtableService implements ServiceDefinition {
   name = 'airtable';
   label = 'Airtable';
   color = '#a4e5ff';
-  logo = 'https://logosandtypes.com/wp-content/uploads/2022/04/airtable.svg';
+  logo = 'https://v5.airtableusercontent.com/v3/u/49/49/1768780800000/gVmSeoQ9w41OtQEJFPijEg/sEBMQEnxGhJhfYT-QpbkdHdJJ6rMFQ1T_BGbhv6qpmJNCiE47JTsXsiAF-SxqWDIKqYTQP9etZWC_h-OBQ1C3Hs94rc13EBYRByCIWviAFKpajrxN0kTvWUTZkAbtxkHZHwMeUx2kjkZzsPEvVIVyQ/vvTOOw32eTSSarYARj05KC7tnozLRowxBuBUGj3giu4';
   mandatory_env_vars = ['AIRTABLE_CLIENT_ID', 'AIRTABLE_CLIENT_SECRET'];
 
   get oauth_url(): string {
