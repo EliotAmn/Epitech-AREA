@@ -48,6 +48,20 @@ class AreaService {
             dto
         );
     }
+
+    async toggleEnabled(id: string) {
+        return apiClient.patch(
+            `${this.endpoint}/${encodeURIComponent(id)}/toggle`,
+            {}
+        );
+    }
+
+    async testArea(id: string) {
+        return apiClient.post(
+            `${this.endpoint}/${encodeURIComponent(id)}/test`,
+            {}
+        );
+    }
 }
 
 export const areaService = new AreaService();
