@@ -9,6 +9,7 @@ import {
   ServiceDefinition,
   ServiceReactionDefinition,
 } from '@/common/service.types';
+import { executePipeline } from '@/common/transformation-engine';
 import { ServiceImporterService } from '@/modules/service_importer/service_importer.service';
 import { OAuthError } from '@/modules/user_service/token-refresh.errors';
 import { TokenRefreshService } from '@/modules/user_service/token-refresh.service';
@@ -126,27 +127,108 @@ export class AreaService {
           }
         });
 
+        // Apply transformations to action output parameters
+        // Extract transformations from {{variable | pipeline}} syntax in reaction params
+        const transformations: Record<string, string> = {};
+
+        // Parse user params for {{}} patterns
+        for (const [_paramName, paramValue] of Object.entries(user_params)) {
+          if (typeof paramValue === 'string') {
+            const transformMatch = paramValue.match(/\{\{([^}]+)\}\}/g);
+            if (transformMatch) {
+              transformMatch.forEach((match) => {
+                const content = match.slice(2, -2).trim(); // Remove {{ }}
+                const parts = content.split('|').map((s) => s.trim());
+                if (parts.length > 1) {
+                  const varName = parts[0];
+                  const pipeline = parts.slice(1).join(' | ');
+                  transformations[varName] = pipeline;
+                }
+              });
+            }
+          }
+        }
+
+        const transformedActionParams: Record<string, ParameterValue> = {
+          ...action_out_params,
+        };
+
+        for (const [paramName, pipeline] of Object.entries(transformations)) {
+          if (!pipeline || typeof pipeline !== 'string') continue;
+
+          // Get the original value
+          const originalValue = action_out_params[paramName]?.value;
+          if (originalValue === undefined || originalValue === null) continue;
+
+          // Execute transformation pipeline
+          const result = executePipeline(originalValue, pipeline);
+
+          if (result.success) {
+            transformedActionParams[paramName] = {
+              type: action_out_params[paramName].type,
+              value: result.value,
+            } as ParameterValue;
+            this.logger.log(
+              `Transformed parameter ${paramName}: "${String(originalValue)}" -> "${String(result.value)}" using pipeline: ${pipeline}`,
+            );
+          } else {
+            this.logger.warn(
+              `Transformation failed for parameter ${paramName} with pipeline "${pipeline}": ${result.error}`,
+            );
+            // Keep original value on error
+          }
+        }
+
+        // Use transformed parameters for variable substitution
+        // Also replace {{variable | pipeline}} patterns with transformed values
         Object.keys(reaction_in_params).forEach((key) => {
           const current = reaction_in_params[key];
           if (!current || typeof current.value !== 'string') return;
-          const current_value = current.value;
+          let current_value = current.value;
+
+          // First, replace {{variable | pipeline}} with transformed values
+          const transformPattern = /\{\{([^}]+)\}\}/g;
+          current_value = current_value.replace(
+            transformPattern,
+            (match: string, content: string): string => {
+              const parts = content.split('|').map((s) => s.trim());
+              const varName = parts[0];
+
+              if (
+                Object.prototype.hasOwnProperty.call(
+                  transformedActionParams,
+                  varName,
+                )
+              ) {
+                const replacement = transformedActionParams[varName]?.value;
+                return typeof replacement === 'string' ||
+                  typeof replacement === 'number' ||
+                  typeof replacement === 'boolean'
+                  ? String(replacement)
+                  : match;
+              }
+              return match;
+            },
+          );
+
+          // Then, replace simple $(variable) patterns
           const var_pattern = /\$\(([^)]+)\)/g;
-          const replaced = current_value.replace(
+          current_value = current_value.replace(
             var_pattern,
             (_match: string, var_name: string): string => {
               if (
                 Object.prototype.hasOwnProperty.call(
-                  action_out_params,
+                  transformedActionParams,
                   var_name,
                 )
               ) {
-                const replacement = action_out_params[var_name]?.value;
+                const replacement = transformedActionParams[var_name]?.value;
                 return typeof replacement === 'string' ? replacement : _match;
               }
               return _match;
             },
           );
-          reaction_in_params[key].value = replaced;
+          reaction_in_params[key].value = current_value;
         });
 
         this.logger.log(
