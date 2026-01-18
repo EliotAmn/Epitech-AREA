@@ -60,7 +60,9 @@ export default function Widget({
 }: WidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [isPressed, setIsPressed] = useState(false);
-    const [testState, setTestState] = useState<"idle" | "loading" | "success">("idle");
+    const [testState, setTestState] = useState<"idle" | "loading" | "success">(
+        "idle"
+    );
     const iconSrc = getPlatformIcon(platform);
     const samePlatform = !reactionPlatform || platform === reactionPlatform;
 
@@ -136,7 +138,11 @@ export default function Widget({
                 }
             }}
             onKeyDown={(e) => {
-                if ((e.key === "Enter" || e.key === " ") && !e.repeat && !disabled) {
+                if (
+                    (e.key === "Enter" || e.key === " ") &&
+                    !e.repeat &&
+                    !disabled
+                ) {
                     e.preventDefault();
                     setIsPressed(true);
                 }
@@ -189,7 +195,7 @@ export default function Widget({
                 ) : null}
             </div>
             {(areaId && onToggleEnabled) || (areaId && onTest) ? (
-                <div 
+                <div
                     className="absolute top-3 right-3 flex items-center gap-2 z-20"
                     onClick={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
@@ -210,7 +216,10 @@ export default function Widget({
                             />
                             <div className="w-7 h-7 bg-white/90 border-2 border-white rounded-md peer-checked:bg-green-500 peer-checked:border-green-500 transition-all duration-200 flex items-center justify-center shadow-lg">
                                 {enabled && (
-                                    <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                                    <Check
+                                        className="w-5 h-5 text-white"
+                                        strokeWidth={3}
+                                    />
                                 )}
                             </div>
                         </label>
