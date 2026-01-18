@@ -54,7 +54,7 @@ class AreaDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -69,7 +69,7 @@ class AreaDetailPage extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.indigo.withOpacity(0.08),
+                              color: Colors.indigo.withValues(alpha: 0.08),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -273,8 +273,8 @@ class AreaDetailPage extends StatelessWidget {
     final onColor = isLight ? Colors.black87 : Colors.white;
     final onColorMuted = isLight ? Colors.black54 : Colors.white70;
     final chipColor = isLight
-        ? Colors.white.withOpacity(0.85)
-        : Colors.white.withOpacity(0.14);
+        ? Colors.white.withValues(alpha: 0.85)
+        : Colors.white.withValues(alpha: 0.14);
 
     return Container(
       width: double.infinity,
@@ -283,7 +283,7 @@ class AreaDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: baseColor.withOpacity(0.28),
+            color: baseColor.withValues(alpha: 0.28),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),

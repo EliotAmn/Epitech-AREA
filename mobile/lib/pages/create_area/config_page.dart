@@ -54,11 +54,11 @@ class _ConfigPageState extends State<ConfigPage> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -83,7 +83,7 @@ class _ConfigPageState extends State<ConfigPage> {
               Color(int.parse('0xFF${widget.serviceColor.substring(1)}')),
               Color(
                 int.parse('0xFF${widget.serviceColor.substring(1)}'),
-              ).withOpacity(0.8),
+              ).withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -152,7 +152,7 @@ class _ConfigPageState extends State<ConfigPage> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 10,
                                 offset: const Offset(0, 2),
                               ),
@@ -213,7 +213,7 @@ class _ConfigPageState extends State<ConfigPage> {
                                         int.parse(
                                           '0xFF${widget.serviceColor.substring(1)}',
                                         ),
-                                      ).withOpacity(0.1),
+                                      ).withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(
@@ -292,7 +292,7 @@ class _ConfigPageState extends State<ConfigPage> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -311,7 +311,7 @@ class _ConfigPageState extends State<ConfigPage> {
                                               int.parse(
                                                 '0xFF${widget.serviceColor.substring(1)}',
                                               ),
-                                            ).withOpacity(0.1),
+                                            ).withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
@@ -399,7 +399,7 @@ class _ConfigPageState extends State<ConfigPage> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                   ),
@@ -450,7 +450,7 @@ class _ConfigPageState extends State<ConfigPage> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.green.withOpacity(0.4),
+                                color: Colors.green.withValues(alpha: 0.4),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),

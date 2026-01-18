@@ -41,7 +41,7 @@ class ServiceDetailsPage extends StatelessWidget {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -58,7 +58,7 @@ class ServiceDetailsPage extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [serviceColor, serviceColor.withOpacity(0.7)],
+                    colors: [serviceColor, serviceColor.withValues(alpha: 0.7)],
                   ),
                 ),
                 child: Center(
@@ -71,16 +71,16 @@ class ServiceDetailsPage extends StatelessWidget {
                             placeholderBuilder: (_) => Icon(
                               Icons.apps,
                               size: 120,
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                             ),
                           )
                         : Image.network(
                             service.logo,
                             height: 120,
-                            errorBuilder: (_, __, ___) => Icon(
+                            errorBuilder: (_, _, _) => Icon(
                               Icons.apps,
                               size: 120,
-                              color: Colors.white.withOpacity(0.5),
+                              color: Colors.white.withValues(alpha: 0.5),
                             ),
                           ),
                   ),
@@ -97,10 +97,10 @@ class ServiceDetailsPage extends StatelessWidget {
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: serviceColor.withOpacity(0.1),
+                  color: serviceColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: serviceColor.withOpacity(0.3),
+                    color: serviceColor.withValues(alpha: 0.3),
                     width: 2,
                   ),
                 ),
@@ -128,12 +128,12 @@ class ServiceDetailsPage extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [serviceColor, serviceColor.withOpacity(0.8)],
+                      colors: [serviceColor, serviceColor.withValues(alpha: 0.8)],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: serviceColor.withOpacity(0.3),
+                        color: serviceColor.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -188,7 +188,7 @@ class ServiceDetailsPage extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -271,7 +271,7 @@ class ServiceDetailsPage extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.purple.withOpacity(0.1),
+                          color: Colors.purple.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(

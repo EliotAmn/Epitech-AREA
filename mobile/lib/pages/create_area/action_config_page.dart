@@ -86,11 +86,11 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -113,7 +113,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
               Color(int.parse('0xFF${serviceColor.substring(1)}')),
               Color(
                 int.parse('0xFF${serviceColor.substring(1)}'),
-              ).withOpacity(0.8),
+              ).withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -205,7 +205,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -224,7 +224,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                                               int.parse(
                                                 '0xFF${serviceColor.substring(1)}',
                                               ),
-                                            ).withOpacity(0.1),
+                                            ).withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
@@ -335,7 +335,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                   ),
@@ -383,7 +383,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                                 ),
                                 Color(
                                   int.parse('0xFF${serviceColor.substring(1)}'),
-                                ).withOpacity(0.8),
+                                ).withValues(alpha: 0.8),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(16),
@@ -391,7 +391,7 @@ class _ActionConfigPageState extends State<ActionConfigPage> {
                               BoxShadow(
                                 color: Color(
                                   int.parse('0xFF${serviceColor.substring(1)}'),
-                                ).withOpacity(0.4),
+                                ).withValues(alpha: 0.4),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
