@@ -207,7 +207,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,enable=${{ !startsWith(github.ref, 'refs/tags/v') }}
             type=raw,value=latest,enable=${{ needs.detect_changes.outputs.release_type == 'production' }}
             type=raw,value=latest-dev,enable=${{ needs.detect_changes.outputs.release_type == 'development' }}
             type=raw,value=${{ needs.detect_changes.outputs.release_type }}
