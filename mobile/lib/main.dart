@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     final appTheme = FThemes.zinc;
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'AÉRA',
       theme: appTheme.light.toApproximateMaterialTheme(),
       builder: (_, child) => FToaster(
         child: FAnimatedTheme(data: appTheme.light, child: child!),
