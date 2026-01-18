@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+
 import { Zap } from "lucide-react";
+
 import transformationService from "@/services/api/transformationService";
 import type { TransformationMetadata } from "@/services/types/transformationTypes";
 
 export default function TransformationsList() {
-    const [transformations, setTransformations] = useState<TransformationMetadata[]>([]);
+    const [transformations, setTransformations] = useState<
+        TransformationMetadata[]
+    >([]);
 
     useEffect(() => {
         let mounted = true;
@@ -43,7 +47,8 @@ export default function TransformationsList() {
                                         `(${transform.parameters.map((p) => p.name).join(", ")})`}
                                 </code>
                                 <span className="text-[10px] text-gray-500 whitespace-nowrap">
-                                    {transform.inputTypes.join(" | ")} → {transform.outputType}
+                                    {transform.inputTypes.join(" | ")} →{" "}
+                                    {transform.outputType}
                                 </span>
                             </div>
                             <p className="text-gray-600 mb-2 text-xs">
@@ -56,13 +61,19 @@ export default function TransformationsList() {
                                     </p>
                                     <ul className="space-y-1 ml-2">
                                         {transform.parameters.map((param) => (
-                                            <li key={param.name} className="text-[10px] text-gray-600">
+                                            <li
+                                                key={param.name}
+                                                className="text-[10px] text-gray-600"
+                                            >
                                                 <code className="font-mono font-semibold">
                                                     {param.name}
                                                 </code>
                                                 {param.required && (
-                                                    <span className="text-red-500">*</span>
-                                                )}: {param.description}
+                                                    <span className="text-red-500">
+                                                        *
+                                                    </span>
+                                                )}
+                                                : {param.description}
                                             </li>
                                         ))}
                                     </ul>

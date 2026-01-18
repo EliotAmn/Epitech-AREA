@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
+
 import { Info, Zap } from "lucide-react";
-import { useState, useEffect } from "react";
+
 import transformationService from "@/services/api/transformationService";
 import type { TransformationMetadata } from "@/services/types/transformationTypes";
 
@@ -51,7 +53,7 @@ export default function TransformationBuilder({
                     type="text"
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    placeholder="Ex: variable | split(&quot;:&quot;) | select(1) | clean"
+                    placeholder='Ex: variable | split(":") | select(1) | clean'
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">

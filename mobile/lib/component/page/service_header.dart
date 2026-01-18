@@ -68,7 +68,7 @@ class ServiceHeader extends StatelessWidget {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(25),
-                  onTap: isConnected ? null : onConnect,
+                  onTap: onConnect,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,

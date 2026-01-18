@@ -11,6 +11,44 @@ class OAuthPage {
 
   OAuthPage({required this.oauthUrl, required this.serviceName});
 
+  Future<bool> disconnectService(BuildContext context) async {
+    final String? apiSettingsUrl = await cache.ApiSettingsStore().loadApiUrl();
+    final String? toggleToken = await cache.AuthStore().loadToken();
+
+    try {
+      final response = await http.delete(
+        Uri.parse('$apiSettingsUrl/services/$serviceName'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $toggleToken',
+        },
+      );
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$serviceName disconnected successfully!')),
+        );
+        return true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Disconnection failed: ${response.body}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error disconnecting service: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Network error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+  }
+
   /// Initiates OAuth flow and returns true if successful, false otherwise
   Future<bool> initiateOAuthFlow(BuildContext context) async {
     final Uri oauthUri = Uri.parse(oauthUrl);

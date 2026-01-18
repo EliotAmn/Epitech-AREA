@@ -74,11 +74,7 @@ function App() {
                                 />
                                 <Route
                                     path="/oauth-service-proxy/:service_name"
-                                    element={
-                                        <ProtectedRoute>
-                                            <OAuthServiceProxy />
-                                        </ProtectedRoute>
-                                    }
+                                    element={<OAuthServiceProxy />}
                                 />
                                 <Route
                                     path="/signup"
