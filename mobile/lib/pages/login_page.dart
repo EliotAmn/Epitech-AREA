@@ -255,7 +255,7 @@ class _LoginModalContentState extends State<_LoginModalContent> {
     String provider,
   ) async {
     final redirectUrl =
-        '${await cache.ApiSettingsStore().loadApiUrl()}/auth/$provider';
+        '${await cache.ApiSettingsStore().loadApiUrl()}/auth/$provider?client_type=mobile';
 
     if (!mounted) return;
 

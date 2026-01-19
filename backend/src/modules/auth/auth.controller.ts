@@ -71,17 +71,26 @@ export class AuthController {
 
   @Get('google')
   @ApiOperation({ summary: 'Start Google OAuth flow' })
+  @ApiQuery({
+    name: 'client_type',
+    required: false,
+    description: 'Client type: mobile or web (defaults to web)',
+  })
   @ApiResponse({ status: 302, description: 'Redirects to Google consent page' })
-  googleAuth(@Res() res: Response) {
+  googleAuth(
+    @Query('client_type') clientType: string | undefined,
+    @Res() res: Response,
+  ) {
     const clientID = this.configService.get<string>('GOOGLE_CLIENT_ID');
     const appUrl = this.configService.get<string>('APP_URL') || '';
     if (!clientID) throw new BadRequestException('Google OAuth not configured');
 
     const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/google/redirect`;
     const scope = encodeURIComponent('email profile https://mail.google.com/');
+    const state = encodeURIComponent(clientType || 'web');
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
       clientID,
-    )}&redirect_uri=${encodeURIComponent(callbackURL)}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+    )}&redirect_uri=${encodeURIComponent(callbackURL)}&response_type=code&scope=${scope}&state=${state}&access_type=offline&prompt=consent`;
     return res.redirect(url);
   }
 
@@ -94,6 +103,7 @@ export class AuthController {
   async googleRedirect(
     @Query('code') code: string,
     @Query('error') error: string,
+    @Query('state') state: string | undefined,
   ) {
     if (error) throw new BadRequestException(error);
     if (!code) throw new BadRequestException('Missing code');
@@ -160,22 +170,31 @@ export class AuthController {
       expires_in: expiresIn,
     };
 
-    return this.handleProviderRedirect('google', { user: profile });
+    return this.handleProviderRedirect('google', { user: profile }, state);
   }
 
   @Get('github')
   @ApiOperation({ summary: 'Start GitHub OAuth flow' })
+  @ApiQuery({
+    name: 'client_type',
+    required: false,
+    description: 'Client type: mobile or web (defaults to web)',
+  })
   @ApiResponse({ status: 302, description: 'Redirects to GitHub consent page' })
-  githubAuth(@Res() res: Response) {
+  githubAuth(
+    @Query('client_type') clientType: string | undefined,
+    @Res() res: Response,
+  ) {
     const clientID = this.configService.get<string>('GITHUB_CLIENT_ID');
     const appUrl = this.configService.get<string>('APP_URL') || '';
     if (!clientID) throw new BadRequestException('GitHub OAuth not configured');
 
     const callbackURL = `${appUrl.replace(/\/$/, '')}/auth/github/redirect`;
     const scope = encodeURIComponent('read:user user:email');
+    const state = encodeURIComponent(clientType || 'web');
     const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
       clientID,
-    )}&redirect_uri=${encodeURIComponent(callbackURL)}&scope=${scope}`;
+    )}&redirect_uri=${encodeURIComponent(callbackURL)}&scope=${scope}&state=${state}`;
     return res.redirect(url);
   }
 
@@ -188,6 +207,7 @@ export class AuthController {
   async githubRedirect(
     @Query('code') code: string,
     @Query('error') error: string,
+    @Query('state') state: string | undefined,
   ) {
     if (error) throw new BadRequestException(error);
     if (!code) throw new BadRequestException('Missing code');
@@ -266,7 +286,7 @@ export class AuthController {
       raw: userResp.data,
     };
 
-    return this.handleProviderRedirect('github', { user: profile });
+    return this.handleProviderRedirect('github', { user: profile }, state);
   }
 
   @Get('oauth/consume')
@@ -333,6 +353,7 @@ export class AuthController {
   private async handleProviderRedirect(
     provider: string,
     req: { user?: unknown },
+    clientType?: string,
   ) {
     const profile = req.user;
     if (!profile) throw new BadRequestException('Invalid provider response');
@@ -342,10 +363,18 @@ export class AuthController {
       profile,
     );
 
-    const frontend =
-      this.configService.get<string>('MOBILE_URL') ||
-      this.configService.get<string>('FRONTEND_URL') ||
-      '*';
+    let frontend: string;
+    if (clientType === 'mobile') {
+      frontend =
+        this.configService.get<string>('MOBILE_URL') ||
+        this.configService.get<string>('FRONTEND_URL') ||
+        '*';
+    } else {
+      frontend =
+        this.configService.get<string>('FRONTEND_URL') ||
+        this.configService.get<string>('MOBILE_URL') ||
+        '*';
+    }
     const origin = frontend === '*' ? '*' : frontend.replace(/\/$/, '');
 
     const grant = this.oauthService.createGrant(result.access_token);
